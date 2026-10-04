@@ -298,7 +298,37 @@ Une classe est elle-même un objet spécial.
 
 Les métaclasses ne sont pas supportées.
 
+Les classes primitives  de miniTalk sont organisées de la façon suivante :
 
+```text
+Object
+  │
+  ├─── Class
+  ├─── Number 
+  │      │
+  │      ├─── Integer
+  │      └─── Float
+  ├─── Collection
+  │         │
+  │         ├─── Array
+  │         └─── Dictionary
+  ├─── Stream
+  ├─── Command
+  ├─── Process
+  ├─── Block
+  ├─── String
+  ├─── Symbol
+  ├─── Boolean
+  │      │
+  │      ├─── True
+  │      └─── False
+  │
+  └─── Nil
+```
+
+Cette hiérarchie décrit les classes MiniTalk.
+
+Elle ne préjuge pas de la hiérarchie Java utilisée pour les implémenter.
 
 ---
 
@@ -306,87 +336,125 @@ Les métaclasses ne sont pas supportées.
 ## Une classe contient
 
 
-### Métadonnées
-
-
-
 ```text
 
+id
 name
-
 superclass
 
-```
-
-
-
-### Variables d'instance
-
-
-
-```text
-
 instVars
-
-```
-
-Référence les variables d'instance à valoriser dans l'objet, stockées sous forme d'un array de symboles.
-
-
-
-Exemple :
-
-
-
-```smalltalk
-
-#pid
-
-#stdout
-
-#stderr
-
-```
-
-
-
-### Variables de classe
-
-
-
-```text
-
 classVars
 
-```
-
-Référence les variables de classe, valorisées dans la classe elle-même, stockées en interne sous la forme d'un dictionnaire.
-
-
-### Méthodes d'instance
-
-
-
-```text
-
 instMethods
+classMethods
+```
+
+
+is, name et superclass sont des metadonnées.
+* **id** l'identifiant unique de l'objet courant
+* **name** indique le nom de la classe.
+* **superclass** pointe sur la classe parente dans la hiérarchie
+
+
+Les variables sont stockées dans instVars et classVars.
+
+* **instVars** référence les variables d'instance à valoriser dans l'objet final. C'est un Array de symboles.
+
+  Exemple :
+
+
+  ```smalltalk
+  #pid
+  #stdout
+  #stderr
+  ```
+
+* **classVars** référence les variables de classe ET leurs valeurs. C'est un dictionnaire de type clé/valeurs avec pour les clés des symboles, et pour les valeurs des objets.
+
+
+Les méthodes seront elles aussi distinguées en deux types :
+* **instMethods** : un dictionnaires référençant les méthodes s'appliquant aux instances
+* **classMethods** : un dictionnaire référençant les méthodes s'appliquant aux classes
+
+En Java, l'implémentation de la classe sera donc :
+
+```java
+public final class MTClass
+        implements MTObject {
+    private final int    id;
+    private final String name;
+    private final MTClass superclass;
+    private final List<MTSymbol> instVars;
+    private final Map<MTSymbol, MTObject> classVars;
+    private final Map<MTSymbol, MTMethod> instMethods;
+    private final Map<MTSymbol, MTMethod> classMethods;
+}
+```
+
+A noter que les méthodes peuvent être de deux types :
+* en java natif pour les méthodes initiées par le bootstrap
+* en blocks miniTalk, pour les méthodes définies dans miniTalk lui-même
+
+```java
+MTNativeMethod
+MTBlockMethod
+```
+
+## les Instances
+
+Les instances de la classe Classe exceptées, toutes les instances de classes sont des objets ordinaires dérivés eux aussi de MTObject, dont la classe Java parente est MTInstance.
+
+Une instance contient donc au minimum :
+* un id unique
+* la classe parente
+* la liste de ses propriétés et de leurs valeurs
+
+```java
+public final class MTInstance
+        implements MTObject {
+
+    private final int     id;
+    
+    private final MTClass mtClass;
+
+    private final Map<MTSymbol, MTObject> properties;
+}
 
 ```
 
-Référence les méthodes d'instances
+---
 
+## Runtime Bootstrap
 
-### Méthodes de classe
+Les classes fondamentales du runtime (Object, Class, Integer, String, etc.)
+sont bootstrapées en Java.
 
-
+Au démarrage :
 
 ```text
-
-classMethods
-
+create Object
+create Class
+wire Object/Class relationship
+create Nil
+create Boolean
+create Integer
+...
 ```
 
-Référence les méthodes d'instances
+Dans ce bootstrap, en termes de relation (exprimée ici en miniTalk, mais à implémenté en Java) :
+```smalltalk
+Object  class: Class.
+Object  super: nil.
+Class   class: Class.
+Class   super: Object.
+```
+et Class auront un mtClass pointant sur Class (une détection des boucles dans le lookup sera à prévoir)
+
+Leurs comportements initiaux sont implémentés par des MTNativeMethod.
+
+Les classes utilisateur peuvent ensuite ajouter des méthodes définies en MiniTalk.
+
+
 
 ---
 
@@ -643,7 +711,21 @@ array size
 
 ```
 
+Note importante concernant les opérateurs : 
 
+contrairement à Smalltalk qui les considérent comme des messages binaires normaux pouvant s'enchaîner les uns après les autres, ceux-ci suivent les règles de précédence usuelles définies dans d'autres langages comme le C ou Java. Ainsi :
+
+```smalltalk
+1 + 2 * 3
+```
+
+aura pour résultat : 7, car l'expression sera interprétée :  1 + (2 * 3), et non comme (1 + 2) * 3, ce qui aurait donné le chiffre 9.
+
+Les règles de précédence des opérateurs sont les suivantes, de la plus élevée à la moins élevée :
+* '\+', '\-' : les opérateurs unaires donnant le signe d'un nombre (-6, +5.34, etc)
+* '\*\*' : puissance ( exemple : 2 ** 7 )
+* '\*', '\/', '\%' : multiplication et division, modulo (reste de la division entière)
+* '\+', '\-' : addition et soustraction
 
 ---
 
@@ -664,6 +746,26 @@ dict at: #name put: 'Bob'
 ```
 
 
+---
+
+# Résolution des messages
+
+Lorsqu'un objet normal reçoit un message :
+
+1. recherche dans les méthodes de sa classe;
+2. recherche dans les méthodes de sa superclasse;
+3. poursuite jusqu'à Object.
+
+Si aucune méthode n'est trouvée : MTMessageNotUnderstoodException
+
+
+Lorsqu'une classe reçoit un message :
+
+1. recherche dans ses méthodes de classe,
+2. recherche dans les méthodes de classe de la superclasse;
+3. poursuite jusqu'à Object.
+
+Si aucune méthode n'est trouvée : MTMessageNotUnderstoodException
 
 ---
 
@@ -768,6 +870,85 @@ Ils sont utilisés notamment pour :
 - itérations.
 
 
+
+---
+
+# Les Scopes et la sortie de bloc
+
+On ne peut parler de blocs, sans s'interroger sur deux mécanismes importants :
+* la valorisation des variables d'un bloc à un autre. C'est ce que se propose de gérer les scopes.
+* le retour des valeurs. Comme tout objet, un bloc retourne une valeur, laquelle et comment ?
+
+## les scopes
+
+
+Chaque bloc exécuté possède un scope.
+
+Un scope contient :
+
+- les variables locales du bloc ;
+- une référence vers son scope parent.
+
+Représentation interne :
+
+```java
+public final class MTScope {
+
+    private final MTScope parent;
+
+    private final Map<MTSymbol, MTObject> variables;
+}
+```
+
+Lorsqu'une variable est recherchée :
+
+1. scope courant
+2. scope parent
+3. scope parent du parent
+4. etc.
+
+Lorsqu'une variable est assignée :
+
+* si elle existe dans un scope visible : mise à jour de cette variable
+* sinon : création dans le scope courant
+
+
+## le retour ^
+
+'^' est utilisé pour sortir d'un bloc en émettant une valeur.
+
+Contrairement à smalltalk, '^', en miniTalk, a été pensé pour uniquement sortir du bloc courant, et non remonter toute la chaîne des blocs. 
+
+Ainsi si on rencontre :
+
+```smalltalk
+[
+  ^42.
+  99
+]
+```
+La valeur résultante de l'exécution de ce bloc sera : 42
+
+
+Second exemple :
+
+```smalltalk
+[
+  v <- [
+    ^42.
+    99
+  ] value.
+  
+  v <- v + 20.
+  ^v.
+  
+  999
+] value.
+
+```
+En smalltalk natif, le retour de ce bloc serait : 42, car on sortirait immédiatement, également, de tous les blocs englobants. 
+
+En miniTalk, il sera : 62, car le calcul contuinue dans le bloc englobant.
 
 ---
 
@@ -936,9 +1117,17 @@ L'opérateur => représente une association clé/valeur.
 
 
 
-Les symboles sont internés.
+Les symboles sont internés. Ils sont représenté dans un objet Symbole par la seule chaîne de caractères sans le '#' du début.
 
+'#' ne sert que pour le parser pour reconnaître un symbole.
 
+Un symbole correspond à une chaine unique de caractères. Il ne peut y avoir
+deux symboles différents portant des chaînes de caractères identiques lorsqu'on les
+compare caractère par caractère.
+
+Cela signifie qu'à chaque création de nouveau symbole, il faut rechercher s'il n'existe
+aucun symbole portant la même chaîne de caractères. Si le symbole existe déjà,
+c'est lui qui sera retourné.
 
 Exemple :
 
@@ -967,20 +1156,41 @@ true
 ---
 
 
+# Commandes -> Process -> Stream
+
+Dans le schéma suivant, **stdin**, **stdout**, **stderr** sont des instances de MTStream.
+
+stdin est le flux en entrée du MTProcess créé à partir de la MTCommand, tandis que stdout et stderr sont les flux de sortie et d'erreur du MTProcess.
+
+```text
+                                  MTStream
+                               /-----------\
+                               |           |
+                          +------< stdin   |
+                          |    |           |
+MTCommand --> MTProcess --+------> stdout  |
+                          |    |           |
+                          +------> stderr  |
+                               |           |
+                               \-----------/
+```
 
 # Commandes
 
-
+Un commande est une chaîne de caractère décrivant un programme Unix et l'ensemble de ses
+arguments ... ou une succession chaînées de programmes et de leurs arguments.
 
 Création d'une commande :
-
-
 
 ```smalltalk
 
 cmd := 'ls -la' asCommand.
 
 ```
+
+> Note : ne pas oublier de rajouter une méthode `#asCommand` sur le type String qui permet de créer
+l'objet commande.
+
 
 ou
 
