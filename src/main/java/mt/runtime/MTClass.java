@@ -65,4 +65,52 @@ public final class MTClass
     public void setSuperclass(MTClass superclass) {
         this.superclass = superclass;
     }
+
+    public MTMethod lookup(MTSymbol selector, boolean classSide) {
+        MTClass current = this;
+
+        while (current != null) {
+            MTMethod method;
+
+            if (classSide) {
+                method = current.classMethods.get(selector);
+            }
+            else {
+                method = current.instMethods.get(selector);
+            }
+
+            if (method != null) {
+                return method;
+            }
+
+            current = current.superclass;
+        }
+
+        return null;
+    }
+
+    public void addInstanceMethod(MTSymbol selector,MTMethod method) {
+        instMethods.put(selector, method);
+    }
+
+    public MTMethod lookupInstanceMethod(MTSymbol selector) {
+        MTClass current = this;
+
+        while (current != null) {
+            MTMethod method = current.instMethods.get(selector);
+
+            if (method != null) {
+                return method;
+            }
+            current = current.superclass;
+        }
+        return null;
+    }
+
+    public MTMethod lookupClassMethod(MTSymbol selector) {
+        return lookup(selector, true);
+    }
+
+
+
 }

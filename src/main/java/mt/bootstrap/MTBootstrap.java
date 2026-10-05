@@ -1,6 +1,9 @@
 package mt.bootstrap;
 
 import mt.runtime.MTClass;
+import mt.runtime.MTDummyMethod;
+import mt.runtime.MTMethod;
+import mt.runtime.MTSymbol;
 
 public final class MTBootstrap {
 
@@ -31,6 +34,12 @@ public final class MTBootstrap {
 
         System.out.println("Class = " + classClass.getName());
         System.out.println("Class.class = " + classClass.getMTClass().getName());
+
+        MTSymbol selector = MTSymbol.intern("test");
+
+        MTMethod method = objectClass.lookupInstanceMethod(selector);
+
+        System.out.println(method == null);
     }
 
     public MTClass getObjectClass() {
