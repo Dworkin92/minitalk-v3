@@ -2,8 +2,11 @@ package mt.bootstrap;
 
 import mt.runtime.MTClass;
 import mt.runtime.MTDummyMethod;
+import mt.runtime.MTInstance;
 import mt.runtime.MTMethod;
+import mt.runtime.MTObject;
 import mt.runtime.MTSymbol;
+import mt.runtime.exceptions.MTException;
 
 public final class MTBootstrap {
 
@@ -39,8 +42,28 @@ public final class MTBootstrap {
 
         objectClass.addInstanceMethod(selector, new MTDummyMethod());
 
+        MTInstance obj = new MTInstance(objectClass);
+
+        try {
+            MTObject result = obj.send(MTSymbol.intern("test"));
+            System.out.println(result == obj);
+        }
+        catch (MTException e) {
+            e.printStackTrace();
+        }
+
+
+        /* 
         MTMethod method = objectClass.lookupInstanceMethod(selector);
         System.out.println("lookup(test) != null : " + (method != null));
+
+        try {
+            method.invoke(null);
+        }
+        catch (MTException e) {
+            e.printStackTrace();
+        }
+        */
     }
 
     public MTClass getObjectClass() {

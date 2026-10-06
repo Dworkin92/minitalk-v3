@@ -8,6 +8,8 @@ public final class MTDummyMethod
             MTObject receiver,
             MTObject... arguments) {
 
-        return null;
+        //System.out.println("Receiver class = " + receiver.getMTClass().getName());
+
+        return receiver;
     }
 }

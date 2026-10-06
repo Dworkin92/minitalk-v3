@@ -76,26 +76,30 @@ sur le mécanisme de lookup.
 
 # 06/10/2026
 
-Ouverture d'un journal pour noter l'état d'avancement du projet.
-
 
 ## ETAT ACTUEL
 
 ✅ Maven configuré
+
 ✅ Java 25 configuré
+
 ✅ VS Code opérationnel
+
 ✅ Git / GitHub / SSH opérationnels
+
 
 ✅ Bootstrap Object/Class
 
     Object.class = Class
     Class.class = Class
 
+
 ✅ MTSymbol
 
     intern("name")
 
     s1 == s2 => true
+
 
 ✅ Lookup
 
@@ -106,53 +110,110 @@ Ouverture d'un journal pour noter l'état d'avancement du projet.
         -> superclasse
         -> ...
 
+
 ✅ Enregistrement de méthodes
 
     addInstanceMethod()
+
 
 ✅ Lookup de méthodes enregistrées
 
     lookup(test) != null => true
 
 
-## PROCHAIN OBJECTIF
-
-Exécuter une méthode retrouvée par lookup.
-
-Objectif :
-
-    lookup(selector)
-        -> MTMethod
+✅ Invocation de méthodes
 
     MTMethod.invoke(...)
 
-Pas de parser.
-Pas d'AST.
-Pas de blocs.
-Pas de process.
-Pas de streams.
+    exécution effective
+    d'une méthode native
+
+
+✅ Envoi de messages
+
+    MTInstance.send(...)
+
+    chaîne validée :
+
+        send()
+            -> lookup()
+            -> invoke()
+
+    retour de valeur validé :
+
+        result == receiver
+            => true
+
+
+## PROCHAIN OBJECTIF
+
+Nettoyage du modèle d'exceptions.
+
+Question ouverte :
+
+    MTException
+        extends Exception
+
+ou
+
+    MTException
+        extends RuntimeException
+
+Éviter la prolifération de :
+
+    throws MTException
+
+et des
+
+    try / catch
+
+dans le runtime.
 
 
 ## TEST ATTENDU
 
-objectClass.addInstanceMethod(
-    testSelector,
-    ...)
-    
-MTMethod method =
-    objectClass.lookupInstanceMethod(
-        testSelector);
+Version RuntimeException :
 
-method.invoke(...)
+    method.invoke(...)
 
-=> exécution effective de la méthode
+ne nécessite plus de :
+
+    try {
+        ...
+    }
+    catch (...)
+
+Les erreurs MiniTalk restent
+signalées via MTException.
 
 
 ## OBJECTIF SUIVANT (pas maintenant)
 
-Brancher MTObject.send()
-sur le mécanisme :
+Première méthode native utile.
 
-    selector
-        -> lookup
-        -> invoke
+Exemples possibles :
+
+    identity
+
+ou
+
+    class
+
+retournant une véritable valeur
+MiniTalk plutôt qu'un simple message
+de débogage.
+
+
+## ENSEIGNEMENTS
+
+- MiniTalk n'est pas Smalltalk.
+- Un objectif = un test = un commit.
+- Construire le runtime avant le parser.
+- Les symboles sont internés.
+- Le dispatch de messages fonctionne :
+
+      receiver
+          -> send()
+          -> lookup()
+          -> invoke()
+          -> return
