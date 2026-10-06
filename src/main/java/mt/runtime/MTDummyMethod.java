@@ -8,9 +8,6 @@ public final class MTDummyMethod
             MTObject receiver,
             MTObject... arguments) {
 
-        System.out.println(
-                "MTDummyMethod invoked");
-
-        return receiver;
+        return null;
     }
 }

@@ -37,9 +37,10 @@ public final class MTBootstrap {
 
         MTSymbol selector = MTSymbol.intern("test");
 
-        MTMethod method = objectClass.lookupInstanceMethod(selector);
+        objectClass.addInstanceMethod(selector, new MTDummyMethod());
 
-        System.out.println(method == null);
+        MTMethod method = objectClass.lookupInstanceMethod(selector);
+        System.out.println("lookup(test) != null : " + (method != null));
     }
 
     public MTClass getObjectClass() {
