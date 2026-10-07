@@ -269,11 +269,25 @@ Chaîne validée :
 
     Object>>identity
 
-    obj identity
+      obj identity
 
-    => obj
+      => obj
 
 
-    result == obj
+      result == obj
     
-    => true
+      => true
+    
+✅ Première primitive native
+
+    Object>>identity
+
+✅ Deuxième primitive native
+
+    Object>>class
+    
+      obj identity == obj
+      => true
+
+      obj class == Object
+      => true
