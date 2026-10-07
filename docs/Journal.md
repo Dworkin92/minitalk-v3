@@ -8,8 +8,11 @@ Ouverture d'un journal pour noter l'état d'avancement du projet.
 
 
 ✅ Maven configuré
+
 ✅ Java 25 configuré
+
 ✅ VS Code opérationnel
+
 ✅ Git / GitHub / SSH opérationnels
 
 ✅ Bootstrap Object/Class
@@ -192,3 +195,85 @@ ou
           -> lookup()
           -> invoke()
           -> return
+
+## 07/10/2026
+
+### ETAT ACTUEL
+
+✅ Maven configuré
+
+✅ Java 25 configuré
+
+✅ VS Code opérationnel
+
+✅ Git / GitHub / SSH opérationnels
+
+✅ Bootstrap Object/Class
+
+    Object.class = Class
+    Class.class = Class
+
+✅ MTSymbol
+
+    intern("name")
+
+    s1 == s2 => true
+
+✅ Lookup
+
+    lookupInstanceMethod()
+
+    recherche dans :
+        classe courante
+        -> superclasse
+        -> ...
+
+✅ Enregistrement de méthodes
+
+    addInstanceMethod()
+
+✅ Lookup de méthodes enregistrées
+
+    lookup(test) != null => true
+
+✅ Invocation de méthodes
+
+    MTMethod.invoke(...)
+
+✅ Envoi de messages
+
+    MTInstance.send(...)
+
+✅ Retour de valeur
+
+    result == receiver
+        => true
+
+Chaîne validée :
+
+    send()
+        -> lookup()
+        -> invoke()
+        -> return
+
+✅ MTException
+
+    hérite de RuntimeException
+
+✅ Simplification du runtime
+
+    suppression des throws MTException
+    suppression des try/catch inutiles
+
+✅ Première primitive native
+
+    Object>>identity
+
+    obj identity
+
+    => obj
+
+
+    result == obj
+    
+    => true

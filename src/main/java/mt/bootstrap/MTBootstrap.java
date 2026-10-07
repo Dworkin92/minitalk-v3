@@ -7,6 +7,7 @@ import mt.runtime.MTMethod;
 import mt.runtime.MTObject;
 import mt.runtime.MTSymbol;
 import mt.runtime.exceptions.MTException;
+import mt.runtime.primitives.MTObjectPrimitives;
 
 public final class MTBootstrap {
 
@@ -40,13 +41,19 @@ public final class MTBootstrap {
 
         MTSymbol selector = MTSymbol.intern("test");
 
-        objectClass.addInstanceMethod(selector, new MTDummyMethod());
+        objectClass.addInstanceMethod(MTSymbol.intern("identity"),
+            MTObjectPrimitives::identity);
+        objectClass.addInstanceMethod(MTSymbol.intern("class"),
+            MTObjectPrimitives::mtClass);
 
         MTInstance obj = new MTInstance(objectClass);
 
-        MTObject result = obj.send(MTSymbol.intern("test"));
+        MTObject result = obj.send(MTSymbol.intern("identity"));
         System.out.println(result == obj);
 
+        result = obj.send(MTSymbol.intern("class"));
+        System.out.println("obj class  == Object " + (result == objectClass));
+        
         /* 
         MTMethod method = objectClass.lookupInstanceMethod(selector);
         System.out.println("lookup(test) != null : " + (method != null));
