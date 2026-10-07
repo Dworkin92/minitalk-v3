@@ -1,6 +1,6 @@
 package mt.runtime;
 
-import mt.runtime.exceptions.MTException;
+//import mt.runtime.exceptions.MTException;
 
 /**
  * Représente une méthode invocable.
@@ -21,5 +21,5 @@ public interface MTMethod {
     MTObject invoke(
             MTObject receiver,
             MTObject... arguments // A CORRIGER
-    ) throws MTException;
+    );
 }

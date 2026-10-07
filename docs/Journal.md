@@ -1,8 +1,10 @@
-# 05/10/2026
+# Journal de développement MiniTalk V3
+
+## 05/10/2026
 
 Ouverture d'un journal pour noter l'état d'avancement du projet.
 
-## ETAT ACTUEL
+### ETAT ACTUEL
 
 
 ✅ Maven configuré
@@ -34,7 +36,7 @@ Ouverture d'un journal pour noter l'état d'avancement du projet.
     testé sur méthode absente
 
 
-## PROCHAIN OBJECTIF
+### PROCHAIN OBJECTIF
 
 Enregistrer une méthode dans une classe
 et vérifier que le lookup la retrouve.
@@ -58,7 +60,7 @@ Seulement :
 retourne effectivement la méthode enregistrée.
 
 
-## TEST ATTENDU
+### TEST ATTENDU
 
 objectClass.addInstanceMethod(
     testSelector,
@@ -69,15 +71,14 @@ lookupInstanceMethod(testSelector)
 => méthode trouvée
 
 
-## OBJECTIF SUIVANT (pas maintenant)
+### OBJECTIF SUIVANT (pas maintenant)
 
 Brancher MTObject.send()
 sur le mécanisme de lookup.
 
-# 06/10/2026
+## 06/10/2026
 
-
-## ETAT ACTUEL
+### ETAT ACTUEL
 
 ✅ Maven configuré
 
@@ -87,19 +88,16 @@ sur le mécanisme de lookup.
 
 ✅ Git / GitHub / SSH opérationnels
 
-
 ✅ Bootstrap Object/Class
 
     Object.class = Class
     Class.class = Class
-
 
 ✅ MTSymbol
 
     intern("name")
 
     s1 == s2 => true
-
 
 ✅ Lookup
 
@@ -110,42 +108,36 @@ sur le mécanisme de lookup.
         -> superclasse
         -> ...
 
-
 ✅ Enregistrement de méthodes
 
     addInstanceMethod()
-
 
 ✅ Lookup de méthodes enregistrées
 
     lookup(test) != null => true
 
-
 ✅ Invocation de méthodes
 
     MTMethod.invoke(...)
-
-    exécution effective
-    d'une méthode native
-
 
 ✅ Envoi de messages
 
     MTInstance.send(...)
 
-    chaîne validée :
+✅ Retour de valeur
 
-        send()
-            -> lookup()
-            -> invoke()
+    result == receiver
+        => true
 
-    retour de valeur validé :
+Chaîne validée :
 
-        result == receiver
-            => true
+    send()
+        -> lookup()
+        -> invoke()
+        -> return
 
 
-## PROCHAIN OBJECTIF
+### PROCHAIN OBJECTIF
 
 Nettoyage du modèle d'exceptions.
 
@@ -159,35 +151,22 @@ ou
     MTException
         extends RuntimeException
 
-Éviter la prolifération de :
 
-    throws MTException
+### TEST ATTENDU
 
-et des
+Les appels :
+
+    send(...)
+    invoke(...)
+
+ne nécessitent plus de :
 
     try / catch
 
-dans le runtime.
+systématiques dans le runtime.
 
 
-## TEST ATTENDU
-
-Version RuntimeException :
-
-    method.invoke(...)
-
-ne nécessite plus de :
-
-    try {
-        ...
-    }
-    catch (...)
-
-Les erreurs MiniTalk restent
-signalées via MTException.
-
-
-## OBJECTIF SUIVANT (pas maintenant)
+### OBJECTIF SUIVANT (pas maintenant)
 
 Première méthode native utile.
 
@@ -199,12 +178,8 @@ ou
 
     class
 
-retournant une véritable valeur
-MiniTalk plutôt qu'un simple message
-de débogage.
 
-
-## ENSEIGNEMENTS
+### ENSEIGNEMENTS
 
 - MiniTalk n'est pas Smalltalk.
 - Un objectif = un test = un commit.

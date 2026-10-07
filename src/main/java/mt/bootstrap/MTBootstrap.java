@@ -44,14 +44,8 @@ public final class MTBootstrap {
 
         MTInstance obj = new MTInstance(objectClass);
 
-        try {
-            MTObject result = obj.send(MTSymbol.intern("test"));
-            System.out.println(result == obj);
-        }
-        catch (MTException e) {
-            e.printStackTrace();
-        }
-
+        MTObject result = obj.send(MTSymbol.intern("test"));
+        System.out.println(result == obj);
 
         /* 
         MTMethod method = objectClass.lookupInstanceMethod(selector);

@@ -1,6 +1,6 @@
 package mt.runtime;
 
-import mt.runtime.exceptions.MTException;
+//import mt.runtime.exceptions.MTException;
 
 /**
  * Interface racine de tous les objets MiniTalk.
@@ -18,7 +18,7 @@ public interface MTObject {
     MTObject send(
             MTSymbol selector,
             MTObject... arguments //A CORRIGER
-    ) throws MTException;
+    );
 
     /**
      * Comparaison d'identite.
@@ -31,7 +31,7 @@ public interface MTObject {
     /**
      * Retourne une representation textuelle.
      */
-    MTString asString() throws MTException;
+    MTString asString();
 
     /**
      * true uniquement pour Nil.

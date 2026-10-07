@@ -1,7 +1,7 @@
 package mt.runtime.exceptions;
 
 public class MTException
-        extends Exception {
+        extends RuntimeException {
 
     public MTException(String message) {
         super(message);
