@@ -20,7 +20,7 @@ public final class Main {
 
         MTSymbol s2 = MTSymbol.intern("name");
 
-        MTSymbol selector = MTSymbol.intern("test");
+        //MTSymbol selector = MTSymbol.intern("test");
 
         System.out.println("s1 == s2 : " + (s1 == s2));
 

@@ -6,6 +6,7 @@ import mt.runtime.MTInstance;
 import mt.runtime.MTMethod;
 import mt.runtime.MTObject;
 import mt.runtime.MTSymbol;
+import mt.runtime.MTNil;
 import mt.runtime.exceptions.MTException;
 import mt.runtime.primitives.MTObjectPrimitives;
 
@@ -15,13 +16,15 @@ public final class MTBootstrap {
 
     private MTClass classClass;
 
+    private MTClass nilClass;
+
     public void initialize() {
 
-        objectClass =
-                new MTClass("Object", null);
+        objectClass = new MTClass("Object", null);
 
-        classClass =
-                new MTClass("Class", objectClass);
+        classClass = new MTClass("Class", objectClass);
+
+        nilClass = new MTClass("Nil", objectClass);
 
         //
         // Relation fondamentale
@@ -32,6 +35,9 @@ public final class MTBootstrap {
 
         classClass.setSuperclass(objectClass);
         classClass.setMTClass(classClass);
+
+        MTNil nil = MTNil.instance();
+        nil.setMTClass(nilClass);
 
         System.out.println("Object = " + objectClass.getName());
         System.out.println("Object.class = " + objectClass.getMTClass().getName());
@@ -53,7 +59,9 @@ public final class MTBootstrap {
 
         result = obj.send(MTSymbol.intern("class"));
         System.out.println("obj class  == Object " + (result == objectClass));
-        
+
+        System.out.println(nil.isNil());
+
         /* 
         MTMethod method = objectClass.lookupInstanceMethod(selector);
         System.out.println("lookup(test) != null : " + (method != null));
