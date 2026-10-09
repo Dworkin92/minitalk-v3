@@ -1,14 +1,14 @@
 package mt.bootstrap;
 
+import mt.runtime.MTBoolean;
 import mt.runtime.MTClass;
-import mt.runtime.MTDummyMethod;
-import mt.runtime.MTInstance;
-import mt.runtime.MTMethod;
+import mt.runtime.MTNil;
 import mt.runtime.MTObject;
 import mt.runtime.MTSymbol;
-import mt.runtime.MTNil;
-import mt.runtime.exceptions.MTException;
+import mt.runtime.primitives.MTBooleanPrimitives;
+import mt.runtime.primitives.MTNilPrimitives;
 import mt.runtime.primitives.MTObjectPrimitives;
+import mt.runtime.primitives.MTPrimitiveInstaller;
 
 public final class MTBootstrap {
 
@@ -18,17 +18,18 @@ public final class MTBootstrap {
 
     private MTClass nilClass;
 
+    private MTClass booleanClass;
+
     public void initialize() {
 
+        //
+        // Relations fondamentales
+        //
+
         objectClass = new MTClass("Object", null);
-
         classClass = new MTClass("Class", objectClass);
-
-        nilClass = new MTClass("Nil", objectClass);
-
-        //
-        // Relation fondamentale
-        //
+        nilClass   = new MTClass("Nil", objectClass);
+        booleanClass = new MTClass("Boolean", objectClass);
 
         objectClass.setSuperclass(null);
         objectClass.setMTClass(classClass);
@@ -36,43 +37,33 @@ public final class MTBootstrap {
         classClass.setSuperclass(objectClass);
         classClass.setMTClass(classClass);
 
-        MTNil nil = MTNil.instance();
-        nil.setMTClass(nilClass);
+        MTBoolean.TRUE.setMTClass(booleanClass);
+        MTBoolean.FALSE.setMTClass(booleanClass);
 
-        System.out.println("Object = " + objectClass.getName());
-        System.out.println("Object.class = " + objectClass.getMTClass().getName());
+        MTNil.instance().setMTClass(nilClass);
 
-        System.out.println("Class = " + classClass.getName());
-        System.out.println("Class.class = " + classClass.getMTClass().getName());
+        //
+        // Installation des primitives
+        // Chaque brique future = une ligne ici, rien d'autre.
+        //
 
-        MTSymbol selector = MTSymbol.intern("test");
+        MTPrimitiveInstaller.install(objectClass, MTObjectPrimitives.class);
+        MTPrimitiveInstaller.install(nilClass,    MTNilPrimitives.class);
+        MTPrimitiveInstaller.install(booleanClass, MTBooleanPrimitives.class);
 
-        objectClass.addInstanceMethod(MTSymbol.intern("identity"),
-            MTObjectPrimitives::identity);
-        objectClass.addInstanceMethod(MTSymbol.intern("class"),
-            MTObjectPrimitives::mtClass);
+        smokeTest();
+    }
 
-        MTInstance obj = new MTInstance(objectClass);
+    private void smokeTest() {
 
-        MTObject result = obj.send(MTSymbol.intern("identity"));
-        System.out.println(result == obj);
+        MTObject nil = MTNil.instance();
+        MTObject obj = new mt.runtime.MTInstance(objectClass);
 
-        result = obj.send(MTSymbol.intern("class"));
-        System.out.println("obj class  == Object " + (result == objectClass));
-
-        System.out.println(nil.isNil());
-
-        /* 
-        MTMethod method = objectClass.lookupInstanceMethod(selector);
-        System.out.println("lookup(test) != null : " + (method != null));
-
-        try {
-            method.invoke(null);
-        }
-        catch (MTException e) {
-            e.printStackTrace();
-        }
-        */
+        System.out.println("Object            = " + objectClass.getName());
+        System.out.println("Object.class      = " + objectClass.getMTClass().getName());
+        System.out.println("nil isNil         = " + nil.send(MTSymbol.intern("isNil")));
+        System.out.println("obj notNil        = " + obj.send(MTSymbol.intern("notNil")));
+        System.out.println("nil ifNil: (42)   = " + nil.send(MTSymbol.intern("ifNil:"), obj));
     }
 
     public MTClass getObjectClass() {
@@ -81,5 +72,9 @@ public final class MTBootstrap {
 
     public MTClass getClassClass() {
         return classClass;
+    }
+
+    public MTClass getNilClass() {
+        return nilClass;
     }
 }

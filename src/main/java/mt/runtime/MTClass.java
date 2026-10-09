@@ -93,6 +93,10 @@ public final class MTClass
         instMethods.put(selector, method);
     }
 
+    public void addClassMethod(MTSymbol selector, MTMethod method) {
+        classMethods.put(selector, method);
+    }
+
     public MTMethod lookupInstanceMethod(MTSymbol selector) {
         MTClass current = this;
 

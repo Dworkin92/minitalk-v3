@@ -1,5 +1,7 @@
 package mt.runtime;
 
+import mt.runtime.exceptions.MTException;
+
 public final class MTNil
         implements MTObject {
 
@@ -17,7 +19,7 @@ public final class MTNil
 
     @Override
     public MTClass getMTClass() {
-        return null;
+        return mtClass;
     }
 
     public void setMTClass(MTClass mtClass) {
@@ -29,12 +31,20 @@ public final class MTNil
             MTSymbol selector,
             MTObject... arguments) {
 
-        return null;
+        MTMethod method = mtClass.lookupInstanceMethod(selector);
+
+        if (method == null) {
+            throw new MTException(
+                "Message non compris : Nil >> " + selector);
+        }
+
+        return method.invoke(this, arguments);
     }
 
     @Override
     public MTString asString() {
-        return null;
+        // TODO : retourner une MTString "nil"
+        return new MTString("nil");
     }
 
     @Override
