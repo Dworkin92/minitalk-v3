@@ -28,3 +28,4 @@ public final class MTObjectPrimitives {
         return MTBoolean.of(!receiver.isNil());
     }
 }
+

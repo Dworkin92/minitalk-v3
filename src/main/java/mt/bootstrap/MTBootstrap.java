@@ -2,12 +2,15 @@ package mt.bootstrap;
 
 import mt.runtime.MTBoolean;
 import mt.runtime.MTClass;
+import mt.runtime.MTInteger;
 import mt.runtime.MTNil;
 import mt.runtime.MTObject;
 import mt.runtime.MTSymbol;
+
 import mt.runtime.primitives.MTBooleanPrimitives;
 import mt.runtime.primitives.MTNilPrimitives;
 import mt.runtime.primitives.MTObjectPrimitives;
+import mt.runtime.primitives.MTIntegerPrimitives;
 import mt.runtime.primitives.MTPrimitiveInstaller;
 
 public final class MTBootstrap {
@@ -20,6 +23,8 @@ public final class MTBootstrap {
 
     private MTClass booleanClass;
 
+    private MTClass integerClass;
+
     public void initialize() {
 
         //
@@ -30,6 +35,8 @@ public final class MTBootstrap {
         classClass = new MTClass("Class", objectClass);
         nilClass   = new MTClass("Nil", objectClass);
         booleanClass = new MTClass("Boolean", objectClass);
+        integerClass = new MTClass("Integer", objectClass);
+        MTInteger.bindClass(integerClass);
 
         objectClass.setSuperclass(null);
         objectClass.setMTClass(classClass);
@@ -50,6 +57,7 @@ public final class MTBootstrap {
         MTPrimitiveInstaller.install(objectClass, MTObjectPrimitives.class);
         MTPrimitiveInstaller.install(nilClass,    MTNilPrimitives.class);
         MTPrimitiveInstaller.install(booleanClass, MTBooleanPrimitives.class);
+        MTPrimitiveInstaller.install(integerClass, MTIntegerPrimitives.class);
 
         smokeTest();
     }
