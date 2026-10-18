@@ -10,6 +10,8 @@ public final class MTClass
 
     private String name;
 
+    private final MTContext context;
+
     private MTClass mtClass;
     private MTClass superclass;
 
@@ -20,9 +22,11 @@ public final class MTClass
     private Map<MTSymbol, MTMethod> classMethods;
 
     public MTClass(
+        MTContext context,
         String name,
         MTClass superclass) {
 
+            this.context = context;
             this.name = name;
             this.superclass = superclass;
 
@@ -31,6 +35,15 @@ public final class MTClass
 
             this.instMethods = new HashMap<>();
             this.classMethods = new HashMap<>();
+    }
+
+    /**
+     * Le contexte qui possede cette classe.
+     * Permet aux primitives de retrouver nil, true, false,
+     * et de fabriquer des objets sans aucun etat statique.
+     */
+    public MTContext getContext() {
+        return context;
     }
 
     @Override
@@ -61,7 +74,7 @@ public final class MTClass
     public MTClass getSuperclass() {
         return superclass;
     }
-    
+
     public void setSuperclass(MTClass superclass) {
         this.superclass = superclass;
     }

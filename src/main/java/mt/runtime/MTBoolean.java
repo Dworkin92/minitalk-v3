@@ -3,32 +3,23 @@ package mt.runtime;
 import mt.runtime.exceptions.MTException;
 
 /**
- * Booleen MiniTalk. Deux singletons : TRUE et FALSE.
- * Rattaches a la classe Boolean par le bootstrap.
+ * Booleen MiniTalk. Deux singletons possedes par le contexte
+ * (MTContext.trueObject() / falseObject()), rattaches a la
+ * classe Boolean au bootstrap.
  */
 public final class MTBoolean
         implements MTObject {
-
-    public static final MTBoolean TRUE =
-            new MTBoolean(true);
-
-    public static final MTBoolean FALSE =
-            new MTBoolean(false);
 
     private final boolean javaValue;
 
     private MTClass mtClass;
 
-    private MTBoolean(boolean javaValue) {
+    MTBoolean(boolean javaValue) {
         this.javaValue = javaValue;
     }
 
     public boolean javaValue() {
         return javaValue;
-    }
-
-    public static MTBoolean of(boolean javaValue) {
-        return javaValue ? TRUE : FALSE;
     }
 
     public void setMTClass(MTClass mtClass) {

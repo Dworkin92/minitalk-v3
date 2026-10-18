@@ -2,28 +2,25 @@ package mt.runtime;
 
 import mt.runtime.exceptions.MTException;
 
+/**
+ * Nil MiniTalk. Singleton possede par le contexte
+ * (MTContext.nil()), rattache a la classe Nil au bootstrap.
+ */
 public final class MTNil
         implements MTObject {
 
     private MTClass mtClass;
 
-    private static final MTNil INSTANCE =
-            new MTNil();
-
-    private MTNil() {
+    MTNil() {
     }
 
-    public static MTNil instance() {
-        return INSTANCE;
+    public void setMTClass(MTClass mtClass) {
+        this.mtClass = mtClass;
     }
 
     @Override
     public MTClass getMTClass() {
         return mtClass;
-    }
-
-    public void setMTClass(MTClass mtClass) {
-        this.mtClass = mtClass;
     }
 
     @Override
@@ -43,7 +40,6 @@ public final class MTNil
 
     @Override
     public MTString asString() {
-        // TODO : retourner une MTString "nil"
         return new MTString("nil");
     }
 

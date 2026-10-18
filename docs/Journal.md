@@ -2,7 +2,7 @@
 
 ## Etat courant
 
-- Bootstrap Object/Class
+- MTContext : les classes fondamentales, les singletons et le registre des classes vivent dans un contexte instanciable (MTContext.newStandard()). Plus aucun état statique dans les classes du runtime ; MTBootstrap n'est qu'un point d'entrée. 
 - MTSymbol
 - Dispatch de messages
 - MTPrimitiveInstaller (@Primitive, réflexion au bootstrap)
@@ -17,6 +17,11 @@
     - ifTrue:, ifFalse:, ifTrue:ifFalse:, and:, or:, not
 - MTString (champ + constructeur, toString)
 - Tests JUnit (4 verts)
+- MTInteger (fabrique of(int))
+    - + - * / %, negated
+    - = == < > <= >=
+    - asString, yourself
+- 12 tests JUnit verts
 
 ## Chronologie
 
@@ -65,11 +70,50 @@
 - Session en binome avec Vibe (revue d'erreurs au compile : addClassMethod,
   champ booleanClass, placement MTString, signature des primitives).
 
-### Prochain objectif
+### 11/10/2026
 
+- MTInteger : une instance par valeur, fabrique of(int), primitives
+  arithmetiques (+ - * / %, negated), comparaisons (= == < > <= >=),
+  asString, yourself.
+- Division par zero : MTException.
+- '==' sur identité stricte assumée (pas de cache d'entiers).
+- Decision de design : a terme, plus aucun static d'etat ; toutes les
+  classes vivront dans un MTKernel (scope global objet, comme imagine
+  en v1). Refactoring prevu au moment de la brique Block (MTScope).
 
-- MTInteger : singletons inutiles, MTInteger.of(int), primitives arithmétiques
-  (+ - * / %, comparaisons = == < > <= >=, asString).
-- Puis : MTString en classe, MTScope/MTBlock (ifNil: invoquera de vrais blocs).
-- Réduire progressivement l'utilisation de null dans le runtime
+### 18/10/2026
+
+- Refactoring MTContext : les classes fondamentales et les
+  singletons (nil, TRUE, FALSE) quittent les champs statiques
+  (MTInteger.bindClass, MTBoolean.TRUE, MTNil.instance) pour
+  vivre dans un MTContext instanciable. Un contexte = un monde ;
+  deux contexts coexistent sans interference.
+- Noyau en acces direct (objectClass, classClass, nilClass,
+  booleanClass, integerClass), toutes les classes dans un registre
+  Map<MTSymbol, MTClass> (registerClass / lookupClass) qui
+  accueillera les classes futures (String, Array, etc.).
+- MTClass porte une reference vers son contexte : les primitives
+  retrouvent nil / TRUE / FALSE et fabriquent les objets via le
+  contexte du receiver, plus aucun etat statique.
+- Fabriques : MTContext.newInteger(int), newBoolean(boolean),
+  nil(), trueObject(), falseObject().
+- MTBootstrap allege : il construit un MTContext standard et
+  delegue (getContext(), getObjectClass(), ...).
+- Suppression du code mort dans MTInteger (ancien of() commente).
+- Tests passes au contexte (MTContext.newStandard() en @BeforeAll)
+  + nouveau test : deux contexts independants (nil et trueObject
+  distincts entre contexts).
+- Vocabulaire : le mot "image" est reserve au snapshot disque
+  d'un runtime ; notre contexte n'a aucune notion de persistance.
+  Decision notee : MTContext, pas MTImage.
+  
+## Prochain objectif
+
+- MTBlock / MTScope pour que ifNil:, ifTrue: invoquent de vrais
+  blocs (le contexte rendra les scopes imbriques naturels : chaque
+  bloc reference le contexte).
+- Puis : MTString en classe (registre du contexte).
+- Reduire progressivement l'utilisation de null dans le runtime
   (MTClass.send, MTClass.asString, MTString.send restent a null).
+  
+  

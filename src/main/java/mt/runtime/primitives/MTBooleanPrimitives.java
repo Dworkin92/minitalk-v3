@@ -1,13 +1,17 @@
 package mt.runtime.primitives;
 
 import mt.runtime.MTBoolean;
+import mt.runtime.MTContext;
 import mt.runtime.MTMethod;
 import mt.runtime.MTObject;
-import mt.runtime.MTNil;
 
 public final class MTBooleanPrimitives {
 
     private MTBooleanPrimitives() {
+    }
+
+    private static MTContext context(MTObject receiver) {
+        return receiver.getMTClass().getContext();
     }
 
     @Primitive("ifTrue:")
@@ -18,7 +22,7 @@ public final class MTBooleanPrimitives {
         MTBoolean self = (MTBoolean) receiver;
         return self.javaValue()
                 ? evaluate(arguments[0], receiver)
-                : MTNil.instance();
+                : context(self).nil();
     }
 
     @Primitive("ifFalse:")
@@ -28,7 +32,7 @@ public final class MTBooleanPrimitives {
 
         MTBoolean self = (MTBoolean) receiver;
         return self.javaValue()
-                ? MTNil.instance()
+                ? context(self).nil()
                 : evaluate(arguments[0], receiver);
     }
 
@@ -50,7 +54,7 @@ public final class MTBooleanPrimitives {
 
         MTBoolean self = (MTBoolean) receiver;
         MTBoolean other = (MTBoolean) arguments[0];
-        return MTBoolean.of(
+        return context(self).newBoolean(
             self.javaValue() && other.javaValue());
     }
 
@@ -61,7 +65,7 @@ public final class MTBooleanPrimitives {
 
         MTBoolean self = (MTBoolean) receiver;
         MTBoolean other = (MTBoolean) arguments[0];
-        return MTBoolean.of(
+        return context(self).newBoolean(
             self.javaValue() || other.javaValue());
     }
 
@@ -71,7 +75,7 @@ public final class MTBooleanPrimitives {
             MTObject... arguments) {
 
         MTBoolean self = (MTBoolean) receiver;
-        return MTBoolean.of(!self.javaValue());
+        return context(self).newBoolean(!self.javaValue());
     }
 
     //

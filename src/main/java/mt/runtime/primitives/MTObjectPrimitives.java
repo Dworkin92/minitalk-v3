@@ -1,11 +1,15 @@
 package mt.runtime.primitives;
 
-import mt.runtime.MTBoolean;
+import mt.runtime.MTContext;
 import mt.runtime.MTObject;
 
 public final class MTObjectPrimitives {
 
     private MTObjectPrimitives() {
+    }
+
+    private static MTContext context(MTObject receiver) {
+        return receiver.getMTClass().getContext();
     }
 
     @Primitive("identity")
@@ -20,12 +24,11 @@ public final class MTObjectPrimitives {
 
     @Primitive("isNil")
     public static MTObject isNil(MTObject receiver, MTObject... arguments) {
-        return MTBoolean.of(receiver.isNil());
+        return context(receiver).newBoolean(receiver.isNil());
     }
 
     @Primitive("notNil")
     public static MTObject notNil(MTObject receiver, MTObject... arguments) {
-        return MTBoolean.of(!receiver.isNil());
+        return context(receiver).newBoolean(!receiver.isNil());
     }
 }
-

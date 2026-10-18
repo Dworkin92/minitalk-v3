@@ -1,8 +1,7 @@
 package mt.runtime.primitives;
 
-import mt.runtime.MTBoolean;
+import mt.runtime.MTContext;
 import mt.runtime.MTMethod;
-import mt.runtime.MTNil;
 import mt.runtime.MTObject;
 import mt.runtime.MTString;
 
@@ -11,12 +10,16 @@ public final class MTNilPrimitives {
     private MTNilPrimitives() {
     }
 
+    private static MTContext context(MTObject receiver) {
+        return receiver.getMTClass().getContext();
+    }
+
     @Primitive("isNil")
     public static MTObject isNil(
             MTObject receiver,
             MTObject... arguments) {
 
-        return MTBoolean.of(receiver.isNil());
+        return context(receiver).newBoolean(receiver.isNil());
     }
 
     @Primitive("notNil")
@@ -24,7 +27,7 @@ public final class MTNilPrimitives {
             MTObject receiver,
             MTObject... arguments) {
 
-        return MTBoolean.of(!receiver.isNil());
+        return context(receiver).newBoolean(!receiver.isNil());
     }
 
     /**
@@ -52,7 +55,7 @@ public final class MTNilPrimitives {
     }
 
     /**
-     * ifNotNil: unArgument — symetrique de ifNil:
+     * ifNotNil: unArgument - symetrique de ifNil:
      */
     @Primitive("ifNotNil:")
     public static MTObject ifNotNil(
@@ -81,7 +84,7 @@ public final class MTNilPrimitives {
             MTObject receiver,
             MTObject... arguments) {
 
-        return MTBoolean.of(
+        return context(receiver).newBoolean(
             receiver.identityEquals(arguments[0]));
     }
 

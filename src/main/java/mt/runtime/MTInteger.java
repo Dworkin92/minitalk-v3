@@ -4,48 +4,22 @@ import mt.runtime.exceptions.MTException;
 
 /**
  * Entier MiniTalk. Pas de singleton : une instance par valeur.
- * Fabrique : MTInteger.of(int).
+ * Fabrique : MTContext.newInteger(int).
  */
 public final class MTInteger
         implements MTObject {
 
     private final int javaValue;
 
-    private MTClass mtClass;
+    private final MTClass mtClass;
 
-    private static MTClass integerClass;
-
-
-    private MTInteger(int javaValue) {
+    MTInteger(MTClass mtClass, int javaValue) {
+        this.mtClass = mtClass;
         this.javaValue = javaValue;
-    }
-
-    /**
-     * Appele par le bootstrap : relie la fabrique
-     * a la classe MiniTalk Integer.
-     */
-    public static void bindClass(MTClass mtClass) {
-        integerClass = mtClass;
     }
 
     public int javaValue() {
         return javaValue;
-    }
-
-    public static MTInteger of(int javaValue) {
-        MTInteger instance = new MTInteger(javaValue);
-        instance.mtClass = integerClass;
-        return instance;
-    }
-    /*
-
-    public static MTInteger of(int javaValue) {
-        return new MTInteger(javaValue);
-    }
-    */
-
-    public void setMTClass(MTClass mtClass) {
-        this.mtClass = mtClass;
     }
 
     @Override

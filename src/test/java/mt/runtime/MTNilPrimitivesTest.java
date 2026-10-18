@@ -5,35 +5,32 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import mt.bootstrap.MTBootstrap;
-
 public class MTNilPrimitivesTest {
 
-    private static MTBootstrap bootstrap;
+    private static MTContext context;
 
     @BeforeAll
     static void setup() {
-        bootstrap = new MTBootstrap();
-        bootstrap.initialize();
+        context = MTContext.newStandard();
     }
 
     @Test
     void nilRepondIsNil() {
-        MTObject nil = MTNil.instance();
+        MTObject nil = context.nil();
         MTObject result = nil.send(MTSymbol.intern("isNil"));
-        // assert depends de la brique Boolean — voir option (a)/(b)
+        assertSame(context.trueObject(), result);
     }
 
     @Test
     void nilEstDeClasseNil() {
         assertEquals("Nil",
-            MTNil.instance().getMTClass().getName());
+            context.nil().getMTClass().getName());
     }
 
     @Test
     void lookupRemonteJusquAObject() {
         // isNil est defini sur Nil, identity sur Object :
-        MTMethod m = bootstrap.getNilClass()
+        MTMethod m = context.getNilClass()
             .lookupInstanceMethod(MTSymbol.intern("identity"));
         assertNotNull(m); // herite d'Object
     }
@@ -41,6 +38,6 @@ public class MTNilPrimitivesTest {
     @Test
     void messageNonComprisLeveUneException() {
         assertThrows(RuntimeException.class,
-            () -> MTNil.instance().send(MTSymbol.intern("kamoulox")));
+            () -> context.nil().send(MTSymbol.intern("kamoulox")));
     }
 }
