@@ -1,10 +1,11 @@
 package mt.runtime;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import mt.runtime.MTClass;
-
+import mt.runtime.primitives.MTBlockPrimitives;
 import mt.runtime.primitives.MTBooleanPrimitives;
 import mt.runtime.primitives.MTIntegerPrimitives;
 import mt.runtime.primitives.MTNilPrimitives;
@@ -31,7 +32,7 @@ public final class MTContext {
     private final MTClass nilClass;
     private final MTClass booleanClass;
     private final MTClass integerClass;
-
+    private final MTClass blockClass;      // <-- ajout
     //
     // Singletons du contexte
     //
@@ -55,6 +56,7 @@ public final class MTContext {
         nilClass     = new MTClass(this, "Nil", objectClass);
         booleanClass = new MTClass(this, "Boolean", objectClass);
         integerClass = new MTClass(this, "Integer", objectClass);
+        blockClass   = new MTClass(this, "Block", objectClass); 
 
         nil         = new MTNil();
         trueObject  = new MTBoolean(true);
@@ -72,6 +74,7 @@ public final class MTContext {
         registerClass(nilClass);
         registerClass(booleanClass);
         registerClass(integerClass);
+        registerClass(blockClass);
     }
 
     /**
@@ -95,6 +98,7 @@ public final class MTContext {
         MTPrimitiveInstaller.install(nilClass,      MTNilPrimitives.class);
         MTPrimitiveInstaller.install(booleanClass,  MTBooleanPrimitives.class);
         MTPrimitiveInstaller.install(integerClass,  MTIntegerPrimitives.class);
+        MTPrimitiveInstaller.install(blockClass,    MTBlockPrimitives.class); 
     }
 
     //
@@ -109,6 +113,14 @@ public final class MTContext {
         return javaValue ? trueObject : falseObject;
     }
 
+    
+    public MTBlock newBlock(
+        MTScope definingScope,
+        List<MTSymbol> parameters,
+        MTBlock.Body body) {
+        return new MTBlock(blockClass, definingScope, parameters, body);
+    }
+    
     public MTNil nil() {
         return nil;
     }
@@ -156,6 +168,10 @@ public final class MTContext {
 
     public MTClass getIntegerClass() {
         return integerClass;
+    }
+
+    public MTClass getBlockClass() {
+        return blockClass;
     }
 }
 

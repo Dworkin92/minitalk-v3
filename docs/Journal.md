@@ -22,7 +22,10 @@
     - = == < > <= >=
     - asString, yourself
 - 12 tests JUnit verts
-
+- MTBlock / MTScope : vrais blocs (fermetures), invoquables par
+  ifTrue:, ifFalse:, ifNil:, ifNotNil: ; corps = lambda Java
+  en attendant l'AST. value / value: sur la classe Block.
+  
 ## Chronologie
 
 ### 05/10/2026
@@ -106,14 +109,30 @@
 - Vocabulaire : le mot "image" est reserve au snapshot disque
   d'un runtime ; notre contexte n'a aucune notion de persistance.
   Decision notee : MTContext, pas MTImage.
-  
+
+### 20/10/2026
+
+- MTScope : portee lexicale chainee (define, lookup, assign,
+  extend). Un bloc est evalue dans une portee fille de sa
+  portee de definition.
+- MTBlock : fermeture, a la fois MTObject et MTMethod. Les
+  primitives existantes (ifTrue:, ifNil:, ...) invoquent donc
+  de vrais blocs sans aucune modification.
+- Corps du bloc : lambda Java (MTBlock.Body) pour l'instant,
+  remplacee par l'AST quand l'interpreteur existera.
+- Nouvelle classe Block dans le noyau du contexte + registre,
+  primitives value / value:, fabrique MTContext.newBlock(...).
+- Branchement 20/10 : travail sur la branche mtblock-mtscope
+  (workflow : switch -c, merge dans main si tests verts).
+- Tests : 9 nouveaux (parametres, fermeture, isolation des
+  portees, assign, arite, ifTrue:/ifNil: avec vrais blocs).
+
 ## Prochain objectif
 
-- MTBlock / MTScope pour que ifNil:, ifTrue: invoquent de vrais
-  blocs (le contexte rendra les scopes imbriques naturels : chaque
-  bloc reference le contexte).
+- whileTrue: / whileFalse: (boucles) sur Block, puis
+  l'AST/interpreteur pour que les blocs viennent du langage.
 - Puis : MTString en classe (registre du contexte).
-- Reduire progressivement l'utilisation de null dans le runtime
-  (MTClass.send, MTClass.asString, MTString.send restent a null).
+- Reduire les null restants (MTClass.send, MTClass.asString,
+  MTString.send).
   
   
