@@ -143,6 +143,16 @@
   sans modification. Corps = lambda Java (Body), AST plus tard.
 - MTScope : portee lexicale chainee, extend()/define()/lookup()/assign().
 - Premier test de fermeture : un bloc capture sa portee de definition.
+- MTClass : send() et asString() implementes (fini les null) ;
+  toString() retourne le nom de la classe.
+- MTInstance : asString() implemente ("an" + nom de classe).
+- MTBlockPrimitives : value / value: / value:value: fusionnes
+  en une seule methode (annotations repetables).
+- Suppression de MTDummyMethod et MTNativeMethod (fossiles).
+- Main.java : vraie demo du langage (bloc + value:).
+- Message d'erreur unifies en "Message non compris : X >> sel".
+- Notes ajoutees : and:/or: paresseux plus tard ; intern() seul
+  static assume.
 
 ## Prochain objectif
 
