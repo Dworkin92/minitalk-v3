@@ -98,7 +98,7 @@ public final class MTBlock
 
     @Override
     public MTString asString() {
-        return new MTString("aBlock");
+        return blockClass.getContext().newString("aBlock");
     }
 
     @Override

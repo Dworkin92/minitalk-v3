@@ -93,6 +93,6 @@ public final class MTNilPrimitives {
             MTObject receiver,
             MTObject... arguments) {
 
-        return new MTString("nil");
+        return context(receiver).newString("nil");
     }
 }

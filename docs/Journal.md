@@ -16,15 +16,19 @@
 - MTBoolean (singletons TRUE / FALSE)
     - ifTrue:, ifFalse:, ifTrue:ifFalse:, and:, or:, not
 - MTString (champ + constructeur, toString)
-- Tests JUnit (4 verts)
 - MTInteger (fabrique of(int))
     - + - * / %, negated
     - = == < > <= >=
     - asString, yourself
-- 12 tests JUnit verts
 - MTBlock / MTScope : vrais blocs (fermetures), invoquables par
   ifTrue:, ifFalse:, ifNil:, ifNotNil: ; corps = lambda Java
   en attendant l'AST. value / value: sur la classe Block.
+- MTContext (kernel : possede classes, singletons, fabriques, registre)
+- MTString (classe : concatenation, size, at:, comparaisons)
+- MTBlock (fermeture : implemente MTObject et MTMethod)
+- MTScope (portee lexicale : lookup/assign remontent la chaine)
+- MTBlockPrimitives (value, value:, value:value:)
+- 22 tests JUnit verts
   
 ## Chronologie
 
@@ -127,12 +131,24 @@
 - Tests : 9 nouveaux (parametres, fermeture, isolation des
   portees, assign, arite, ifTrue:/ifNil: avec vrais blocs).
 
+### 22/10/2026
+
+- MTString en classe : MTContext.newString(), concatenation (,),
+  size, at: (1-based, codepoint), = / ==, print.
+- Refactoring MTKernel realise sous forme de MTContext : toutes
+  les fabriques et singletons vivent dans le contexte, plus
+  aucun static d'etat. Un contexte = un monde.
+- MTBlock : fermeture implementant MTObject ET MTMethod — les
+  primitives existantes (ifTrue:, ifNil:) acceptent de vrais blocs
+  sans modification. Corps = lambda Java (Body), AST plus tard.
+- MTScope : portee lexicale chainee, extend()/define()/lookup()/assign().
+- Premier test de fermeture : un bloc capture sa portee de definition.
+
 ## Prochain objectif
 
-- whileTrue: / whileFalse: (boucles) sur Block, puis
-  l'AST/interpreteur pour que les blocs viennent du langage.
-- Puis : MTString en classe (registre du contexte).
-- Reduire les null restants (MTClass.send, MTClass.asString,
-  MTString.send).
-  
-  
+### Prochain objectif
+
+- Interpreter : parser un fichier .mt et l'executer (l'AST remplacera
+  les lambdas Java de MTBlock).
+- Enrichir : whileTrue:, ifTrue:ifFalse: en blocs ; Array.
+

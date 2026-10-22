@@ -44,7 +44,7 @@ public final class MTInteger
 
     @Override
     public MTString asString() {
-        return new MTString(String.valueOf(javaValue));
+        return mtClass.getContext().newString(String.valueOf(javaValue));
     }
 
     @Override

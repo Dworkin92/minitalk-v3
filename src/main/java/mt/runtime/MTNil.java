@@ -40,7 +40,8 @@ public final class MTNil
 
     @Override
     public MTString asString() {
-        return new MTString("nil");
+        //return new MTString("nil");
+        return mtClass.getContext().newString("nil");
     }
 
     @Override

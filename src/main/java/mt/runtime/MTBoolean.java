@@ -48,7 +48,8 @@ public final class MTBoolean
 
     @Override
     public MTString asString() {
-        return new MTString(javaValue ? "true" : "false");
+        //return new MTString(javaValue ? "true" : "false");
+        return mtClass.getContext().newString(javaValue ? "true" : "false");
     }
 
     @Override

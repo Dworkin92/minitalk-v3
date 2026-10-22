@@ -11,6 +11,7 @@ import mt.runtime.primitives.MTIntegerPrimitives;
 import mt.runtime.primitives.MTNilPrimitives;
 import mt.runtime.primitives.MTObjectPrimitives;
 import mt.runtime.primitives.MTPrimitiveInstaller;
+import mt.runtime.primitives.MTStringPrimitives;
 
 /**
  * Contexte MiniTalk : possede les classes fondamentales, les
@@ -32,7 +33,9 @@ public final class MTContext {
     private final MTClass nilClass;
     private final MTClass booleanClass;
     private final MTClass integerClass;
-    private final MTClass blockClass;      // <-- ajout
+    private final MTClass blockClass;
+    private final MTClass stringClass;
+
     //
     // Singletons du contexte
     //
@@ -56,7 +59,9 @@ public final class MTContext {
         nilClass     = new MTClass(this, "Nil", objectClass);
         booleanClass = new MTClass(this, "Boolean", objectClass);
         integerClass = new MTClass(this, "Integer", objectClass);
-        blockClass   = new MTClass(this, "Block", objectClass); 
+        stringClass  = new MTClass(this, "String", objectClass);
+        blockClass   = new MTClass(this, "Block", objectClass);
+
 
         nil         = new MTNil();
         trueObject  = new MTBoolean(true);
@@ -74,6 +79,7 @@ public final class MTContext {
         registerClass(nilClass);
         registerClass(booleanClass);
         registerClass(integerClass);
+        registerClass(stringClass);
         registerClass(blockClass);
     }
 
@@ -98,6 +104,7 @@ public final class MTContext {
         MTPrimitiveInstaller.install(nilClass,      MTNilPrimitives.class);
         MTPrimitiveInstaller.install(booleanClass,  MTBooleanPrimitives.class);
         MTPrimitiveInstaller.install(integerClass,  MTIntegerPrimitives.class);
+        MTPrimitiveInstaller.install(stringClass,   MTStringPrimitives.class);
         MTPrimitiveInstaller.install(blockClass,    MTBlockPrimitives.class); 
     }
 
@@ -113,6 +120,9 @@ public final class MTContext {
         return javaValue ? trueObject : falseObject;
     }
 
+    public MTString newString(String javaValue) {
+        return new MTString(stringClass, javaValue);
+    }
     
     public MTBlock newBlock(
         MTScope definingScope,
@@ -168,6 +178,10 @@ public final class MTContext {
 
     public MTClass getIntegerClass() {
         return integerClass;
+    }
+
+    public MTClass getStringClass() {
+        return stringClass;
     }
 
     public MTClass getBlockClass() {

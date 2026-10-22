@@ -1,24 +1,43 @@
 package mt.runtime;
 
+import mt.runtime.exceptions.MTException;
+
+/**
+ * Chaine MiniTalk. Fabrique : MTContext.newString(String).
+ */
 public final class MTString
         implements MTObject {
 
+    private final MTClass mtClass;
     private final String value;
 
-    public MTString(String value) {
+    MTString(MTClass mtClass, String value) {
+        this.mtClass = mtClass;
         this.value = value;
+    }
+
+    public String javaValue() {
+        return value;
     }
 
     @Override
     public MTClass getMTClass() {
-        return null;
+        return mtClass;
     }
 
     @Override
     public MTObject send(
             MTSymbol selector,
             MTObject... arguments) {
-        return null;
+
+        MTMethod method = mtClass.lookupInstanceMethod(selector);
+
+        if (method == null) {
+            throw new MTException(
+                "Message non compris : String >> " + selector);
+        }
+
+        return method.invoke(this, arguments);
     }
 
     @Override
@@ -31,4 +50,3 @@ public final class MTString
         return value;
     }
 }
-

@@ -42,10 +42,8 @@ public final class MTScope {
         MTScope current = this;
 
         while (current != null) {
-            MTObject value = current.variables.get(name);
-
-            if (value != null) {
-                return value;
+            if (current.variables.containsKey(name)) {
+                return current.variables.get(name);
             }
 
             current = current.parent;
