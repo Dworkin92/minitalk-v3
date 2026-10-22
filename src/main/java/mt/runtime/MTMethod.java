@@ -20,6 +20,6 @@ public interface MTMethod {
      */
     MTObject invoke(
             MTObject receiver,
-            MTObject... arguments // A CORRIGER
+            MTObject... arguments
     );
 }

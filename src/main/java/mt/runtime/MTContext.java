@@ -112,6 +112,10 @@ public final class MTContext {
     // Fabriques : ce qui etait statique vit dans le contexte
     //
 
+    public MTScope newScope() {
+        return new MTScope(null);
+    }
+    
     public MTInteger newInteger(int javaValue) {
         return new MTInteger(integerClass, javaValue);
     }
@@ -123,7 +127,8 @@ public final class MTContext {
     public MTString newString(String javaValue) {
         return new MTString(stringClass, javaValue);
     }
-    
+
+
     public MTBlock newBlock(
         MTScope definingScope,
         List<MTSymbol> parameters,

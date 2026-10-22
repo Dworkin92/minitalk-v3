@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mt.runtime.exceptions.MTException;
+
 public final class MTClass
         implements MTObject {
 
@@ -59,12 +61,27 @@ public final class MTClass
     public MTObject send(
             MTSymbol selector,
             MTObject... arguments) {
-        return null;
+
+        // Cote classe : on cherche dans les methodes de classe
+        MTMethod method = mtClass.lookupInstanceMethod(selector);
+
+        if (method == null) {
+            throw new MTException(
+                "Message non compris : " + name
+                + " (classe) >> " + selector);
+        }
+
+        return method.invoke(this, arguments);
     }
 
     @Override
     public MTString asString() {
-        return null;
+        return context.newString(name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public String getName() {

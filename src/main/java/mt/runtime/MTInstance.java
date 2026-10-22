@@ -28,7 +28,7 @@ public final class MTInstance
         MTMethod method = mtClass.lookupInstanceMethod(selector);
 
         if (method == null) {
-            throw new MTException("Method not found : " + selector);
+            throw new MTException("Message non compris : " + mtClass.getName() + " >> " + selector);
         }
 
         return method.invoke(this, arguments);
@@ -36,6 +36,7 @@ public final class MTInstance
 
     @Override
     public MTString asString() {
-        return null;
+        return mtClass.getContext()
+            .newString("an" + mtClass.getName());
     }
 }

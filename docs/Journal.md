@@ -146,6 +146,18 @@
 
 ## Prochain objectif
 
+### Notes pour plus tard
+
+- `and:` / `or:` sont evaluatifs (recoivent un MTBoolean).
+  Le vrai Smalltalk est paresseux : des que l'interpreteur
+  existera, accepter un MTMethod et l'invoquer conditionnellement,
+  comme ifTrue:.
+
+- MTSymbol.intern est le dernier static d'etat du runtime.
+  Decision assumee : les symboles sont l'identite du langage,
+  pas l'etat d'un monde. (A differencier des fabriques, qui
+  vivent dans MTContext.)
+
 ### Prochain objectif
 
 - Interpreter : parser un fichier .mt et l'executer (l'AST remplacera

@@ -9,32 +9,14 @@ public final class MTBlockPrimitives {
 
     /** Evaluation sans argument : [ ... ] value */
     @Primitive("value")
+    @Primitive("value:")
+    @Primitive("value:value:")
     public static MTObject value(
             MTObject receiver,
             MTObject... arguments) {
 
         return ((mt.runtime.MTBlock) receiver)
-            .invoke(receiver);
-    }
-
-    /** Evaluation a un argument : [ :x | ... ] value: arg */
-    @Primitive("value:")
-    public static MTObject valueColon(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        return ((mt.runtime.MTBlock) receiver)
-            .invoke(receiver, arguments[0]);
-    }
-
-    /** [ :x :y | ... ] value: a value: b — ecrit [a] value: a with: b */
-    @Primitive("value:value:")
-    public static MTObject valueValue(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        return ((mt.runtime.MTBlock) receiver)
-            .invoke(receiver, arguments[0], arguments[1]);
+            .invoke(receiver, arguments);
     }
 
     /** Un bloc ne sait pas encore se decrire : asString */

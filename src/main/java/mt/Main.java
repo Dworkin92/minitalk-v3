@@ -1,29 +1,37 @@
 package mt;
 
+import java.util.List;
+
 import mt.bootstrap.MTBootstrap;
-import mt.runtime.MTDummyMethod;
+import mt.runtime.MTBlock;
+import mt.runtime.MTContext;
+import mt.runtime.MTObject;
+import mt.runtime.MTScope;
 import mt.runtime.MTSymbol;
 
 public final class Main {
 
     public static void main(String[] args) {
 
-        MTBootstrap bootstrap
-                = new MTBootstrap();
-
+        MTBootstrap bootstrap = new MTBootstrap();
         bootstrap.initialize();
 
-        System.out.println(
-                "MiniTalk bootstrap OK");
+        MTContext c = bootstrap.getContext();
 
-        MTSymbol s1 = MTSymbol.intern("name");
+        // [ :x | x + 1 ] value: 41
+        MTBlock increment = c.newBlock(
+            c.newScope(),
+            List.of(MTSymbol.intern("x")),
+            scope -> {
+                MTObject x = scope.lookup(MTSymbol.intern("x"));
+                return x.send(MTSymbol.intern("+"),
+                              c.newInteger(1));
+            });
 
-        MTSymbol s2 = MTSymbol.intern("name");
+        MTObject result = increment.send(
+            MTSymbol.intern("value:"), c.newInteger(41));
 
-        //MTSymbol selector = MTSymbol.intern("test");
-
-        System.out.println("s1 == s2 : " + (s1 == s2));
-
-
+        System.out.println("[ :x | x + 1 ] value: 41  =  "
+            + result);
     }
 }
