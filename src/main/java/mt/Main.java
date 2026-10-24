@@ -1,41 +1,60 @@
 package mt;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import mt.bootstrap.MTBootstrap;
 import mt.interpreter.MTInterpreter;
-import mt.runtime.MTBlock;
-import mt.runtime.MTContext;
 import mt.runtime.MTObject;
-import mt.runtime.MTScope;
-import mt.runtime.MTSymbol;
+import mt.runtime.exceptions.MTException;
 
-public final class Main {
+/**
+ * REPL : Read Eval Print Loop. Lit une ligne
+ * MiniTalk sur l'entree standard, l'evalue,
+ * affiche le resultat, recommence.
+ */
+public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         MTBootstrap bootstrap = new MTBootstrap();
         bootstrap.initialize();
 
-        MTContext c = bootstrap.getContext();
-
-        // [ :x | x + 1 ] value: 41
-        MTBlock increment = c.newBlock(
-            c.newScope(),
-            List.of(MTSymbol.intern("x")),
-            scope -> {
-                MTObject x = scope.lookup(MTSymbol.intern("x"));
-                return x.send(MTSymbol.intern("+"),
-                              c.newInteger(1));
-            });
-
         MTInterpreter interpreter =
             new MTInterpreter(bootstrap.getContext());
 
-        MTObject result = interpreter.evaluate(
-            "[:x | x + 1] value: 41");
+        BufferedReader in = new BufferedReader(
+            new InputStreamReader(System.in));
 
-        System.out.println(
-            "[:x | x + 1] value: 41  =  " + result);
+        System.out.println("MiniTalk V3 -- 'quit' pour sortir");
+
+        while (true) {
+            System.out.print("mt> ");
+            System.out.flush();
+
+            String line = in.readLine();
+
+            if (line == null || line.equals("quit")) {
+                break;
+            }
+
+            if (line.isBlank()) {
+                continue;
+            }
+
+            try {
+                MTObject result =
+                    interpreter.evaluate(line);
+
+                System.out.println(result.asString());
+
+            } catch (MTException e) {
+                // Une erreur ne tue pas le REPL :
+                // on l'affiche et on continue
+                System.out.println("! " + e.getMessage());
+            }
+        }
+
+        System.out.println("Bye.");
     }
 }
