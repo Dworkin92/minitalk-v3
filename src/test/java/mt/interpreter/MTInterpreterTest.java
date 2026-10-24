@@ -74,11 +74,57 @@ public class MTInterpreterTest {
     //
 
     @Test
-    void messageBinaireGaucheADroite() {
+    void multiplicationAvantAdditionAOS() {
         MTObject result = run("3 + 4 * 2");
 
-        // (3 + 4) * 2, pas 3 + (4 * 2) !
+        // AOS (ARCHITECTURE.md) : 3 + (4 * 2)
+        assertEquals(11, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void parenthesesSeules() {
+        MTObject result = run("(3 + 4)");
+
+        assertEquals(7, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void parenthesesForcentLeGroupe() {
+        MTObject result = run("(3 + 4) * 2");
+
         assertEquals(14, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void puissanceDroiteAssociative() {
+        MTObject result = run("2 ** 3 ** 2");
+  
+        // Droite associatif, convention math/Python :
+        // 2 ** (3 ** 2) = 2 ** 9 = 512.
+        // PAS (2 ** 3) ** 2 = 64 !
+        assertEquals(512, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void puissanceEntreParenthesesForceLaGauche() {
+        MTObject result = run("(2 ** 3) ** 2");
+
+        assertEquals(64, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void modulo() {
+        MTObject result = run("7 % 3");
+
+        assertEquals(1, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void additionGaucheADroite() {
+        MTObject result = run("10 - 4 - 3");
+
+        // Au sein d'un niveau : gauche a droite = 3
+        assertEquals(3, ((MTInteger) result).javaValue());
     }
 
     @Test

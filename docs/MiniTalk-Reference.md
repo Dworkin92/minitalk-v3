@@ -90,13 +90,34 @@ Smalltalk) :
     3 + 4                   binaire (un argument)
     x max: y                clé    (n arguments)
 
-Évaluation de même priorité : **gauche à droite**.
+L'évaluation des priorités suit l'A.O.S qui est la suivante :
+1. plus prioritaires : messages unaires
+2. '\*\*'
+3. '\*','\/','\%'
+4. '\+','\-' et  messages binaires 
 
-    3 + 4 * 2        = (3 + 4) * 2       = 14
+Exemples :
+
+    3 + 4 * 2        = 3 + (4 * 2)       = 11
     'abc' size + 1   = ('abc' size) + 1 = 4
+
+Quand deux opérateurs ont la même priorité : **évaluation de gauche à droite**
+
+    10 - 4 - 3     = (10 - 4) - 3     = 3
+    'a' , 'b' , 'c' = ('a' , 'b') , 'c'
+
+**Exception : la puissance '\*\*' est droite associative**
+(comme en mathématiques et en Python) :
+
+    2 ** 3 ** 2    = 2 ** (3 ** 2)    = 2 ** 9 = 512
+
+et non (2 ** 3) ** 2 = 64. C'est l'unique opérateur
+qui se groupe depuis la droite — les parenthèses
+restent la parade en cas de doute : (2 ** 3) ** 2.
 
 Sélecteurs binaires : `+ - * / = ~= < > <= >= ,` et
 combinaisons des caractères `+ - * / = < > % ~ , &`.
+
 Sont interdits : `|` (réservé aux paramètres et
 temporaires, comme en Smalltalk-80), et `:`.
 

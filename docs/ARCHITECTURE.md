@@ -727,6 +727,10 @@ Les règles de précédence des opérateurs sont les suivantes, de la plus élev
 * '\*', '\/', '\%' : multiplication et division, modulo (reste de la division entière)
 * '\+', '\-' : addition et soustraction
 
+Note : `**` est associatif à droite, à la manière de
+Python (2 ** 3 ** 2 = 512) ; tous les autres
+opérateurs s'évaluent de gauche à droite.
+
 ---
 
 

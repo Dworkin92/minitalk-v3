@@ -99,19 +99,84 @@ public final class AstBuilderVisitor
     @Override
     public MTNode visitBinaryExpression(
             MiniTalkParser.BinaryExpressionContext ctx) {
+        return ctx.additiveExpression().accept(this);
+    }
+
+    @Override
+    public MTNode visitAdditiveExpression(
+            MiniTalkParser.AdditiveExpressionContext ctx) {
 
         // Associatif a gauche : 3 + 4 + 5 = (3 + 4) + 5
-        MTNode result = ctx.unaryExpression(0).accept(this);
+        MTNode result = null;
+        String operator = null;
 
-        for (int i = 0; i < ctx.BINARY().size(); i++) {
-            result = new MTMessageSendNode(
-                result,
-                MTSymbol.intern(ctx.BINARY(i).getText()),
-                List.of(
-                    ctx.unaryExpression(i + 1).accept(this)));
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            var child = ctx.getChild(i);
+
+            if (child instanceof
+                    MiniTalkParser.MultiplicativeExpressionContext m) {
+
+                MTNode operand = m.accept(this);
+
+                result = (result == null)
+                    ? operand
+                    : new MTMessageSendNode(
+                        result,
+                        MTSymbol.intern(operator),
+                        List.of(operand));
+            } else {
+                operator = child.getText();
+            }
         }
 
         return result;
+    }
+
+    @Override
+    public MTNode visitMultiplicativeExpression(
+            MiniTalkParser.MultiplicativeExpressionContext ctx) {
+
+        // Associatif a gauche : 3 * 4 * 5 = (3 * 4) * 5
+        MTNode result = null;
+        String operator = null;
+
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            var child = ctx.getChild(i);
+
+            if (child instanceof
+                    MiniTalkParser.PowerExpressionContext p) {
+
+                MTNode operand = p.accept(this);
+
+                result = (result == null)
+                    ? operand
+                    : new MTMessageSendNode(
+                        result,
+                        MTSymbol.intern(operator),
+                        List.of(operand));
+            } else {
+                operator = child.getText();
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public MTNode visitPowerExpression(
+            MiniTalkParser.PowerExpressionContext ctx) {
+
+        // Droite associatif : 2 ** 3 ** 2 = 2 ** (3 ** 2)
+        MTNode base = ctx.unaryExpression().accept(this);
+
+        if (ctx.POWER() == null) {
+            return base;
+        }
+
+        return new MTMessageSendNode(
+            base,
+            MTSymbol.intern("**"),
+            List.of(ctx.powerExpression().accept(this)));
     }
 
     @Override
@@ -132,7 +197,14 @@ public final class AstBuilderVisitor
 
     @Override
     public MTNode visitPrimary(MiniTalkParser.PrimaryContext ctx) {
-        // literal | block | identifier | ( expression )
+
+        // '(' expression ')' : c'est l'expression
+        // interieure qui compte, pas le token '('
+        if (ctx.expression() != null) {
+            return ctx.expression().accept(this);
+        }
+
+        // literal | block | identifier
         return ctx.getChild(0).accept(this);
     }
 

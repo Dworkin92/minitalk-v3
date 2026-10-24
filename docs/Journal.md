@@ -28,8 +28,22 @@
 - MTBlock (fermeture : implemente MTObject et MTMethod)
 - MTScope (portee lexicale : lookup/assign remontent la chaine)
 - MTBlockPrimitives (value, value:, value:value:)
-- 22 tests JUnit verts
-  
+
+### Retour a l'AOS
+
+- Relu ARCHITECTURE.md : la precedence AOS y etait
+  specifiee depuis l'origine (avec ** et %). Le passage
+  en Smalltalk strict de la veille etait une erreur
+  documentaire de l'assistant, pas une decision du
+  projet. Retablissement : ** > * / % > + - ,
+  autres binaires au niveau bas, gauche a droite.
+- Primitives ** et % sur Integer. 54 tests verts.
+- Restent en attente (mentions d'ARCHITECTURE.md) :
+  unaire de signe (-6), Float.
+- Confirme : ** droite associatif (math/Python),
+  unique exception au gauche-a-droite ; documente
+  dans ARCHITECTURE.md et la reference.
+
 ## Chronologie
 
 ### 05/10/2026
@@ -180,7 +194,34 @@
   retour du nombre d'iterations. 50 tests verts.
 - Decisions : conditions strictement booleennes. Verite a
   la C ecartee (entier non nul comme vrai) apres debat.
-- 50 tests verts. MiniTalk est Turing-complet.
+  markdown
+- Bug dormant corrige : les parentheses n'etaient
+  jamais evaluees (visitPrimary rendait le token '('
+  au lieu de l'expression interieure). Depiste par le
+  test parenthesesForcentLeGroupe.
+- retour de l'AOS, pour se conformer au document d'architecture
+- Confirme : ** droite associatif (math/Python),
+  unique exception au gauche-a-droite ; documente
+  dans ARCHITECTURE.md et la reference.
+- 56 tests verts. MiniTalk est Turing-complet.
+
+### 24/10/2026 (retablissement de l'AOS)
+
+- Relu ARCHITECTURE.md : la precedence AOS y etait
+  specifiee depuis l'origine, avec ** et %. Le passage
+  en Smalltalk strict de la veille etait une erreur
+  documentaire de l'assistant, pas une decision du
+  projet.
+- Retabli : ** > * / % > + - ; autres binaires au
+  niveau bas, gauche a droite. ** droite associatif.
+  Primitives ** et % sur Integer.
+- Bug dormant corrige : les parentheses n'etaient
+  jamais evaluees (visitPrimary rendait le token '('
+  au lieu de l'expression interieure). Depiste par le
+  test parenthesesForcentLeGroupe.
+- 55 tests verts.
+- Restent en attente (mentions d'ARCHITECTURE.md) :
+  unaire de signe (-6), Float.
 
 ## Prochain objectif
 
@@ -198,8 +239,6 @@
 
 ### Prochain objectif
 
-- Affectation (var := expr) et variables temporaires  | x y |
-  dans les blocs.
-- whileTrue: / whileFalse: sur Block.
-- Un REPL pour jouer avec le langage en direct.
+- Restent en attente (mentions d'ARCHITECTURE.md) :
+  unaire de signe (-6), Float.
 

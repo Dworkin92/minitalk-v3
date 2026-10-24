@@ -71,15 +71,34 @@ public final class MTIntegerPrimitives {
         return context(self).newInteger(self.javaValue() / other.javaValue());
     }
 
+    /** Modulo : reste de la division entiere */
     @Primitive("%")
     public static MTObject modulo(
-            MTObject receiver,
-            MTObject... arguments) {
+            MTObject receiver, MTObject... arguments) {
 
-        MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTInteger left = (MTInteger) receiver;
+        MTInteger right = (MTInteger) arguments[0];
 
-        return context(self).newInteger(self.javaValue() % other.javaValue());
+        if (right.javaValue() == 0) {
+            throw new mt.runtime.exceptions.MTException(
+                "Division par zero");
+        }
+
+        return context(receiver).newInteger(
+            left.javaValue() % right.javaValue());
+    }
+
+    /** Puissance : 2 ** 7 */
+    @Primitive("**")
+    public static MTObject power(
+            MTObject receiver, MTObject... arguments) {
+
+        MTInteger left = (MTInteger) receiver;
+        MTInteger right = (MTInteger) arguments[0];
+
+        return context(receiver).newInteger(
+            (int) Math.pow(left.javaValue(),
+                           right.javaValue()));
     }
 
     @Primitive("negated")

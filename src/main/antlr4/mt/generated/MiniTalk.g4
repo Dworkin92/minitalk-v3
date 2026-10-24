@@ -29,8 +29,30 @@ keywordExpression
     : binaryExpression (IDENTIFIER COLON binaryExpression)*
     ;
 
+//
+// Precedence AOS (ARCHITECTURE.md) :
+//   **  >  * / %  >  + -  >  autres binaires
+// Les autres binaires (, ~= < ...) restent au niveau
+// le plus bas, associatifs a gauche.
+//
+
 binaryExpression
-    : unaryExpression (BINARY unaryExpression)*
+    : additiveExpression
+    ;
+
+additiveExpression
+    : multiplicativeExpression
+      ((PLUS | MINUS | BINARY) multiplicativeExpression)*
+    ;
+
+multiplicativeExpression
+    : powerExpression
+      ((STAR | SLASH | PERCENT) powerExpression)*
+    ;
+
+// Droite associative : 2 ** 3 ** 2 = 2 ** (3 ** 2)
+powerExpression
+    : unaryExpression (POWER powerExpression)?
     ;
 
 unaryExpression
@@ -90,7 +112,12 @@ INTEGER  : [0-9]+ ;
 STRING   : '\'' ('\'' '\'' | ~'\'')* '\'' ;
 
 ASSIGN   : '<-' | ':=' ;
-
+POWER    : '**' ;
+PLUS     : '+' ;
+MINUS    : '-' ;
+STAR     : '*' ;
+SLASH    : '/' ;
+PERCENT  : '%' ;
 BINARY   : [+\-*/=<>%~,&]+ ;
 
 COLON    : ':' ;
