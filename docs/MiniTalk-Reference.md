@@ -55,21 +55,21 @@ mots-clés du langage : de simples identifiants.
     BINARY     suite d'au moins un caractère pris
                parmi : + - * / = < > % ~ , &
 
-` ` et `:` n'en font pas partie (réservés : voir les
+`|` et `:` n'en font pas partie (réservés : voir les
 signes de ponctuation).
 
 #### Signes de ponctuation
 
     :=  et  <-    affectation (synonymes)
     :              deux-points des mots-clés (`max:`)
- |              barre des paramètres `[:x | ...]`
+    |              barre des paramètres `[:x | ...]`
                    et des temporaires `[| t | ...]`
     [  ]           crochets des blocs
     (  )           parenthèses de groupement :
                    `(3 + 4) * 2`
     .              point de séquence
 
-### 1.1 Littéraux
+### 1.2 Littéraux
 
     42              entier
     'hello'         chaîne ; '' échappe un guillemet :
@@ -81,7 +81,7 @@ Les commentaires vont de `"` jusqu'au `"` suivant :
 
     " ceci est un commentaire "
 
-### 1.2 Messages
+### 1.3 Messages
 
 Trois formes, par priorité décroissante (comme en
 Smalltalk) :
@@ -97,10 +97,10 @@ Smalltalk) :
 
 Sélecteurs binaires : `+ - * / = ~= < > <= >= ,` et
 combinaisons des caractères `+ - * / = < > % ~ , &`.
-Sont interdits : ` ` (réservé aux paramètres et
+Sont interdits : `|` (réservé aux paramètres et
 temporaires, comme en Smalltalk-80), et `:`.
 
-### 1.3 Blocs et fermetures
+### 1.4 Blocs et fermetures
 
     [ corps ]                      sans paramètre
     [:x | x + 1]                   avec paramètre
@@ -113,7 +113,7 @@ temporaires, comme en Smalltalk-80), et `:`.
 - Invocation par message unaire : `[41] value`,
   `[:x | x + 1] value: 41`.
 
-### 1.4 Affectation
+### 1.5 Affectation
 
     var := expression
     var <- expression        (synonyme)
@@ -123,7 +123,7 @@ L'affectation est une **instruction**. La variable doit
 `Variable non déclarée`. L'affectation vaut l'expression
 affectée.
 
-### 1.5 Séquences et programmes
+### 1.6 Séquences et programmes
 
 Les instructions se séparent par des points :
 
@@ -132,7 +132,7 @@ Les instructions se séparent par des points :
 Une séquence vaut sa dernière instruction. Un programme
 est une séquence ; vide, il vaut `nil`.
 
-### 1.6 Boucles
+### 1.7 Boucles
 
     [condition] whileTrue: [corps]
 
