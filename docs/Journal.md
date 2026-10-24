@@ -154,6 +154,25 @@
 - Notes ajoutees : and:/or: paresseux plus tard ; intern() seul
   static assume.
 
+### 24/10/2026
+
+- Interpreteur complet : grammaire ANTLR (MiniTalk.g4),
+  AST (records mt.ast), visiteur (mt.interpreter), entree
+  MTInterpreter.evaluate(source).
+- Grammaire noyau : litteraux (entiers, chaines avec
+  echappement '', nil/true/false), messages unaires /
+  binaires / a mot-cle, blocs avec parametres, sequences
+  a points.   reserve (exclu des binaires, comme en
+  Smalltalk-80).
+- AST : un record par construction, interface MTNode avec
+  eval(context, scope). MTBlockNode transforme un bloc du
+  langage en MTBlock du runtime : la portee d'ecriture
+  devient la portee de definition (fermeture).
+- Debogue multi-etages : 3 causes pour 11 erreurs
+  (separateur BINARY vs BAR, program non optionnel,
+  envoi avec selecteur vide quand aucun mot-cle).
+- 35 tests verts (22 runtime + 13 interpreteur).
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -170,7 +189,8 @@
 
 ### Prochain objectif
 
-- Interpreter : parser un fichier .mt et l'executer (l'AST remplacera
-  les lambdas Java de MTBlock).
-- Enrichir : whileTrue:, ifTrue:ifFalse: en blocs ; Array.
+- Affectation (var := expr) et variables temporaires   x y |
+  dans les blocs.
+- whileTrue: / whileFalse: sur Block.
+- Un REPL pour jouer avec le langage en direct.
 

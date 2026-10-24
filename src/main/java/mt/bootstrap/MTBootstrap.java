@@ -1,7 +1,7 @@
 package mt.bootstrap;
 
 import mt.runtime.MTClass;
-import mt.runtime.MTInteger;
+//import mt.runtime.MTInteger;
 import mt.runtime.MTContext;
 import mt.runtime.MTInstance;
 import mt.runtime.MTObject;
