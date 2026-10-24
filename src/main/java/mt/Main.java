@@ -3,6 +3,7 @@ package mt;
 import java.util.List;
 
 import mt.bootstrap.MTBootstrap;
+import mt.interpreter.MTInterpreter;
 import mt.runtime.MTBlock;
 import mt.runtime.MTContext;
 import mt.runtime.MTObject;
@@ -28,10 +29,13 @@ public final class Main {
                               c.newInteger(1));
             });
 
-        MTObject result = increment.send(
-            MTSymbol.intern("value:"), c.newInteger(41));
+        MTInterpreter interpreter =
+            new MTInterpreter(bootstrap.getContext());
 
-        System.out.println("[ :x | x + 1 ] value: 41  =  "
-            + result);
+        MTObject result = interpreter.evaluate(
+            "[:x | x + 1] value: 41");
+
+        System.out.println(
+            "[:x | x + 1] value: 41  =  " + result);
     }
 }

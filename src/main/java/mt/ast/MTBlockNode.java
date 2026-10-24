@@ -9,6 +9,7 @@ import mt.runtime.MTSymbol;
 
 public record MTBlockNode(
         List<String> parameters,
+        List<String> locals,
         MTSequenceNode body) implements MTNode {
 
     @Override
@@ -18,11 +19,19 @@ public record MTBlockNode(
             .map(MTSymbol::intern)
             .toList();
 
-        // La portee actuelle devient la portee de DEFINITION
-        // du bloc : c'est la fermeture.
         return context.newBlock(
             scope,
             params,
-            blockScope -> body.eval(context, blockScope));
+            blockScope -> {
+
+                // Temporaires : initialisees a nil
+                for (String local : locals) {
+                    blockScope.define(
+                        MTSymbol.intern(local),
+                        context.nil());
+                }
+
+                return body.eval(context, blockScope);
+            });
     }
 }

@@ -171,7 +171,13 @@
 - Debogue multi-etages : 3 causes pour 11 erreurs
   (separateur BINARY vs BAR, program non optionnel,
   envoi avec selecteur vide quand aucun mot-cle).
-- 35 tests verts (22 runtime + 13 interpreteur).
+- whileTrue: sur Block : condition reevaluee a chaque
+  tour. Divergence MiniTalk : retourne le nombre
+  d'iterations (0 si jamais executee) -- contretemps
+  assumé avec Smalltalk, utile au debogage.
+- Decisions : conditions strictement booleennes. Verite a
+  la C ecartee (entier non nul comme vrai) apres debat.
+- 47 tests verts. MiniTalk est Turing-complet.
 
 ## Prochain objectif
 
@@ -189,7 +195,7 @@
 
 ### Prochain objectif
 
-- Affectation (var := expr) et variables temporaires   x y |
+- Affectation (var := expr) et variables temporaires  | x y |
   dans les blocs.
 - whileTrue: / whileFalse: sur Block.
 - Un REPL pour jouer avec le langage en direct.

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mt.ast.MTAssignmentNode;
 import mt.ast.MTBlockNode;
 import mt.ast.MTIdentifierNode;
 import mt.ast.MTLiteralInteger;
@@ -37,6 +38,14 @@ public final class AstBuilderVisitor
 
     @Override
     public MTNode visitStatement(MiniTalkParser.StatementContext ctx) {
+
+        // var := expression
+        if (ctx.IDENTIFIER() != null) {
+            return new MTAssignmentNode(
+                ctx.IDENTIFIER().getText(),
+                ctx.expression().accept(this));
+        }
+
         return ctx.expression().accept(this);
     }
 
@@ -147,11 +156,19 @@ public final class AstBuilderVisitor
             }
         }
 
+        List<String> locals = new ArrayList<>();
+
+        if (ctx.blockLocals() != null) {
+            for (var name : ctx.blockLocals().IDENTIFIER()) {
+                locals.add(name.getText());
+            }
+        }
+
         MTSequenceNode body = ctx.statements() != null
             ? (MTSequenceNode) ctx.statements().accept(this)
             : new MTSequenceNode(List.of());
 
-        return new MTBlockNode(parameters, body);
+        return new MTBlockNode(parameters, locals, body);
     }
 
     //

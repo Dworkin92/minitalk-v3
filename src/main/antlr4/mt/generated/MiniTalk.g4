@@ -10,7 +10,8 @@ program
     ;
 
 statement
-    : expression
+    : IDENTIFIER ASSIGN expression
+    | expression
     ;
 
 //
@@ -53,11 +54,15 @@ identifier
 //
 
 block
-    : LBRACK blockParameters? statements? RBRACK
+    : LBRACK blockParameters? blockLocals? statements? RBRACK
     ;
 
 blockParameters
     : (COLON IDENTIFIER)+ BAR
+    ;
+
+blockLocals
+    : BAR IDENTIFIER+ BAR
     ;
 
 statements
@@ -83,6 +88,8 @@ literal
 INTEGER  : [0-9]+ ;
 
 STRING   : '\'' ('\'' '\'' | ~'\'')* '\'' ;
+
+ASSIGN   : '<-' | ':=' ;
 
 BINARY   : [+\-*/=<>%~,&]+ ;
 
