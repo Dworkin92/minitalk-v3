@@ -119,8 +119,6 @@ Maven
 
 Dans un premier temps, MiniTalk est un projet Maven simple (mono-module).
 
-<img src="arborescence-projet.png" alt="Arborescence minitalk" width="500"/>
-
 
 
 ```text
@@ -134,22 +132,26 @@ minitalk
      ├── main
      │   ├── antlr4
      │   │   └── mt
-     │   │       ├── MiniTalkLexer.g4
-     │   │       └── MiniTalkParser.g4
+     │   │       └── generated
+     |   |               └── MiniTalk.g4
      │   │
      │   ├── java
      │   │   └── mt
      │   │       ├── ast
-     │   │       ├── parser
-     │   │       ├── runtime
+     |   |       ├── bootstrap
      │   │       ├── interpreter
-     │   │       ├── process
-     │   │       └── cli
+     │   │       ├── parser (futur)
+     │   │       ├── runtime
+     |   |       |      ├── exceptions
+     |   |       |      └── primitives
+     │   │       ├── process (futur)
+     │   │       └── cli (futur)
      │   │
      │   └── resources
      │
      └── test
           └── java
+                └── mt
 
 ```
 

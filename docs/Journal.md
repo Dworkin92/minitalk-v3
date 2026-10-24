@@ -219,7 +219,7 @@
   jamais evaluees (visitPrimary rendait le token '('
   au lieu de l'expression interieure). Depiste par le
   test parenthesesForcentLeGroupe.
-- 55 tests verts.
+- 56 tests verts.
 - Restent en attente (mentions d'ARCHITECTURE.md) :
   unaire de signe (-6), Float.
 
@@ -239,6 +239,10 @@
 
 ### Prochain objectif
 
-- Restent en attente (mentions d'ARCHITECTURE.md) :
-  unaire de signe (-6), Float.
+- branche unary-sign — implémenter l'opérateur unaire de signe (-6, +5.34),
+  premier niveau de la liste de précédence d'ARCHITECTURE.md, le seul non
+  encore honoré. Ensuite un jour : Float.
+- print/printLn,
+- REPL confortable (blocs multi-lignes),
+- Array, MTCharacter (at: retourne un codepoint en MTInteger), and:/or: paresseux (accepter un MTMethod, comme ifTrue:).
 
