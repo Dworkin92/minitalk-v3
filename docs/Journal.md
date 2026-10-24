@@ -180,7 +180,7 @@
   retour du nombre d'iterations. 50 tests verts.
 - Decisions : conditions strictement booleennes. Verite a
   la C ecartee (entier non nul comme vrai) apres debat.
-- 47 tests verts. MiniTalk est Turing-complet.
+- 50 tests verts. MiniTalk est Turing-complet.
 
 ## Prochain objectif
 
