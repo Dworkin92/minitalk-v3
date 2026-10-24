@@ -237,6 +237,30 @@ public class MTInterpreterTest {
                 + " [i] whileTrue: [i := i - 1]] value"));
     }
 
+    @Test
+    void boucleWhileFalseCompteSesIterations() {
+        MTObject result = run(
+            "[| i | i := 0."
+            + " [i >= 3] whileFalse: [i := i + 1]] value");
+
+        assertEquals(3, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void whileFalseJamaisExecuteeRetourneZero() {
+        MTObject result = run(
+            "[true] whileFalse: [1]");
+
+        assertEquals(0, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void whileFalseConditionEntiereLeveMTException() {
+        assertThrows(MTException.class,
+            () -> run("[| i | i := 0."
+                + " [i] whileFalse: [i := i + 1]] value"));
+    }
+
     //
     // Erreurs
     //

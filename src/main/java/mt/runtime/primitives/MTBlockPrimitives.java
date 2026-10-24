@@ -69,6 +69,34 @@ public final class MTBlockPrimitives {
             .newInteger(iterations);
     }
     
+    /**
+     * Boucle : [condition] whileFalse: [corps]
+     * La condition est reevaluee a chaque tour ; le
+     * corps s'execute tant qu'elle est fausse.
+     * Retourne le nombre d'iterations effectuees.
+     */
+    @Primitive("whileFalse:")
+    public static MTObject whileFalse(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        mt.runtime.MTBlock condition =
+            (mt.runtime.MTBlock) receiver;
+
+        mt.runtime.MTBlock body =
+            (mt.runtime.MTBlock) arguments[0];
+
+        int iterations = 0;
+
+        while (!truth(condition.invoke(receiver))) {
+            body.invoke(receiver);
+            iterations++;
+        }
+
+        return condition.getMTClass()
+            .getContext()
+            .newInteger(iterations);
+    }
 
     /** Un bloc ne sait pas encore se decrire : asString */
     @Primitive("asString")

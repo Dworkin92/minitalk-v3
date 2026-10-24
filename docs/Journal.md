@@ -175,6 +175,9 @@
   tour. Divergence MiniTalk : retourne le nombre
   d'iterations (0 si jamais executee) -- contretemps
   assumé avec Smalltalk, utile au debogage.
+- whileFalse: sur Block, symetrique de whileTrue:.
+  Meme semantique : conditions strictement booleennes,
+  retour du nombre d'iterations. 50 tests verts.
 - Decisions : conditions strictement booleennes. Verite a
   la C ecartee (entier non nul comme vrai) apres debat.
 - 47 tests verts. MiniTalk est Turing-complet.

@@ -138,7 +138,25 @@ est une séquence ; vide, il vaut `nil`.
 
 La condition est un bloc, réévaluée à chaque tour ; elle
 doit produire un **booléen** (pas de vérité à la C :
-`[3] whileTrue:` est une erreur). Valeur de retour : le
+`[3] whileTrue:` est une erreur).
+
+La boucle est réitérée dans que la condition est vérifiée
+(tant qu'elle est vraie).
+
+Valeur de retour : le
+**nombre d'itérations** (divergence MiniTalk, utile au
+débogage).
+
+    [condition] whileFalse: [corps]
+
+La condition est un bloc, réévaluée à chaque tour ; elle
+doit produire un **booléen** (pas de vérité à la C :
+`[3] whileTrue:` est une erreur).
+
+La boucle est réitérée tant que la condition n'est pas
+vérifée (tant qu'elle est fausse).
+
+Valeur de retour : le
 **nombre d'itérations** (divergence MiniTalk, utile au
 débogage).
 
