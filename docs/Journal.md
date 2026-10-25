@@ -223,6 +223,21 @@
 - Restent en attente (mentions d'ARCHITECTURE.md) :
   unaire de signe (-6), Float.
 
+### 25/10/2026
+
+- Signe unaire implémente : plus haut niveau de
+  precedence (ARCHITECTURE.md enfin honore en
+  entier cote entiers). -6, +6, 3 * -4, -2 ** 2.
+- Decisions : signe prioritaire sur tout (-2 ** 2
+  = (-2) ** 2 = 4) ; signe UNIQUE, --3 refuse, la
+  double negation s'ecrit -(-3), facon
+  mathematique. Moins unaire = message negated.
+- Lecon ANTLR : l'ordre des regles de parseur est
+  indifferent, celui du lexer est sacre (pense-bete
+  laisse dans le g4 ; doublon powerExpression
+  chasse par erreur 51).
+- 62 tests verts.
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -239,10 +254,8 @@
 
 ### Prochain objectif
 
-- branche unary-sign — implémenter l'opérateur unaire de signe (-6, +5.34),
-  premier niveau de la liste de précédence d'ARCHITECTURE.md, le seul non
-  encore honoré. Ensuite un jour : Float.
 - print/printLn,
 - REPL confortable (blocs multi-lignes),
 - Array, MTCharacter (at: retourne un codepoint en MTInteger), and:/or: paresseux (accepter un MTMethod, comme ifTrue:).
+- ajouter la gestion des Float
 

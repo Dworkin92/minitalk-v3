@@ -4,6 +4,8 @@ grammar MiniTalk;
 // Programme : une suite de points, separees par des points.
 // Le point final est optionnel.
 //
+// Warning : ANTLR n'a pas d'ordre priviliégé pour la prise en
+//           compte des règles d'analyse syntaxique !
 
 program
     : (statement ('.' statement)* '.'?)? EOF
@@ -50,13 +52,23 @@ multiplicativeExpression
       ((STAR | SLASH | PERCENT) powerExpression)*
     ;
 
-// Droite associative : 2 ** 3 ** 2 = 2 ** (3 ** 2)
-powerExpression
-    : unaryExpression (POWER powerExpression)?
-    ;
-
 unaryExpression
     : primary (IDENTIFIER)*
+    ;
+
+// Signe unaire : le plus haut niveau (ARCHITECTURE.md).
+// -6, +5.34, --6 (double negation), 3 * -4
+// Signe unaire : le plus haut niveau (ARCHITECTURE.md).
+// -6, +5.34, 3 * -4
+//
+// Un SEUL signe : --3 est refuse, ecrire -(-3).
+signExpression
+    : (MINUS | PLUS)? unaryExpression
+    ;
+
+// Droite associatif : 2 ** 3 ** 2 = 2 ** (3 ** 2)
+powerExpression
+    : signExpression (POWER powerExpression)?
     ;
 
 primary
@@ -105,6 +117,9 @@ literal
 
 //
 // Analyse lexicale
+//
+// Warning : ANTLR prend en compte l'ordre des règle d'analyse
+//           lexicales. Ces règles sont toutes en majuscule
 //
 
 INTEGER  : [0-9]+ ;

@@ -167,7 +167,7 @@ public final class AstBuilderVisitor
             MiniTalkParser.PowerExpressionContext ctx) {
 
         // Droite associatif : 2 ** 3 ** 2 = 2 ** (3 ** 2)
-        MTNode base = ctx.unaryExpression().accept(this);
+        MTNode base = ctx.signExpression().accept(this);
 
         if (ctx.POWER() == null) {
             return base;
@@ -177,6 +177,26 @@ public final class AstBuilderVisitor
             base,
             MTSymbol.intern("**"),
             List.of(ctx.powerExpression().accept(this)));
+    }
+
+    @Override
+    public MTNode visitSignExpression(
+            MiniTalkParser.SignExpressionContext ctx) {
+
+        MTNode result = ctx.unaryExpression().accept(this);
+
+        // Un seul signe eventuel. Le moins unaire
+        // envoie 'negated' (tout est message) ;
+        // le plus unaire est l'identite.
+        if (ctx.getChildCount() == 2
+                && ctx.getChild(0).getText().equals("-")) {
+            return new MTMessageSendNode(
+                result,
+                MTSymbol.intern("negated"),
+                List.of());
+        }
+
+        return result;
     }
 
     @Override

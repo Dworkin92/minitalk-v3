@@ -92,6 +92,7 @@ Smalltalk) :
 
 L'évaluation des priorités suit l'A.O.S qui est la suivante :
 1. plus prioritaires : messages unaires
+2. signe unaire '-<nombre>', '+<nombre>'
 2. '\*\*'
 3. '\*','\/','\%'
 4. '\+','\-' et  messages binaires 
@@ -114,6 +115,10 @@ Quand deux opérateurs ont la même priorité : **évaluation de gauche à droit
 et non (2 ** 3) ** 2 = 64. C'est l'unique opérateur
 qui se groupe depuis la droite — les parenthèses
 restent la parade en cas de doute : (2 ** 3) ** 2.
+
+Le signe unaire est unique : `--3` est refusé par la
+grammaire. La double négation s'écrit `-(-3)`, à la
+manière mathématique.
 
 Sélecteurs binaires : `+ - * / = ~= < > <= >= ,` et
 combinaisons des caractères `+ - * / = < > % ~ , &`.

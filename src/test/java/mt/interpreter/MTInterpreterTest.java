@@ -74,6 +74,53 @@ public class MTInterpreterTest {
     //
 
     @Test
+    void signeMoinsSurLitteral() {
+        MTObject result = run("-6");
+
+        assertEquals(-6, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void signePlusEstIdentite() {
+        MTObject result = run("+6");
+
+        assertEquals(6, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void doubleNegationEntreParentheses() {
+        MTObject result = run("-(-3)");
+
+        // --3 est refuse par la grammaire ; la forme
+        // mathematique -(-3) est la facon canonique.
+        assertEquals(3, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void signeApresOperateur() {
+        MTObject result = run("3 * -4");
+
+        assertEquals(-12, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void signePlusHautQuePuissance() {
+        MTObject result = run("-2 ** 2");
+
+        // ARCHITECTURE.md : le signe est le niveau le
+        // plus haut, donc (-2) ** 2 = 4.
+        // (Python aurait dit -(2 ** 2) = -4 !)
+        assertEquals(4, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void moinsBinaireInchange() {
+        MTObject result = run("0 - 6");
+
+        assertEquals(-6, ((MTInteger) result).javaValue());
+    }
+
+    @Test
     void multiplicationAvantAdditionAOS() {
         MTObject result = run("3 + 4 * 2");
 
