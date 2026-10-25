@@ -89,6 +89,68 @@ public final class MTStringPrimitives {
             self.javaValue().codePointAt(index - 1));
     }
 
+    /** Position 1-based de la premiere occurrence, 0 si absente */
+    @Primitive("indexOf:")
+    public static MTObject indexOf(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString string = (MTString) receiver;
+        MTString sought = (MTString) arguments[0];
+
+        return context(receiver).newInteger(
+            string.javaValue().indexOf(
+                sought.javaValue()) + 1);
+    }
+
+    @Primitive("contains:")
+    public static MTObject contains(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString string = (MTString) receiver;
+        MTString sought = (MTString) arguments[0];
+
+        return context(receiver).newBoolean(
+            string.javaValue()
+                .contains(sought.javaValue()));
+    }
+
+    /** 'hello' reverse = 'olleh' */
+    @Primitive("reverse")
+    public static MTObject reverse(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString string = (MTString) receiver;
+
+        return context(receiver).newString(
+            new StringBuilder(string.javaValue())
+                .reverse().toString());
+    }
+
+    @Primitive("uppercase")
+    public static MTObject uppercase(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString string = (MTString) receiver;
+
+        return context(receiver).newString(
+            string.javaValue().toUpperCase());
+    }
+
+    @Primitive("lowercase")
+    public static MTObject lowercase(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString string = (MTString) receiver;
+
+        return context(receiver).newString(
+            string.javaValue().toLowerCase());
+    }
+
     @Primitive("asString")
     public static MTObject asString(
             MTObject receiver,
@@ -97,12 +159,4 @@ public final class MTStringPrimitives {
         return receiver;
     }
 
-    @Primitive("print")
-    public static MTObject print(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        System.out.print(receiver.asString().javaValue());
-        return receiver;
-    }
 }

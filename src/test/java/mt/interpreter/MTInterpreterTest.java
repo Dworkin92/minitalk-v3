@@ -9,6 +9,7 @@ import mt.bootstrap.MTBootstrap;
 import mt.runtime.MTBoolean;
 import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
+import mt.runtime.MTString;
 import mt.runtime.exceptions.MTException;
 
 public class MTInterpreterTest {
@@ -199,6 +200,23 @@ public class MTInterpreterTest {
     }
 
     //
+    // affichage
+    //
+    @Test
+    void printRetourneLeRecepteur() {
+        MTObject result = run("'hello' print");
+
+        assertTrue(result instanceof mt.runtime.MTString);
+    }
+
+    @Test
+    void printLnRetourneLeRecepteur() {
+        MTObject result = run("(3 + 4) printLn");
+
+        assertTrue(result instanceof mt.runtime.MTInteger);
+    }
+
+    //
     // Litteraux
     //
 
@@ -214,6 +232,47 @@ public class MTInterpreterTest {
         MTObject result = run("");
 
         assertTrue(result.isNil());
+    }
+
+    //
+    // Les chaines de caracteres
+    //
+
+    @Test
+    void tailleDeChaine() {
+        MTObject r = run("'hello' size");
+        assertEquals(5, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void atPremierCaractere() {
+        MTObject r = run("'hello' at: 1");
+        // codepoint de 'h' = 104
+        assertEquals(104, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void egaliteValeurPasIdentite() {
+        MTObject r = run("'abc' = 'abc'");
+        assertTrue(((MTBoolean) r).javaValue()); // ou newBoolean(true) selon vos habitudes
+    }
+
+    @Test
+    void renversement() {
+        MTObject r = run("'hello' reverse");
+        assertEquals("olleh", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void indexOfAbsentRetourneZero() {
+        MTObject r = run("'hello' indexOf: 'z'");
+        assertEquals(0, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void containsBooleen() {
+        MTObject r = run("'hello' contains: 'ell'");
+        assertTrue(((MTBoolean) r).javaValue());
     }
 
     //

@@ -203,10 +203,6 @@
 - Confirme : ** droite associatif (math/Python),
   unique exception au gauche-a-droite ; documente
   dans ARCHITECTURE.md et la reference.
-- 56 tests verts. MiniTalk est Turing-complet.
-
-### 24/10/2026 (retablissement de l'AOS)
-
 - Relu ARCHITECTURE.md : la precedence AOS y etait
   specifiee depuis l'origine, avec ** et %. Le passage
   en Smalltalk strict de la veille etait une erreur
@@ -236,7 +232,17 @@
   indifferent, celui du lexer est sacre (pense-bete
   laisse dans le g4 ; doublon powerExpression
   chasse par erreur 51).
-- 62 tests verts.
+- Lecture multi-lignes au REPL : invite '...>'
+  tant que crochets/parentheses/chaines ne sont
+  pas equilibres (scan respectant '' echappe).
+  quit/exit ne vivent qu'au niveau zero.
+- ParseCancellationException attrapee : une erreur
+  de syntaxe ne tue plus le REPL.
+- Drapeau lineOpen : print signale la ligne
+  ouverte ; l'echo repart sur sa propre ligne
+  seulement si necessaire (pas de ligne vide
+  parasite pour les expressions muettes).
+- 70 tests verts. Liste 'confort' terminee.
 
 ## Prochain objectif
 
