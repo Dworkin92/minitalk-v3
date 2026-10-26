@@ -284,8 +284,12 @@
 
 ### Prochain objectif
 
-- print/printLn,
-- REPL confortable (blocs multi-lignes),
-- Array, MTCharacter (at: retourne un codepoint en MTInteger), and:/or: paresseux (accepter un MTMethod, comme ifTrue:).
-- ajouter la gestion des Float
+- and:/or: paresseux : accepter un bloc (MTMethod) et
+  ne l'invoquer que si necessaire, comme ifTrue:.
+- MTCharacter : classe pour les caracteres ;
+  decider si String>>at: retourne un Character
+  (comme Smalltalk) ou un codepoint.
+- Float : litteraux a virgule, classe Float, messages
+  arithmetiques. Piege lexer : token FLOAT AVANT DOT,
+  sinon 3.5 se lit "3 . 5".
 
