@@ -4,7 +4,7 @@ grammar MiniTalk;
 // Programme : une suite de points, separees par des points.
 // Le point final est optionnel.
 //
-// Warning : ANTLR n'a pas d'ordre priviliégé pour la prise en
+// Warning : ANTLR n'a pas d'ordre priviliégié pour la prise en
 //           compte des règles d'analyse syntaxique !
 
 program
@@ -57,8 +57,6 @@ unaryExpression
     ;
 
 // Signe unaire : le plus haut niveau (ARCHITECTURE.md).
-// -6, +5.34, --6 (double negation), 3 * -4
-// Signe unaire : le plus haut niveau (ARCHITECTURE.md).
 // -6, +5.34, 3 * -4
 //
 // Un SEUL signe : --3 est refuse, ecrire -(-3).
@@ -73,6 +71,8 @@ powerExpression
 
 primary
     : literal
+    | arrayLiteral
+    | symbolLiteral
     | block
     | identifier
     | '(' expression ')'
@@ -80,6 +80,43 @@ primary
 
 identifier
     : IDENTIFIER
+    ;
+
+//
+// Tableaux : #(1 2 3)
+//
+// Divergence assumee avec Smalltalk : les elements sont
+// evalues comme des VARIABLES, pas comme des symboles.
+// Un tableau de symboles s'ecrit #(#a #b #c).
+//
+// Un element = litteral, variable, symbole ou array imbrique.
+// RIEN d'autre : pas d'expression (pas de #(1 + 2)), pas de
+// parenthesage force. Decision du 25/10 : pas de porte
+// ouverte aux expressions imbriquees illisibles.
+//
+// #( ) n'est PAS une constante de compilation : le tableau
+// est reconstruit a chaque evaluation (variables lues au
+// moment de traiter l'array).
+//
+
+arrayLiteral
+    : HASH LPAREN arrayElement* RPAREN
+    ;
+
+arrayElement
+    : literal
+    | identifier
+    | symbolLiteral
+    | arrayLiteral
+    ;
+
+//
+// Symbole : #ident. Le pool MTSymbol.intern existe deja
+// cote runtime ; le langage l'expose enfin.
+//
+
+symbolLiteral
+    : HASH IDENTIFIER
     ;
 
 //
@@ -134,6 +171,8 @@ STAR     : '*' ;
 SLASH    : '/' ;
 PERCENT  : '%' ;
 BINARY   : [+\-*/=<>%~,&]+ ;
+
+HASH     : '#' ;
 
 COLON    : ':' ;
 BAR      : '|' ;

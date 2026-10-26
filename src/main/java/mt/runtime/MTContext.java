@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import mt.runtime.MTClass;
+import mt.runtime.primitives.MTArrayPrimitives;
 import mt.runtime.primitives.MTBlockPrimitives;
 import mt.runtime.primitives.MTBooleanPrimitives;
 import mt.runtime.primitives.MTIntegerPrimitives;
@@ -12,6 +13,7 @@ import mt.runtime.primitives.MTNilPrimitives;
 import mt.runtime.primitives.MTObjectPrimitives;
 import mt.runtime.primitives.MTPrimitiveInstaller;
 import mt.runtime.primitives.MTStringPrimitives;
+import mt.runtime.primitives.MTSymbolPrimitives;
 
 /**
  * Contexte MiniTalk : possede les classes fondamentales, les
@@ -35,6 +37,8 @@ public final class MTContext {
     private final MTClass integerClass;
     private final MTClass blockClass;
     private final MTClass stringClass;
+    private final MTClass arrayClass;
+    private final MTClass symbolClass;
 
     //
     // Singletons du contexte
@@ -45,6 +49,13 @@ public final class MTContext {
     private final MTBoolean falseObject;
 
     //
+    // Representants des symboles dans CE monde
+    // (MTSymbol reste le pool, hors des mondes)
+    //
+
+    private final Map<MTSymbol, MTSymbolObject> symbolObjects;
+
+    //
     // Registre : toutes les classes, par nom
     //
 
@@ -53,6 +64,7 @@ public final class MTContext {
     private MTContext() {
 
         classes = new HashMap<>();
+        symbolObjects = new HashMap<>();
 
         objectClass  = new MTClass(this, "Object", null);
         classClass   = new MTClass(this, "Class", objectClass);
@@ -61,7 +73,8 @@ public final class MTContext {
         integerClass = new MTClass(this, "Integer", objectClass);
         stringClass  = new MTClass(this, "String", objectClass);
         blockClass   = new MTClass(this, "Block", objectClass);
-
+        arrayClass   = new MTClass(this, "Array", objectClass);
+        symbolClass  = new MTClass(this, "Symbol", objectClass);
 
         nil         = new MTNil();
         trueObject  = new MTBoolean(true);
@@ -81,6 +94,8 @@ public final class MTContext {
         registerClass(integerClass);
         registerClass(stringClass);
         registerClass(blockClass);
+        registerClass(arrayClass);
+        registerClass(symbolClass);
     }
 
     /**
@@ -105,7 +120,9 @@ public final class MTContext {
         MTPrimitiveInstaller.install(booleanClass,  MTBooleanPrimitives.class);
         MTPrimitiveInstaller.install(integerClass,  MTIntegerPrimitives.class);
         MTPrimitiveInstaller.install(stringClass,   MTStringPrimitives.class);
-        MTPrimitiveInstaller.install(blockClass,    MTBlockPrimitives.class); 
+        MTPrimitiveInstaller.install(blockClass,    MTBlockPrimitives.class);
+        MTPrimitiveInstaller.install(arrayClass,    MTArrayPrimitives.class);
+        MTPrimitiveInstaller.install(symbolClass,   MTSymbolPrimitives.class);
     }
 
     //
@@ -115,7 +132,7 @@ public final class MTContext {
     public MTScope newScope() {
         return new MTScope(null);
     }
-    
+
     public MTInteger newInteger(int javaValue) {
         return new MTInteger(integerClass, javaValue);
     }
@@ -128,6 +145,20 @@ public final class MTContext {
         return new MTString(stringClass, javaValue);
     }
 
+    public MTArray newArray(List<MTObject> elements) {
+        return new MTArray(arrayClass, elements);
+    }
+
+    /**
+     * Representant d'un symbole dans CE monde, mis en cache :
+     * #a == #a est vrai au sein d'un contexte, sans etat
+     * statique partage entre les mondes.
+     */
+    public MTSymbolObject symbolObject(MTSymbol symbol) {
+        return symbolObjects.computeIfAbsent(
+            symbol,
+            s -> new MTSymbolObject(symbolClass, s));
+    }
 
     public MTBlock newBlock(
         MTScope definingScope,
@@ -135,7 +166,7 @@ public final class MTContext {
         MTBlock.Body body) {
         return new MTBlock(blockClass, definingScope, parameters, body);
     }
-    
+
     public MTNil nil() {
         return nil;
     }
@@ -192,5 +223,12 @@ public final class MTContext {
     public MTClass getBlockClass() {
         return blockClass;
     }
-}
 
+    public MTClass getArrayClass() {
+        return arrayClass;
+    }
+
+    public MTClass getSymbolClass() {
+        return symbolClass;
+    }
+}

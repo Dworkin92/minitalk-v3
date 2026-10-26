@@ -1,5 +1,9 @@
 package mt.runtime.primitives;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import mt.runtime.MTArray;
 import mt.runtime.MTBoolean;
 import mt.runtime.MTContext;
 import mt.runtime.MTInteger;
@@ -109,6 +113,36 @@ public final class MTIntegerPrimitives {
         MTInteger self = (MTInteger) receiver;
 
         return context(self).newInteger(-self.javaValue());
+    }
+
+    //
+    // Intervalles
+    //
+
+    /**
+     * 1 to: 10 -> #(1 2 ... 10), inclusif.
+     * "Tout est message" : pas de syntaxe dediee (decision
+     * du 25/10). 5 to: 1 donne un tableau vide.
+     * to:by: viendra plus tard, par le meme canal.
+     */
+    @Primitive("to:")
+    public static MTObject to(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+        MTInteger last = (MTInteger) arguments[0];
+
+        List<MTObject> elements = new ArrayList<>();
+
+        for (int i = self.javaValue();
+                i <= last.javaValue();
+                i++) {
+            elements.add(
+                context(receiver).newInteger(i));
+        }
+
+        return context(receiver).newArray(elements);
     }
 
     //

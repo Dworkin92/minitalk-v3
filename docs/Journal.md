@@ -244,6 +244,30 @@
   parasite pour les expressions muettes).
 - 70 tests verts. Liste 'confort' terminee.
 
+### 26/10/2026
+
+- Array : classe MTArray + litteral #(...). Divergence assumee
+  avec Smalltalk : les elements de #(...) sont des VARIABLES,
+  pas des symboles ; un tableau de symboles s'ecrit #(#a #b).
+- Un element de #(...) = litteral, variable, symbole ou array
+  imbrique. RIEN d'autre : #(1 + 2) refuse par la grammaire
+  (pas de porte aux expressions imbriquees illisibles).
+- #( ) n'est pas une constante de compilation : le tableau
+  est reconstruit a chaque evaluation, variables lues a ce
+  moment-la (evaluation facon Python, decision du 25/10).
+- Symboles exposes au langage : litteral #ident (option A,
+  pas de dette technique). MTSymbol reste le pool hors des
+  mondes ; MTSymbolObject est son representant PAR CONTEXTE,
+  mis en cache : #a == #a dans un monde, isolation preservee.
+- Primitives Array : size, isEmpty, at: (1-based), = (profond,
+  via le message '=' de chaque element), ==, do: (retourne le
+  recepteur), collect:, select: (strictement booleen,
+  decision du 24/10 conservee).
+- Integer>>to: : 1 to: 10 -> #(1 2 ... 10) inclusif.
+  "Tout est message" : pas de syntaxe dediee (decision 25/10).
+  5 to: 1 -> tableau vide.
+- Nn tests verts.
+
 ## Prochain objectif
 
 ### Notes pour plus tard

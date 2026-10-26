@@ -206,6 +206,44 @@ débogage).
 ### Nil
     isNil notNil ifNil: asString printString
 
+### Tableaux et symboles
+
+#### Littéral tableau `#(...)`
+
+`#(1 2 3)` construit un tableau. **Divergence assumée avec Smalltalk** :
+les éléments sont évalués comme des **variables**, pas comme des symboles.
+Un tableau de symboles s'écrit `#(#a #b #c)` — moins joli, plus explicite.
+
+Un élément de `#(...)` peut être : un littéral, une variable, un symbole,
+ou un tableau imbriqué. **Rien d'autre** : `#(1 + 2)` est refusé par la
+grammaire, et aucun parenthésage ne peut forcer une expression.
+
+`#(...)` n'est pas une constante : le tableau est **reconstruit à chaque
+évaluation** et les variables sont lues à ce moment-là. Deux évaluations
+du même littéral donnent deux tableaux distincts (`==` faux), égaux par
+valeur (`=` vrai, comparaison profonde).
+
+#### Littéral symbole `#ident`
+
+`#abc` s'évalue en symbole. Les symboles sont identifiés par nom dans un
+monde donné : `#a == #a` est vrai. `asString` retourne le nom sans le `#`.
+
+#### Protocole Array
+
+| Message | Sémantique |
+|---|---|
+| `size`, `isEmpty` | évidents |
+| `at: unEntier` | accès 1-based, `MTException` hors bornes |
+| `=` / `==` | valeur (profonde) / identité |
+| `do: unBloc` | parcourt, invoque le bloc avec chaque élément, retourne le récepteur |
+| `collect: unBloc` | tableau des valeurs du bloc |
+| `select: unBloc` | éléments pour lesquels le bloc retourne vrai — **strictement booléen**, sinon `MTException` |
+
+#### Intervalles
+
+`1 to: 10` → `#(1 2 ... 10)`, inclusif. Pas de syntaxe dédiée : « tout est
+message ». `5 to: 1` → tableau vide. `to:by:` viendra plus tard.
+
 ### Block
     value value: value:value:
     whileTrue:

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mt.ast.MTArrayNode;
 import mt.ast.MTAssignmentNode;
 import mt.ast.MTBlockNode;
 import mt.ast.MTIdentifierNode;
@@ -13,6 +14,7 @@ import mt.ast.MTLiteralString;
 import mt.ast.MTMessageSendNode;
 import mt.ast.MTNode;
 import mt.ast.MTSequenceNode;
+import mt.ast.MTSymbolNode;
 import mt.generated.MiniTalkBaseVisitor;
 import mt.generated.MiniTalkParser;
 import mt.runtime.MTSymbol;
@@ -224,7 +226,8 @@ public final class AstBuilderVisitor
             return ctx.expression().accept(this);
         }
 
-        // literal | block | identifier
+        // literal | arrayLiteral | symbolLiteral
+        // | block | identifier
         return ctx.getChild(0).accept(this);
     }
 
@@ -261,6 +264,40 @@ public final class AstBuilderVisitor
             : new MTSequenceNode(List.of());
 
         return new MTBlockNode(parameters, locals, body);
+    }
+
+    //
+    // Tableaux et symboles
+    //
+
+    @Override
+    public MTNode visitArrayLiteral(
+            MiniTalkParser.ArrayLiteralContext ctx) {
+
+        List<MTNode> elements = new ArrayList<>();
+
+        for (var elementCtx : ctx.arrayElement()) {
+            elements.add(elementCtx.accept(this));
+        }
+
+        return new MTArrayNode(elements);
+    }
+
+    @Override
+    public MTNode visitArrayElement(
+            MiniTalkParser.ArrayElementContext ctx) {
+
+        // literal | identifier | symbolLiteral | arrayLiteral :
+        // une seule alternative, un seul enfant.
+        return ctx.getChild(0).accept(this);
+    }
+
+    @Override
+    public MTNode visitSymbolLiteral(
+            MiniTalkParser.SymbolLiteralContext ctx) {
+
+        return new MTSymbolNode(
+            ctx.IDENTIFIER().getText());
     }
 
     //
