@@ -25,9 +25,11 @@
   en attendant l'AST. value / value: sur la classe Block.
 - MTContext (kernel : possede classes, singletons, fabriques, registre)
 - MTString (classe : concatenation, size, at:, comparaisons)
+- MTCharacter (classe : permet d'obtenir/manipuler des caractères UTF )
 - MTBlock (fermeture : implemente MTObject et MTMethod)
 - MTScope (portee lexicale : lookup/assign remontent la chaine)
 - MTBlockPrimitives (value, value:, value:value:)
+- MTCharacterPrimitives ( concatenation, ajout multiples, asString, asInteger)
 
 ### Retour a l'AOS
 
@@ -268,14 +270,39 @@
   5 to: 1 -> tableau vide.
 - Nn tests verts.
 
+### 29/10/2026
+
+- and:/or: paresseux : false and: X et true or: X court-circuitent
+  (X n'est jamais evalue). Operande = bloc (MTMethod, pattern
+  ifTrue:) ou Boolean nu. Resultat strictement booleen
+  (decision du 24/10 conservee) : true and: [42] leve MTException.
+- Float : MTFloat (double), litteral 3.5 (token FLOAT APRES
+  INTEGER, AVANT DOT -- piege du 26/10 tenu). Promotion LOCALE :
+  le type d'une operation ne depend que de ses deux operandes ;
+  7 / 3 + 3.6 = 5.6, le quotient reel s'ecrit 7 asFloat / 3.
+  asFloat / asInteger = conversions explicites. 2 = 2.0 vrai
+  (egalite numerique), affichage "2.0" (type visible), 2.0 ** 0.5
+  = racine (Math.pow sans cast), division par 0.0 = MTException.
+  Lecon JDT : le motif de promotion en if/else, jamais en ternaire
+  caste (types freres MTInteger/MTFloat).
+- MTCharacter : codepoint int (pas "String de 1" : les codepoints
+  supplementaires ne tiennent pas dans un char UTF-16). String>>at:
+  rend un Character (tests mis a jour aux deux etages). Litteral $h
+  (token '$' + caractere tel quel). Concatenation , polymorphe
+  Character/String, fermee sur String. * = repetition ($a * 5 ->
+  'aaaaa', precedent Ruby, dual de la multiplication). + REFUSE
+  comme concatenation : + reste strictement arithmetique,
+  orthogonalite des selecteurs (divergence assumee avec Ruby).
+  Lecon : l'argument d'un mot-cle est une binaryExpression --
+  ('hello' at: 1) = $h exige des parentheses.
+- 129 tests verts. Piège REPL connu, non corrige : $' desequilibre
+  le scanner multi-lignes.
+- Backlog propose : durcissement des casts des primitives
+  (ClassCastException brut -> MTException explicite).
+
 ## Prochain objectif
 
 ### Notes pour plus tard
-
-- `and:` / `or:` sont evaluatifs (recoivent un MTBoolean).
-  Le vrai Smalltalk est paresseux : des que l'interpreteur
-  existera, accepter un MTMethod et l'invoquer conditionnellement,
-  comme ifTrue:.
 
 - MTSymbol.intern est le dernier static d'etat du runtime.
   Decision assumee : les symboles sont l'identite du langage,
@@ -283,13 +310,9 @@
   vivent dans MTContext.)
 
 ### Prochain objectif
+- mise à jour du doc de références avec toutes les nouveautés
+- to:by:,
+- includes:
+- temporaires de programme
 
-- and:/or: paresseux : accepter un bloc (MTMethod) et
-  ne l'invoquer que si necessaire, comme ifTrue:.
-- MTCharacter : classe pour les caracteres ;
-  decider si String>>at: retourne un Character
-  (comme Smalltalk) ou un codepoint.
-- Float : litteraux a virgule, classe Float, messages
-  arithmetiques. Piege lexer : token FLOAT AVANT DOT,
-  sinon 3.5 se lit "3 . 5".
 

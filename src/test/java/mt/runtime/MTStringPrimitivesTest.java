@@ -52,12 +52,16 @@ public class MTStringPrimitivesTest {
 
     @Test
     void atEstUnBasedUn() {
+        // 29/10 : at: rend un MTCharacter, fini le
+        // codepoint brut en MTInteger (decision
+        // style Smalltalk, comme $a).
         MTObject result = bootstrap.getContext()
             .newString("abc")
             .send(MTSymbol.intern("at:"),
                   bootstrap.getContext().newInteger(2));
 
-        assertEquals((int) 'b', ((MTInteger) result).javaValue());
+        assertEquals((int) 'b',
+            ((MTCharacter) result).javaValue());
     }
 
     @Test

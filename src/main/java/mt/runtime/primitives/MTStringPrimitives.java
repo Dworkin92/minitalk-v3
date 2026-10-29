@@ -13,17 +13,56 @@ public final class MTStringPrimitives {
         return receiver.getMTClass().getContext();
     }
 
-    /** Concatenation : 'abc' , 'def' */
+    /** Concatenation : 'abc' , 'def' ou 'abc' , $d */
     @Primitive(",")
     public static MTObject concatenate(
             MTObject receiver,
             MTObject... arguments) {
 
         MTString self = (MTString) receiver;
-        MTString other = (MTString) arguments[0];
+        MTObject other = arguments[0];
+
+        StringBuilder result =
+            new StringBuilder(self.javaValue());
+
+        if (other instanceof MTString s) {
+            result.append(s.javaValue());
+        } else if (other instanceof mt.runtime.MTCharacter c) {
+            result.append(
+                Character.toChars(c.javaValue()));
+        } else {
+            throw new MTException(
+                "Concatenation invalide : " + other
+                + " n'est ni une String ni un Character");
+        }
+
+        return context(self).newString(result.toString());
+    }
+
+    /** 'ab' * 3 -> 'ababab' (repetition, cf. Character) */
+    @Primitive("*")
+    public static MTObject times(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString self = (MTString) receiver;
+        MTObject other = arguments[0];
+
+        if (!(other instanceof mt.runtime.MTInteger n)) {
+            throw new MTException(
+                "Repetition invalide : " + other
+                + " n'est pas un Integer");
+        }
+
+        int count = n.javaValue();
+
+        if (count < 0) {
+            throw new MTException(
+                "Repetition negative : " + count);
+        }
 
         return context(self).newString(
-            self.javaValue() + other.javaValue());
+            self.javaValue().repeat(count));
     }
 
     @Primitive("size")
@@ -68,8 +107,9 @@ public final class MTStringPrimitives {
     }
 
     /**
-     * Acces 1-based : 'abc' at: 2 -> codepoint de 'b'.
-     * (MTCharacter viendra plus tard.)
+     * Acces 1-based : 'abc' at: 2 -> $b.
+     * MTCharacter est arrive (29/10) : fini le
+     * codepoint brut, at: rend un vrai Character.
      */
     @Primitive("at:")
     public static MTObject at(
@@ -85,7 +125,7 @@ public final class MTStringPrimitives {
                 + " at: " + index);
         }
 
-        return context(self).newInteger(
+        return context(self).newCharacter(
             self.javaValue().codePointAt(index - 1));
     }
 

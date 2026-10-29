@@ -6,6 +6,7 @@ import java.util.List;
 import mt.runtime.MTArray;
 import mt.runtime.MTBoolean;
 import mt.runtime.MTContext;
+import mt.runtime.MTFloat;
 import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
 
@@ -28,9 +29,18 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newInteger(self.javaValue() + other.javaValue());
+        // Promotion locale : un Float a droite fait
+        // passer le resultat en Float (decision 29/10).
+        if (other instanceof MTFloat f) {
+            return context(self).newFloat(
+                self.javaValue() + f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newInteger(
+            self.javaValue() + o.javaValue());
     }
 
     @Primitive("-")
@@ -39,9 +49,16 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newInteger(self.javaValue() - other.javaValue());
+        if (other instanceof MTFloat f) {
+            return context(self).newFloat(
+                self.javaValue() - f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newInteger(
+            self.javaValue() - o.javaValue());
     }
 
     @Primitive("*")
@@ -50,14 +67,25 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newInteger(self.javaValue() * other.javaValue());
+        if (other instanceof MTFloat f) {
+            return context(self).newFloat(
+                self.javaValue() * f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newInteger(
+            self.javaValue() * o.javaValue());
     }
 
     /**
-     * Division entiere (quotient), comme en Smalltalk.
-     * La division par zero leve une MTException.
+     * Division entiere (quotient) quand les deux
+     * operandes sont entiers : 7 / 3 = 2.
+     * Promotion en Float si l'argument est un Float :
+     * 7 / 3.0 = 2.333... -- c'est au developpeur d'ecrire
+     * 7 asFloat / 3 s'il veut le quotient reel d'une
+     * division d'entiers (promotion LOCALE, 29/10).
      */
     @Primitive("/")
     public static MTObject divide(
@@ -65,44 +93,78 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        if (other.javaValue() == 0) {
+        if (other instanceof MTFloat f) {
+            if (f.javaValue() == 0.0) {
+                throw new mt.runtime.exceptions.MTException(
+                    "Division par zero : " + self + " / 0.0");
+            }
+            return context(self).newFloat(
+                self.javaValue() / f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+
+        if (o.javaValue() == 0) {
             throw new mt.runtime.exceptions.MTException(
                 "Division par zero : " + self + " / 0");
         }
 
-        return context(self).newInteger(self.javaValue() / other.javaValue());
+        return context(self).newInteger(
+            self.javaValue() / o.javaValue());
     }
 
-    /** Modulo : reste de la division entiere */
+    /** Modulo : reste de la division (promotion Float idem) */
     @Primitive("%")
     public static MTObject modulo(
-            MTObject receiver, MTObject... arguments) {
+            MTObject receiver,
+            MTObject... arguments) {
 
-        MTInteger left = (MTInteger) receiver;
-        MTInteger right = (MTInteger) arguments[0];
+        MTInteger self = (MTInteger) receiver;
+        MTObject other = arguments[0];
 
-        if (right.javaValue() == 0) {
-            throw new mt.runtime.exceptions.MTException(
-                "Division par zero");
+        if (other instanceof MTFloat f) {
+            if (f.javaValue() == 0.0) {
+                throw new mt.runtime.exceptions.MTException(
+                    "Division par zero : " + self + " % 0.0");
+            }
+            return context(self).newFloat(
+                self.javaValue() % f.javaValue());
         }
 
-        return context(receiver).newInteger(
-            left.javaValue() % right.javaValue());
+        MTInteger o = (MTInteger) other;
+
+        if (o.javaValue() == 0) {
+            throw new mt.runtime.exceptions.MTException(
+                "Division par zero : " + self + " % 0");
+        }
+
+        return context(self).newInteger(
+            self.javaValue() % o.javaValue());
     }
 
-    /** Puissance : 2 ** 7 */
+    /**
+     * Puissance : 2 ** 7 en Integer ; 2 ** 0.5 en Float
+     * (racine carree) des qu'un Float est present -- pas
+     * de cast (int) Math.pow dans ce cas (decision 29/10).
+     */
     @Primitive("**")
     public static MTObject power(
-            MTObject receiver, MTObject... arguments) {
+            MTObject receiver,
+            MTObject... arguments) {
 
-        MTInteger left = (MTInteger) receiver;
-        MTInteger right = (MTInteger) arguments[0];
+        MTInteger self = (MTInteger) receiver;
+        MTObject other = arguments[0];
 
-        return context(receiver).newInteger(
-            (int) Math.pow(left.javaValue(),
-                           right.javaValue()));
+        if (other instanceof MTFloat f) {
+            return context(self).newFloat(
+                Math.pow(self.javaValue(), f.javaValue()));
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newInteger(
+            (int) Math.pow(self.javaValue(), o.javaValue()));
     }
 
     @Primitive("negated")
@@ -136,8 +198,7 @@ public final class MTIntegerPrimitives {
         List<MTObject> elements = new ArrayList<>();
 
         for (int i = self.javaValue();
-                i <= last.javaValue();
-                i++) {
+                i <= last.javaValue(); i++) {
             elements.add(
                 context(receiver).newInteger(i));
         }
@@ -155,9 +216,18 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newBoolean(self.javaValue() == other.javaValue());
+        // Egalite numerique : 2 = 2.0 est vrai
+        // (decision du 29/10, comme Smalltalk).
+        if (other instanceof MTFloat f) {
+            return context(self).newBoolean(
+                self.javaValue() == f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newBoolean(
+            self.javaValue() == o.javaValue());
     }
 
     @Primitive("==")
@@ -176,9 +246,16 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newBoolean(self.javaValue() < other.javaValue());
+        if (other instanceof MTFloat f) {
+            return context(self).newBoolean(
+                self.javaValue() < f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newBoolean(
+            self.javaValue() < o.javaValue());
     }
 
     @Primitive(">")
@@ -187,9 +264,16 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newBoolean(self.javaValue() > other.javaValue());
+        if (other instanceof MTFloat f) {
+            return context(self).newBoolean(
+                self.javaValue() > f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newBoolean(
+            self.javaValue() > o.javaValue());
     }
 
     @Primitive("<=")
@@ -198,9 +282,16 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newBoolean(self.javaValue() <= other.javaValue());
+        if (other instanceof MTFloat f) {
+            return context(self).newBoolean(
+                self.javaValue() <= f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newBoolean(
+            self.javaValue() <= o.javaValue());
     }
 
     @Primitive(">=")
@@ -209,9 +300,16 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger other = (MTInteger) arguments[0];
+        MTObject other = arguments[0];
 
-        return context(self).newBoolean(self.javaValue() >= other.javaValue());
+        if (other instanceof MTFloat f) {
+            return context(self).newBoolean(
+                self.javaValue() >= f.javaValue());
+        }
+
+        MTInteger o = (MTInteger) other;
+        return context(self).newBoolean(
+            self.javaValue() >= o.javaValue());
     }
 
     //
@@ -224,6 +322,20 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         return ((MTInteger) receiver).asString();
+    }
+
+    /**
+     * Conversion explicite : 7 asFloat = 7.0.
+     * C'est LE message pour demander une division
+     * reelle d'entiers : a asFloat / b.
+     */
+    @Primitive("asFloat")
+    public static MTObject asFloat(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        return context(receiver).newFloat(
+            ((MTInteger) receiver).javaValue());
     }
 
     /**

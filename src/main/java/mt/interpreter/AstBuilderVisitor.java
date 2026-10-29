@@ -9,8 +9,10 @@ import mt.ast.MTAssignmentNode;
 import mt.ast.MTBlockNode;
 import mt.ast.MTIdentifierNode;
 import mt.ast.MTLiteralInteger;
+import mt.ast.MTLiteralFloat;
 import mt.ast.MTLiteralSpecial;
 import mt.ast.MTLiteralString;
+import mt.ast.MTLiteralCharacter;
 import mt.ast.MTMessageSendNode;
 import mt.ast.MTNode;
 import mt.ast.MTSequenceNode;
@@ -310,6 +312,16 @@ public final class AstBuilderVisitor
         if (ctx.INTEGER() != null) {
             return new MTLiteralInteger(
                 Integer.parseInt(ctx.getText()));
+        }
+
+        if (ctx.FLOAT() != null) {
+            return new MTLiteralFloat(
+                Double.parseDouble(ctx.getText()));
+        }
+
+        if (ctx.CHARACTER() != null) {
+            return new MTLiteralCharacter(
+                ctx.getText().codePointAt(1));
         }
 
         if (ctx.STRING() != null) {

@@ -4,6 +4,7 @@ import mt.runtime.MTBoolean;
 import mt.runtime.MTContext;
 import mt.runtime.MTMethod;
 import mt.runtime.MTObject;
+import mt.runtime.exceptions.MTException;
 
 public final class MTBooleanPrimitives {
 
@@ -47,26 +48,41 @@ public final class MTBooleanPrimitives {
             receiver);
     }
 
+    /**
+     * Paresseux (29/10) : false and: X retourne false
+     * sans jamais toucher X -- meme si X est un bloc
+     * qui ferait une division par zero. Sinon X est
+     * evalue (bloc ou Boolean) et son resultat doit
+     * etre strictement un Boolean.
+     */
     @Primitive("and:")
     public static MTObject and(
             MTObject receiver,
             MTObject... arguments) {
 
         MTBoolean self = (MTBoolean) receiver;
-        MTBoolean other = (MTBoolean) arguments[0];
+        if (!self.javaValue()) {
+            return context(self).falseObject();
+        }
         return context(self).newBoolean(
-            self.javaValue() && other.javaValue());
+            truth(evaluate(arguments[0], receiver)));
     }
 
+    /**
+     * Paresseux (29/10) : true or: X retourne true
+     * sans jamais toucher X. Symetrique de and:.
+     */
     @Primitive("or:")
     public static MTObject or(
             MTObject receiver,
             MTObject... arguments) {
 
         MTBoolean self = (MTBoolean) receiver;
-        MTBoolean other = (MTBoolean) arguments[0];
+        if (self.javaValue()) {
+            return context(self).trueObject();
+        }
         return context(self).newBoolean(
-            self.javaValue() || other.javaValue());
+            truth(evaluate(arguments[0], receiver)));
     }
 
     @Primitive("not")
@@ -84,7 +100,7 @@ public final class MTBooleanPrimitives {
 
     /**
      * Evalue un argument de type condition :
-     * un MTMethod (futur MTBlock) est invoque,
+     * un MTMethod (bloc) est invoque,
      * toute autre valeur est retournee telle quelle.
      */
     private static MTObject evaluate(
@@ -96,5 +112,20 @@ public final class MTBooleanPrimitives {
         }
 
         return value;
+    }
+
+    /**
+     * Verite MiniTalk : strictement un booleen
+     * (decision du 24/10, appliquee a and:/or:).
+     */
+    private static boolean truth(MTObject value) {
+
+        if (value instanceof MTBoolean b) {
+            return b.javaValue();
+        }
+
+        throw new MTException(
+            "Condition invalide : " + value
+            + " n'est pas un Boolean");
     }
 }

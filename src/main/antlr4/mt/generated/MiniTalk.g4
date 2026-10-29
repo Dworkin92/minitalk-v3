@@ -146,7 +146,9 @@ statements
 
 literal
     : INTEGER
+    | FLOAT
     | STRING
+    | CHARACTER
     | NIL
     | TRUE
     | FALSE
@@ -161,7 +163,17 @@ literal
 
 INTEGER  : [0-9]+ ;
 
+// AVANT DOT, sinon 3.5 se lirait "3 . 5"
+// (piege consigne le 26/10). Le match le plus
+// long fait le reste : FLOAT gagne sur INTEGER.
+FLOAT    : [0-9]+ '.' [0-9]+ ;
+
 STRING   : '\'' ('\'' '\'' | ~'\'')* '\'' ;
+
+// Litteral Character : $h, $$, $' ...
+// Le caractere qui suit $ est pris tel quel,
+// meme un espace ou une apostrophe.
+CHARACTER : '$' ~[\r\n] ;
 
 ASSIGN   : '<-' | ':=' ;
 POWER    : '**' ;

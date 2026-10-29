@@ -9,6 +9,8 @@ import mt.runtime.primitives.MTArrayPrimitives;
 import mt.runtime.primitives.MTBlockPrimitives;
 import mt.runtime.primitives.MTBooleanPrimitives;
 import mt.runtime.primitives.MTIntegerPrimitives;
+import mt.runtime.primitives.MTFloatPrimitives;
+import mt.runtime.primitives.MTCharacterPrimitives;
 import mt.runtime.primitives.MTNilPrimitives;
 import mt.runtime.primitives.MTObjectPrimitives;
 import mt.runtime.primitives.MTPrimitiveInstaller;
@@ -35,10 +37,12 @@ public final class MTContext {
     private final MTClass nilClass;
     private final MTClass booleanClass;
     private final MTClass integerClass;
+    private final MTClass floatClass;
     private final MTClass blockClass;
     private final MTClass stringClass;
     private final MTClass arrayClass;
     private final MTClass symbolClass;
+    private final MTClass characterClass;
 
     //
     // Singletons du contexte
@@ -71,10 +75,12 @@ public final class MTContext {
         nilClass     = new MTClass(this, "Nil", objectClass);
         booleanClass = new MTClass(this, "Boolean", objectClass);
         integerClass = new MTClass(this, "Integer", objectClass);
+        floatClass   = new MTClass(this, "Float", objectClass);
         stringClass  = new MTClass(this, "String", objectClass);
         blockClass   = new MTClass(this, "Block", objectClass);
         arrayClass   = new MTClass(this, "Array", objectClass);
         symbolClass  = new MTClass(this, "Symbol", objectClass);
+        characterClass = new MTClass(this, "Character", objectClass);
 
         nil         = new MTNil();
         trueObject  = new MTBoolean(true);
@@ -92,10 +98,12 @@ public final class MTContext {
         registerClass(nilClass);
         registerClass(booleanClass);
         registerClass(integerClass);
+        registerClass(floatClass);
         registerClass(stringClass);
         registerClass(blockClass);
         registerClass(arrayClass);
         registerClass(symbolClass);
+        registerClass(characterClass);
     }
 
     /**
@@ -115,14 +123,16 @@ public final class MTContext {
     //
 
     private void installPrimitives() {
-        MTPrimitiveInstaller.install(objectClass,   MTObjectPrimitives.class);
-        MTPrimitiveInstaller.install(nilClass,      MTNilPrimitives.class);
-        MTPrimitiveInstaller.install(booleanClass,  MTBooleanPrimitives.class);
-        MTPrimitiveInstaller.install(integerClass,  MTIntegerPrimitives.class);
-        MTPrimitiveInstaller.install(stringClass,   MTStringPrimitives.class);
-        MTPrimitiveInstaller.install(blockClass,    MTBlockPrimitives.class);
-        MTPrimitiveInstaller.install(arrayClass,    MTArrayPrimitives.class);
-        MTPrimitiveInstaller.install(symbolClass,   MTSymbolPrimitives.class);
+        MTPrimitiveInstaller.install(objectClass,    MTObjectPrimitives.class);
+        MTPrimitiveInstaller.install(nilClass,       MTNilPrimitives.class);
+        MTPrimitiveInstaller.install(booleanClass,   MTBooleanPrimitives.class);
+        MTPrimitiveInstaller.install(integerClass,   MTIntegerPrimitives.class);
+        MTPrimitiveInstaller.install(floatClass,     MTFloatPrimitives.class);
+        MTPrimitiveInstaller.install(stringClass,    MTStringPrimitives.class);
+        MTPrimitiveInstaller.install(blockClass,     MTBlockPrimitives.class);
+        MTPrimitiveInstaller.install(arrayClass,     MTArrayPrimitives.class);
+        MTPrimitiveInstaller.install(symbolClass,    MTSymbolPrimitives.class);
+        MTPrimitiveInstaller.install(characterClass, MTCharacterPrimitives.class);
     }
 
     //
@@ -135,6 +145,14 @@ public final class MTContext {
 
     public MTInteger newInteger(int javaValue) {
         return new MTInteger(integerClass, javaValue);
+    }
+
+    public MTFloat newFloat(double javaValue) {
+        return new MTFloat(floatClass, javaValue);
+    }
+
+    public MTCharacter newCharacter(int codepoint) {
+        return new MTCharacter(characterClass, codepoint);
     }
 
     public MTBoolean newBoolean(boolean javaValue) {
@@ -214,6 +232,14 @@ public final class MTContext {
 
     public MTClass getIntegerClass() {
         return integerClass;
+    }
+
+    public MTClass getFloatClass() {
+        return floatClass;
+    }
+
+    public MTClass getCharacterClass() {
+        return characterClass;
     }
 
     public MTClass getStringClass() {

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import mt.bootstrap.MTBootstrap;
 import mt.runtime.MTBoolean;
+import mt.runtime.MTFloat;
 import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
 import mt.runtime.MTString;
@@ -200,6 +201,90 @@ public class MTInterpreterTest {
     }
 
     //
+    // Float (brique du 29/10)
+    //
+
+    @Test
+    void floatLitteral() {
+        MTObject r = run("3.5");
+        assertEquals(3.5, ((MTFloat) r).javaValue(), 1e-12);
+    }
+
+    @Test
+    void promotionLocaleAddition() {
+        // 1 + 2.5 : le Float a droite fait
+        // passer l'operation en Float.
+        MTObject r = run("1 + 2.5");
+        assertEquals(3.5, ((MTFloat) r).javaValue(), 1e-12);
+    }
+
+    @Test
+    void divisionEntiereResteEntiere() {
+        // L'exemple type de la promotion LOCALE :
+        // 7 / 3 est entier (2), puis 2 + 3.6 = 5.6.
+        // Pour 5.9333... : 7 asFloat / 3 + 3.6.
+        MTObject r = run("7 / 3 + 3.6");
+        assertEquals(5.6, ((MTFloat) r).javaValue(), 1e-12);
+    }
+
+    @Test
+    void asFloatForceLaDivisionReelle() {
+        MTObject r = run("7 asFloat / 3");
+        assertEquals(7.0 / 3, ((MTFloat) r).javaValue(), 1e-9);
+    }
+
+    @Test
+    void puissanceRacineCarree() {
+        // 2.0 ** 0.5 : racine, pas de cast (int)
+        MTObject r = run("2.0 ** 0.5");
+        assertEquals(Math.sqrt(2),
+            ((MTFloat) r).javaValue(), 1e-12);
+    }
+
+    @Test
+    void egaliteNumeriqueInterTypes() {
+        // 2 = 2.0 : comparaison numerique (29/10)
+        MTObject r = run("2 = 2.0");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void affichageFloatEntierGardeLeTypeVisible() {
+        MTObject r = run("2.0 asString");
+        assertEquals("2.0", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void negationUnaireSurFloat() {
+        MTObject r = run("-2.5");
+        assertEquals(-2.5, ((MTFloat) r).javaValue(), 1e-12);
+    }
+
+    @Test
+    void divisionParZeroFloatLeveMTException() {
+        assertThrows(MTException.class,
+            () -> run("1.5 / 0.0"));
+    }
+
+    @Test
+    void moduloFloat() {
+        MTObject r = run("7.5 % 2");
+        assertEquals(1.5, ((MTFloat) r).javaValue(), 1e-12);
+    }
+
+    @Test
+    void asIntegerTronqueVersZero() {
+        MTObject r = run("2.9 asInteger");
+        assertEquals(2, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void floatDansUnArrayLitteral() {
+        MTObject r = run("#(1 2.5) size");
+        assertEquals(2, ((MTInteger) r).javaValue());
+    }
+    
+    //
     // affichage
     //
     @Test
@@ -235,6 +320,58 @@ public class MTInterpreterTest {
     }
 
     //
+    // Character (brique du 29/10)
+    //
+
+    @Test
+    void characterLitteral() {
+        MTObject r = run("$h");
+        assertEquals(104,
+            ((mt.runtime.MTCharacter) r).javaValue());
+    }
+
+    @Test
+    void atRendUnCharacter() {
+        MTObject r = run("'hello' at: 1");
+        assertTrue(r instanceof mt.runtime.MTCharacter);
+    }
+
+    @Test
+    void characterRoundTrip() {
+        // at: est un mot-cle : son argument est une
+        // binaryExpression, donc 1 = $h serait evalue
+        // d'abord. Parentheses obligatoires.
+        MTObject r = run("('hello' at: 1) = $h");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void characterAsString() {
+        MTObject r = run("$h asString");
+        assertEquals("h", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void characterAsInteger() {
+        MTObject r = run("$h asInteger");
+        assertEquals(104, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void characterDansUnArrayLitteral() {
+        MTObject r = run("#($a $b) size");
+        assertEquals(2, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void characterSpecialDollar() {
+        // $$ est le caractere dollar lui-meme
+        MTObject r = run("$$");
+        assertEquals(36,
+            ((mt.runtime.MTCharacter) r).javaValue());
+    }
+
+    //
     // Les chaines de caracteres
     //
 
@@ -247,8 +384,9 @@ public class MTInterpreterTest {
     @Test
     void atPremierCaractere() {
         MTObject r = run("'hello' at: 1");
-        // codepoint de 'h' = 104
-        assertEquals(104, ((MTInteger) r).javaValue());
+        // codepoint de 'h' = 104, porte par un MTCharacter
+        assertEquals(104,
+            ((mt.runtime.MTCharacter) r).javaValue());
     }
 
     @Test
@@ -273,6 +411,59 @@ public class MTInterpreterTest {
     void containsBooleen() {
         MTObject r = run("'hello' contains: 'ell'");
         assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void concatenationDeuxCharactersDonneUneString() {
+        MTObject r = run("$a , $b");
+        assertEquals("ab", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void concatenationCharacterPuisString() {
+        MTObject r = run("$a , 'bc'");
+        assertEquals("abc", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void concatenationStringPuisCharacter() {
+        MTObject r = run("'ab' , $c");
+        assertEquals("abc", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void concatenationTroisCharactersChainee() {
+        // Associatif a gauche : ($a , $b) donne 'ab',
+        // puis 'ab' , $c. Le resultat reste une String.
+        MTObject r = run("$a , $b , $c");
+        assertEquals("abc", ((MTString) r).javaValue());
+    }
+
+    @Test
+    void characterRepeteDonneUneString() {
+        MTObject r = run("$a * 5");
+        assertEquals("aaaaa",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void stringRepetee() {
+        MTObject r = run("'ab' * 3");
+        assertEquals("ababab",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void repetitionParZeroDonneChaineVide() {
+        MTObject r = run("$a * 0");
+        assertEquals("",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void repetitionNegativeLeveMTException() {
+        assertThrows(MTException.class,
+            () -> run("$a * -1"));
     }
 
     //
@@ -334,6 +525,52 @@ public class MTInterpreterTest {
         assertEquals(15, ((MTInteger) result).javaValue());
     }
 
+        //
+    // and:/or: paresseux
+    //
+
+    @Test
+    void andCourtCircuitNeLevePasErreur() {
+        // Le bloc n'est jamais evalue : la division
+        // par zero dormante ne reveille pas.
+        MTObject r = run("false and: [1 / 0]");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void orCourtCircuitNeLevePasErreur() {
+        MTObject r = run("true or: [1 / 0]");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void andEvalueLeBlocQuandVrai() {
+        MTObject r = run("true and: [1 + 1 = 2]");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void orEvalueLeBlocQuandFaux() {
+        MTObject r = run("false or: [3 > 2]");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void andAvecBooleanNuResteValide() {
+        // Retrocompatibilite : l'operande peut etre
+        // un Boolean, pas seulement un bloc.
+        MTObject r = run("true and: false");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void andBlocNonBooleenLeveMTException() {
+        // Strict booleens : le bloc doit repondre
+        // un Boolean, pas un entier.
+        assertThrows(MTException.class,
+            () -> run("true and: [42]"));
+    }
+    
     //
     // whileTrue:
     //
