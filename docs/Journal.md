@@ -300,6 +300,24 @@
 - Backlog propose : durcissement des casts des primitives
   (ClassCastException brut -> MTException explicite).
 
+### 30/10/2026
+
+- Reference : sections Float et Character, promotion
+  locale (7 / 3 + 3.6 = 5.6, real = 7 asFloat / 3),
+  avertissement parentheses/argument-de-mot-cle.
+- to:by: sur Integer : pas signe, bornes mal orientees
+  -> tableau vide (comme Smalltalk), pas nul -> MTException.
+- includes: sur Array : egalite profonde reutilisee ;
+  l'egalite numerique inter-types s'y propage
+  (#(1 2) includes: 2.0 est vrai).
+- Temporaires de programme :   a b | en tete, comme un
+  corps de methode Smalltalk. MTLocalsNode, define a nil
+  dans la portee racine, visible des blocs par fermeture.
+  Decision REPL : la portee racine persiste entre lignes,
+  le garde-fou protege contre l'affectation SANS
+  declaration prealable (pas entre lignes).
+- 145 tests verts.
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -310,9 +328,6 @@
   vivent dans MTContext.)
 
 ### Prochain objectif
-- mise à jour du doc de références avec toutes les nouveautés
-- to:by:,
-- includes:
-- temporaires de programme
+- durcissement des cast
 
 
