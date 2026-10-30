@@ -1,6 +1,6 @@
 # MiniTalk V3 — Référence du langage et du runtime
 
-État au 26/10/2026. MiniTalk est un Smalltalk-like : tout
+État au 29/10/2026. MiniTalk est un Smalltalk-like : tout
 est objet, tout calcul est un message, les blocs sont des
 fermetures. Cette page décrit la syntaxe supportée par
 l'interpréteur, la sémantique, puis les classes Java du
@@ -18,15 +18,20 @@ de signification particulière aux fins de ligne.
 #### Nombres
 
     INTEGER    suite de chiffres : [0-9]+
+    FLOAT      chiffres, point, chiffres : [0-9]+ '.' [0-9]+
 
 Un entier est toujours positif ; il n'existe pas de
-littéral négatif (écrire `0 - 5`). Pas encore de
-virgule flottante.
+littéral négatif (écrire `0 - 5`). Un flottant littéral
+est un `double` IEEE 754 (`3.5`, `2.0`) ; le point est
+décimal, il n'y a pas de notation exposante pour l'instant.
 
-#### Chaînes et commentaires
+#### Chaînes, caractères et commentaires
 
     STRING     '...' ; le guillemet simple est
               échappé en le doublant : 'l''eau'
+    CHARACTER  '$' suivi d'un caractère pris tel
+              quel : $h, $$, $' ($ seul prend le
+              caractère suivant, même un espace)
 
 Une chaîne tient sur une ligne. Le guillemet double est
 réservé aux commentaires :
@@ -55,27 +60,31 @@ mots-clés du langage : de simples identifiants.
     BINARY     suite d'au moins un caractère pris
                parmi : + - * / = < > % ~ , &
 
-`|` et `:` n'en font pas partie (réservés : voir les
+` ` et `:` n'en font pas partie (réservés : voir les
 signes de ponctuation).
 
 #### Signes de ponctuation
 
     :=  et  <-    affectation (synonymes)
     :              deux-points des mots-clés (`max:`)
-    |              barre des paramètres `[:x | ...]`
+ |              barre des paramètres `[:x | ...]`
                    et des temporaires `[| t | ...]`
     [  ]           crochets des blocs
     (  )           parenthèses de groupement :
                    `(3 + 4) * 2`
-    .              point de séquence
+    .              point de séquence (et point décimal
+                   dans un littéral flottant)
     #              marque des littéraux tableau `#( )`
                    et symbole `#ident`
+    $              marque d'un littéral caractère
 
 ### 1.2 Littéraux
 
     42              entier
+    3.5             flottant (double)
     'hello'         chaîne ; '' échappe un guillemet :
                     'l''eau' -> l'eau
+    $h              caractère (codepoint Unicode)
     nil             l'objet vide
     true / false    booléens
     #(1 2 3)        tableau ; un élément est un littéral,
@@ -130,6 +139,21 @@ restent la parade en cas de doute : (2 ** 3) ** 2.
 Le signe unaire est unique : `--3` est refusé par la
 grammaire. La double négation s'écrit `-(-3)`, à la
 manière mathématique.
+
+**Attention — l'argument d'un message à mot-clé est une
+expression binaire complète.** Tout ce qui suit le
+deux-points est évalué d'abord :
+
+    'hello' at: 1 = $h     se lit :  'hello' at: (1 = $h)   !
+
+Pour comparer le caractère rendu par `at:`, il faut
+parenthéser :
+
+    ('hello' at: 1) = $h
+
+C'est le comportement Smalltalk standard ; la grammaire
+est saine, mais l'oubli des parenthèses est l'erreur
+classique ici.
 
 Sélecteurs binaires : `+ - * / = ~= < > <= >= ,` et
 combinaisons des caractères `+ - * / = < > % ~ , &`.
@@ -204,21 +228,117 @@ d'itérations).
     ifTrue: ifFalse: ifTrue:ifFalse:
     and: or: not asString
 
+`and:` et `or:` sont **paresseux** (29/10) :
+
+    false and: [n'importe quoi]    -> false, le bloc
+                                     n'est JAMAIS évalué
+    true or: [n'importe quoi]       -> true, idem
+
+L'opérande est un **bloc** (évalué seulement si nécessaire)
+ou un booléen nu (`true and: false` reste valide). Le
+résultat de l'opérande doit être strictement un booléen :
+`true and: [42]` lève `MTException` (pas de vérité à la
+C, décision du 24/10 étendue ici).
+
 ### Integer
     + - * / % ** negated
     = == < > <= >=
     to:
-    asString yourself
+    asString asFloat yourself
 
 `to:` construit un intervalle : voir « Intervalles »
-ci-dessous.
+ci-dessous. `asFloat` convertit explicitement en
+flottant : c'est le message pour demander une division
+réelle d'entiers (voir Float).
+
+### Float
+    + - * / % ** negated
+    = == < > <= >=
+    asString asInteger yourself
+
+Un `Float` est un `double` IEEE 754. Affichage : `2.0`
+reste affiché `2.0` (le type reste visible, style Squeak).
+
+**Promotion locale (29/10) :** le type d'une opération ne
+dépend que de ses **deux opérandes**. Une opération entre
+deux `Integer` est entière ; dès qu'un `Float` apparaît
+d'un côté, l'opération est flottante :
+
+    1 + 2.5        -> 3.5      (promotion)
+    7 / 3          -> 2        (division entière)
+    7 / 3.0        -> 2.333...  (promotion)
+
+> **Attention.** La promotion est locale à CHAQUE
+> opération, pas globale à l'expression :
+>
+>     7 / 3 + 3.6    -> 2 + 3.6  -> 5.6
+>
+> Pour un quotient réel, la conversion est explicite et à
+> la charge du développeur :
+>
+>     7 asFloat / 3 + 3.6    -> 5.933...
+>
+> C'est le comportement Java/C/Python ; une « contagion »
+> globale serait indéfinissable avec des variables (le
+> type de `a` n'est connu qu'à l'exécution).
+
+Autres règles :
+
+- Égalité **numérique** inter-types : `2 = 2.0` est vrai
+  (comparaison par valeur, comme Smalltalk) ; `==`
+  reste l'identité stricte.
+- Puissance sans cast : `2.0 ** 0.5` est la racine carrée
+  de 2 ; `2 ** 0.5` promeut en flottant et répond aussi
+  la racine.
+- Division et modulo par zéro (`0` ou `0.0`) :
+  `MTException` — MiniTalk n'embrasse pas l'infini IEEE,
+  par cohérence avec Integer.
+- `asInteger` **tronque vers zéro** : `2.9 asInteger = 2`,
+  `-2.9 asInteger = -2`.
 
 ### String
-    , size at: isEmpty
+    , * size at: isEmpty
     = ==
     reverse uppercase lowercase
     indexOf: contains:
     asString
+
+`at:` rend un **Character** (29/10) — plus un codepoint
+brut. `times` : la répétition `*` (voir Character).
+La concaténation `,` accepte un `Character` à droite :
+`'ab' , $c` -> `'abc'`. Le résultat d'une concaténation
+est toujours une `String`.
+
+### Character
+    , *
+    = ==
+    asString asInteger yourself
+
+Un caractère est un **codepoint Unicode** (type distinct,
+29/10 : un caractère supplémentaire tel que 𝄞 ne tient pas
+dans un `char` UTF-16, une « String de longueur 1 » ne
+pourrait pas le représenter).
+
+- Littéral : `$h`, `$$` (dollar), `$'` (apostrophe) ;
+  le caractère qui suit `$` est pris tel quel.
+- `=` compare les codepoints : `$a = $a` est vrai.
+- `asInteger` rend le codepoint : `$h asInteger = 104`.
+- `asString` rend la chaîne d'un caractère : `$h asString`
+  -> `'h'`.
+- Concaténation `,` : `$a , $b` -> `'ab'` ;
+  `$a , 'bc'` -> `'abc'`. **Fermée sur String** : le
+  résultat d'une concaténation est toujours une String.
+- Répétition `*` : `$a * 5` -> `'aaaaa'`. Dual de la
+  multiplication entière (l'addition répétée a pour
+  symétrique la concaténation répétée). L'entier doit
+  être positif ou nul : `$a * -1` lève `MTException` ;
+  `$a * 0` rend la chaîne vide.
+
+> **Pourquoi pas `+` pour la concaténation ?** `+` reste
+> strictement arithmétique (Integer, Float) : un seul
+> sélecteur par opération, sans surcharge implicite
+> (divergence assumée avec Ruby). La concaténation
+> s'écrit `,` et rien d'autre.
 
 ### Nil
     isNil notNil ifNil: ifNotNil:
@@ -233,7 +353,8 @@ ci-dessous.
 les éléments sont évalués comme des **variables**, pas comme des symboles.
 Un tableau de symboles s'écrit `#(#a #b #c)` — moins joli, plus explicite.
 
-Un élément de `#(...)` peut être : un littéral, une variable, un symbole,
+Un élément de `#(...)` peut être : un littéral (y compris
+flottant et caractère), une variable, un symbole,
 ou un tableau imbriqué. **Rien d'autre** : `#(1 + 2)` est refusé par la
 grammaire, et aucun parenthésage ne peut forcer une expression.
 
@@ -248,25 +369,23 @@ valeur (`=` vrai, comparaison profonde).
 monde donné : `#a == #a` est vrai. `asString` retourne le nom sans le `#`.
 
 #### Protocole Array
-
-| Message | Sémantique |
-|---|---|
-| `size`, `isEmpty` | évidents |
-| `at: unEntier` | accès 1-based, `MTException` hors bornes |
-| `=` / `==` | valeur (profonde, via le message `=` de chaque élément) / identité |
-| `do: unBloc` | parcourt, invoque le bloc avec chaque élément, retourne le récepteur |
-| `collect: unBloc` | tableau des valeurs du bloc |
-| `select: unBloc` | éléments pour lesquels le bloc retourne vrai — **strictement booléen**, sinon `MTException` |
+ | Message | Sémantique |
+ |---|---|
+ | `size`, `isEmpty` | évidents |
+ | `at: unEntier` | accès 1-based, `MTException` hors bornes |
+ | `=` / `==` | valeur (profonde, via le message `=` de chaque élément) / identité |
+ | `do: unBloc` | parcourt, invoque le bloc avec chaque élément, retourne le récepteur |
+ | `collect: unBloc` | tableau des valeurs du bloc |
+ | `select: unBloc` | éléments pour lesquels le bloc retourne vrai — **strictement booléen**, sinon `MTException` |
 
 Affichage : `#(1 2 3)`, tableaux imbriqués compris ; les chaînes
 s'y affichent sans guillemets (affichage minimal, à affiner).
 
 #### Protocole Symbol
-
-| Message | Sémantique |
-|---|---|
-| `=` / `==` | identité (les symboles sont uniques par nom dans un monde) |
-| `asString` | le nom, sans le `#` |
+ | Message | Sémantique |
+ |---|---|
+ | `=` / `==` | identité (les symboles sont uniques par nom dans un monde) |
+ | `asString` | le nom, sans le `#` |
 
 #### Intervalles
 
@@ -285,8 +404,9 @@ son `MTContext`, qui possède les fabriques.
 
     mt.runtime
       MTContext     le monde : classes et fabriques
-                    (newInteger, newString, newArray,
-                    newBlock, newScope, symbolObject,
+                    (newInteger, newFloat, newString,
+                    newCharacter, newArray, newBlock,
+                    newScope, symbolObject,
                     nil, true, false)
       MTObject      interface : send, getMTClass,
                     asString, isNil
@@ -300,13 +420,15 @@ son `MTContext`, qui possède les fabriques.
                     define / lookup / assign
       MTBlock       fermeture : paramètres + corps
                     (implémente MTObject et MTMethod)
-      MTInteger, MTString, MTBoolean, MTNil, MTArray
+      MTInteger, MTFloat, MTString, MTCharacter,
+      MTBoolean, MTNil, MTArray
 
     mt.runtime.primitives
       MTPrimitiveInstaller   connecte @Primitive aux
                              classes
       @Primitive("sélecteur")
-      MTIntegerPrimitives, MTStringPrimitives,
+      MTIntegerPrimitives, MTFloatPrimitives,
+      MTStringPrimitives, MTCharacterPrimitives,
       MTArrayPrimitives, MTSymbolPrimitives,
       MTNilPrimitives, MTBooleanPrimitives,
       MTBlockPrimitives
@@ -348,4 +470,15 @@ Une erreur de syntaxe remonte en `ParseCancellationException`
   `select:` strictement booléen ; `do:` retourne le
   récepteur ; pas encore de déclaration de variables au
   niveau programme (seuls les blocs déclarent).
+- 29/10 : `and:`/`or:` paresseux (court-circuit, opérande
+  bloc ou booléen, résultat strictement booléen) ;
+  Float avec **promotion locale** (`7 / 3 + 3.6` = 5.6,
+  le réel s'écrit `7 asFloat / 3`) ; égalité numérique
+  inter-types (`2 = 2.0` vrai) ; MTCharacter = codepoint
+  (type distinct, les codepoints supplémentaires ne
+  tiennent pas dans un char) ; `String>>at:` rend un
+  Character ; concaténation `,` polymorphe Character/String
+  fermée sur String ; `*` = répétition ; `+` refusé comme
+  concaténation (sélecteurs orthogonaux, divergence
+  assumée avec Ruby) ; division par `0.0` = `MTException`.
   
