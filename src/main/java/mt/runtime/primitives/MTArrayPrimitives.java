@@ -180,6 +180,29 @@ public final class MTArrayPrimitives {
         return context(receiver).newArray(kept);
     }
 
+    /**
+     * includes: vrai si un element est egal a
+     * l'argument, par son propre message '=' -- la
+     * meme egalite profonde que pour l'egalite des
+     * tableaux, reutilisee telle quelle.
+     */
+    @Primitive("includes:")
+    public static MTObject includes(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTArray self = (MTArray) receiver;
+        MTObject sought = arguments[0];
+
+        for (MTObject element : self.javaValue()) {
+            if (elementEquals(element, sought)) {
+                return context(receiver).newBoolean(true);
+            }
+        }
+
+        return context(receiver).newBoolean(false);
+    }
+
     private static boolean elementEquals(
             MTObject left,
             MTObject right) {

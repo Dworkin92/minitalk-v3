@@ -8,7 +8,7 @@ grammar MiniTalk;
 //           compte des règles d'analyse syntaxique !
 
 program
-    : (statement ('.' statement)* '.'?)? EOF
+    : blockLocals? (statement ('.' statement)* '.'?)? EOF
     ;
 
 statement

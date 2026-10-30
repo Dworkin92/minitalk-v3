@@ -206,6 +206,48 @@ public final class MTIntegerPrimitives {
         return context(receiver).newArray(elements);
     }
 
+        /**
+     * 1 to: 10 by: 2 -> #(1 3 5 7 9). Le sens de
+     * parcours est donne par le signe du pas ; des
+     * bornes mal orientees donnent un tableau vide
+     * (1 to: 10 by: -2 -> #()), comme en Smalltalk.
+     * Un pas nul est une erreur explicite.
+     */
+    @Primitive("to:by:")
+    public static MTObject toBy(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+        MTInteger last = (MTInteger) arguments[0];
+        MTInteger step = (MTInteger) arguments[1];
+
+        int from = self.javaValue();
+        int to = last.javaValue();
+        int by = step.javaValue();
+
+        if (by == 0) {
+            throw new mt.runtime.exceptions.MTException(
+                "Pas nul : " + self + " to: " + to + " by: 0");
+        }
+
+        List<MTObject> elements = new ArrayList<>();
+
+        if (by > 0) {
+            for (int i = from; i <= to; i += by) {
+                elements.add(
+                    context(receiver).newInteger(i));
+            }
+        } else {
+            for (int i = from; i >= to; i += by) {
+                elements.add(
+                    context(receiver).newInteger(i));
+            }
+        }
+
+        return context(receiver).newArray(elements);
+    }
+    
     //
     // Comparaisons
     //

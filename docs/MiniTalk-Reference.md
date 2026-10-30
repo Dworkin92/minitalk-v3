@@ -246,10 +246,14 @@ C, décision du 24/10 étendue ici).
     to:
     asString asFloat yourself
 
-`to:` construit un intervalle : voir « Intervalles »
-ci-dessous. `asFloat` convertit explicitement en
-flottant : c'est le message pour demander une division
-réelle d'entiers (voir Float).
+`to:`,`to:by:` :
+
+`1 to: 10` → `#(1 2 ... 10)`, inclusif.
+
+`1 to: 10 by: 2` → `#(1 3 5 7 9)` :
+le pas est signé, des bornes mal orientées donnent un tableau vide
+(`1 to: 10 by: -2` → `#()`), un pas nul lève `MTException`. Pas de syntaxe
+dédiée : « tout est message ».
 
 ### Float
     + - * / % ** negated
@@ -377,6 +381,7 @@ monde donné : `#a == #a` est vrai. `asString` retourne le nom sans le `#`.
  | `do: unBloc` | parcourt, invoque le bloc avec chaque élément, retourne le récepteur |
  | `collect: unBloc` | tableau des valeurs du bloc |
  | `select: unBloc` | éléments pour lesquels le bloc retourne vrai — **strictement booléen**, sinon `MTException` |
+ | `includes: unObjet` | vrai si un élément est égal par son message `=` (égalité profonde) |
 
 Affichage : `#(1 2 3)`, tableaux imbriqués compris ; les chaînes
 s'y affichent sans guillemets (affichage minimal, à affiner).

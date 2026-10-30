@@ -29,9 +29,58 @@ public class MTInterpreterTest {
     }
 
     //
+    // Temporaires de programme
+    //
+
+    @Test
+    void programmeAvecTemporaires() {
+        MTObject r = run("| t | t := 7. t");
+        assertEquals(7, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void temporaireDeProgrammeInitialiseeANil() {
+        MTObject r = run("| t | t isNil");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void plusieursTemporairesDeProgramme() {
+        MTObject r =
+            run("| a b | a := 1. b := 2. a + b");
+        assertEquals(3, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void blocVoitLaTemporaireDeProgramme() {
+        // Fermeture : le bloc capture la portee racine
+        MTObject r =
+            run("| t | t := 10. [t + 5] value");
+        assertEquals(15, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void affectationSansDeclarationToujoursErreur() {
+        // Le garde-fou tient : sans | x |, rien ne declare
+        assertThrows(MTException.class,
+            () -> run("x := 1"));
+    }
+
+    @Test
+    void declarationsUniquementEnTete() {
+        // | u | au milieu : refuse par la grammaire
+        // (erreur de syntaxe, pas d'execution)
+        assertThrows(
+            org.antlr.v4.runtime.misc.
+                ParseCancellationException.class,
+            () -> run("x := 1. | u | u := 2"));
+    }
+
+    //
     // Blocs et fermetures
     //
 
+    
     @Test
     void blocAvecParametre() {
         MTObject result = run(
@@ -664,5 +713,74 @@ public class MTInterpreterTest {
     void messageNonComprisLeveMTException() {
         assertThrows(MTException.class,
             () -> run("1 messageQuiNExistePas"));
+    }
+
+        //
+    // to:by: et includes: (suite de la journee)
+    //
+
+    @Test
+    void intervalleAvecPas() {
+        MTObject r = run("(1 to: 10 by: 2) size");
+        assertEquals(5, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void intervalleAvecPasDernierElement() {
+        MTObject r = run("(1 to: 10 by: 2) at: 5");
+        assertEquals(9, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void pasNegatifDescend() {
+        // 10 to: 1 by: -3 -> #(10 7 4 1)
+        MTObject r = run("(10 to: 1 by: -3) size");
+        assertEquals(4, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void bornesMalOrienteesDonnentTableauVide() {
+        MTObject r = run("(1 to: 10 by: -2) size");
+        assertEquals(0, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void pasNulLeveMTException() {
+        assertThrows(MTException.class,
+            () -> run("1 to: 10 by: 0"));
+    }
+
+    @Test
+    void includesPresent() {
+        MTObject r = run("#(1 2 3) includes: 2");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesAbsent() {
+        MTObject r = run("#(1 2 3) includes: 5");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesEgaliteProfonde() {
+        // Les chaines se comparent par valeur
+        MTObject r = run("#('a' 'b') includes: 'a'");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesTableauImbrique() {
+        // Le = profond des tableaux sert includes: aussi
+        MTObject r = run("#(#(1 2) 3) includes: #(1 2)");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesNumeriqueInterTypes() {
+        // Consequence de l'egalite numerique (29/10) :
+        // 2 = 2.0 est vrai, donc includes: 2.0 trouve 2.
+        MTObject r = run("#(1 2) includes: 2.0");
+        assertTrue(((MTBoolean) r).javaValue());
     }
 }

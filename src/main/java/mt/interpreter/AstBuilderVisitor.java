@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import mt.ast.MTArrayNode;
 import mt.ast.MTAssignmentNode;
 import mt.ast.MTBlockNode;
+import mt.ast.MTLocalsNode;
 import mt.ast.MTIdentifierNode;
 import mt.ast.MTLiteralInteger;
 import mt.ast.MTLiteralFloat;
@@ -37,7 +38,23 @@ public final class AstBuilderVisitor
             statements.add(statementCtx.accept(this));
         }
 
-        return new MTSequenceNode(statements);
+        MTSequenceNode body =
+            new MTSequenceNode(statements);
+
+        // Temporaires de programme : | a b | en tete,
+        // comme un corps de methode Smalltalk. Elles
+        // vivent dans la portee racine.
+        if (ctx.blockLocals() != null) {
+            List<String> names = new ArrayList<>();
+
+            for (var name : ctx.blockLocals().IDENTIFIER()) {
+                names.add(name.getText());
+            }
+
+            return new MTLocalsNode(names, body);
+        }
+
+        return body;
     }
 
     @Override
