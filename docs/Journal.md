@@ -318,6 +318,38 @@
   declaration prealable (pas entre lignes).
 - 145 tests verts.
 
+### 02/11/2026
+
+- Durcissement des casts : format uniforme <valeur>
+  n'est pas un <Type> (<selecteur>) -- 'x' n'est pas
+  un Integer (at:). Helpers prives par classe (patron
+  context() etendu), decision : pas de classe
+  centralisee. Classes durcies : Integer, String,
+  Character, Array, Block, Float (numeric au format
+  uniforme). Casts du recepteur conserves : garantis
+  par le dispatch. Garde-fous existants inchanges
+  (Condition invalide, Index hors bornes, Division
+  par zero, Pas nul).
+- Lecon de hierarchie : MTBlock implemente MTMethod ;
+  typer body en MTMethod (intention : invocable) et
+  non MTBlock (implementation) dans whileTrue:/whileFalse:.
+- MTPrimitiveInstaller : une MTException levee par une
+  primitive passe telle quelle (erreur du langage) ;
+  seules les erreurs Java restent reemballees en
+  "Echec primitive". Observation pour plus tard : ce
+  message nomme la methode Java, pas le selecteur.
+- 8 tests sur le CONTENU des messages. 153 verts.
+- Ouverture de docs/PERSPECTIVE-SGBD.md (Q1 en reflexion) :
+  OID = UUID, bande basse 0-40960 reservee aux built-in
+  (instances 0-4095, classes 4096-8191, primitives
+  d'instance 8192-24575, primitives de classe 24576-40960,
+  elastiques pour les futurs connecteurs Java). Objets de
+  valeur SANS oid (serialisation par valeur -- dividende
+  de l'absence de cache d'entiers). Piege note : l'ordre
+  de getDeclaredMethods() n'est pas garanti -> table
+  litterale Git ou enumeration deterministe, a trancher.
+
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -328,7 +360,6 @@
   vivent dans MTContext.)
 
 ### Prochain objectif
-- durcissement des cast
 - Dictionary ({} réservé),
 - String>>includes:, ou une réflexion SGBD/persistance (prospective reprend).
 - ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb, etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux ou sur serveur distant gérant le multi accès.
