@@ -9,6 +9,7 @@ import mt.runtime.MTContext;
 import mt.runtime.MTFloat;
 import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
+import mt.runtime.exceptions.MTException;
 
 public final class MTIntegerPrimitives {
 
@@ -17,6 +18,25 @@ public final class MTIntegerPrimitives {
 
     private static MTContext context(MTObject receiver) {
         return receiver.getMTClass().getContext();
+    }
+
+    /**
+     * Cast durci (02/11) : un argument doit etre un
+     * Integer, sinon MTException explicite au format
+     * uniforme <valeur> n'est pas un Integer (<selecteur>).
+     * Remplace les casts nus qui remontaient un
+     * ClassCastException brut.
+     */
+    private static MTInteger asInteger(
+            MTObject value,
+            String selector) {
+
+        if (value instanceof MTInteger i) {
+            return i;
+        }
+
+        throw new MTException(
+            value + " n'est pas un Integer (" + selector + ")");
     }
 
     //
@@ -38,7 +58,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() + f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "+");
         return context(self).newInteger(
             self.javaValue() + o.javaValue());
     }
@@ -56,7 +76,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() - f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "-");
         return context(self).newInteger(
             self.javaValue() - o.javaValue());
     }
@@ -74,7 +94,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() * f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "*");
         return context(self).newInteger(
             self.javaValue() * o.javaValue());
     }
@@ -97,17 +117,17 @@ public final class MTIntegerPrimitives {
 
         if (other instanceof MTFloat f) {
             if (f.javaValue() == 0.0) {
-                throw new mt.runtime.exceptions.MTException(
+                throw new MTException(
                     "Division par zero : " + self + " / 0.0");
             }
             return context(self).newFloat(
                 self.javaValue() / f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "/");
 
         if (o.javaValue() == 0) {
-            throw new mt.runtime.exceptions.MTException(
+            throw new MTException(
                 "Division par zero : " + self + " / 0");
         }
 
@@ -126,17 +146,17 @@ public final class MTIntegerPrimitives {
 
         if (other instanceof MTFloat f) {
             if (f.javaValue() == 0.0) {
-                throw new mt.runtime.exceptions.MTException(
+                throw new MTException(
                     "Division par zero : " + self + " % 0.0");
             }
             return context(self).newFloat(
                 self.javaValue() % f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "%");
 
         if (o.javaValue() == 0) {
-            throw new mt.runtime.exceptions.MTException(
+            throw new MTException(
                 "Division par zero : " + self + " % 0");
         }
 
@@ -162,7 +182,7 @@ public final class MTIntegerPrimitives {
                 Math.pow(self.javaValue(), f.javaValue()));
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "**");
         return context(self).newInteger(
             (int) Math.pow(self.javaValue(), o.javaValue()));
     }
@@ -185,7 +205,6 @@ public final class MTIntegerPrimitives {
      * 1 to: 10 -> #(1 2 ... 10), inclusif.
      * "Tout est message" : pas de syntaxe dediee (decision
      * du 25/10). 5 to: 1 donne un tableau vide.
-     * to:by: viendra plus tard, par le meme canal.
      */
     @Primitive("to:")
     public static MTObject to(
@@ -193,7 +212,7 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger last = (MTInteger) arguments[0];
+        MTInteger last = asInteger(arguments[0], "to:");
 
         List<MTObject> elements = new ArrayList<>();
 
@@ -206,7 +225,7 @@ public final class MTIntegerPrimitives {
         return context(receiver).newArray(elements);
     }
 
-        /**
+    /**
      * 1 to: 10 by: 2 -> #(1 3 5 7 9). Le sens de
      * parcours est donne par le signe du pas ; des
      * bornes mal orientees donnent un tableau vide
@@ -219,15 +238,15 @@ public final class MTIntegerPrimitives {
             MTObject... arguments) {
 
         MTInteger self = (MTInteger) receiver;
-        MTInteger last = (MTInteger) arguments[0];
-        MTInteger step = (MTInteger) arguments[1];
+        MTInteger last = asInteger(arguments[0], "to:by:");
+        MTInteger step = asInteger(arguments[1], "to:by:");
 
         int from = self.javaValue();
         int to = last.javaValue();
         int by = step.javaValue();
 
         if (by == 0) {
-            throw new mt.runtime.exceptions.MTException(
+            throw new MTException(
                 "Pas nul : " + self + " to: " + to + " by: 0");
         }
 
@@ -247,7 +266,7 @@ public final class MTIntegerPrimitives {
 
         return context(receiver).newArray(elements);
     }
-    
+
     //
     // Comparaisons
     //
@@ -267,7 +286,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() == f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "=");
         return context(self).newBoolean(
             self.javaValue() == o.javaValue());
     }
@@ -295,7 +314,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() < f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "<");
         return context(self).newBoolean(
             self.javaValue() < o.javaValue());
     }
@@ -313,7 +332,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() > f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, ">");
         return context(self).newBoolean(
             self.javaValue() > o.javaValue());
     }
@@ -331,7 +350,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() <= f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, "<=");
         return context(self).newBoolean(
             self.javaValue() <= o.javaValue());
     }
@@ -349,7 +368,7 @@ public final class MTIntegerPrimitives {
                 self.javaValue() >= f.javaValue());
         }
 
-        MTInteger o = (MTInteger) other;
+        MTInteger o = asInteger(other, ">=");
         return context(self).newBoolean(
             self.javaValue() >= o.javaValue());
     }

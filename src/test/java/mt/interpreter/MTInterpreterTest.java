@@ -333,6 +333,74 @@ public class MTInterpreterTest {
         assertEquals(2, ((MTInteger) r).javaValue());
     }
     
+        //
+    // Durcissement des casts (02/11)
+    //
+
+    @Test
+    void atAvecIndexNonEntierLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("#(1 2) at: 'x'"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Integer (at:)"));
+    }
+
+    @Test
+    void entierEgalChaineLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("5 = 'a'"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Integer (=)"));
+    }
+
+    @Test
+    void chaineEgalEntierLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("'abc' = 5"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas une String (=)"));
+    }
+
+    @Test
+    void characterEgalChaineLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("$a = 'a'"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Character (=)"));
+    }
+
+    @Test
+    void whileTrueAvecCorpsNonBlocLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("[true] whileTrue: 5"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Block (whileTrue:)"));
+    }
+
+    @Test
+    void doAvecNonBlocLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("#(1 2) do: 5"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Block (do:)"));
+    }
+
+    @Test
+    void toByAvecPasNonEntierLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("1 to: 10 by: 'x'"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Integer (to:by:)"));
+    }
+
+    @Test
+    void floatAvecOperandeNonNumeriqueLeveMTException() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("1.5 + 'x'"));
+        assertTrue(e.getMessage().contains(
+            "n'est ni un Integer ni un Float (+)"));
+    }
+    
     //
     // affichage
     //

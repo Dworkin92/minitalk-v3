@@ -105,6 +105,17 @@ public final class MTPrimitiveInstaller {
                         javaMethod.invoke(null, receiver, arguments);
             }
             catch (ReflectiveOperationException cause) {
+
+                // (02/11) Une MTException qui vient de la
+                // primitive est deja une erreur du langage,
+                // propre et situee : elle passe telle quelle.
+                // Seules les erreurs Java qui ne sont pas
+                // des erreurs MiniTalk sont reemballees.
+                if (cause.getCause()
+                        instanceof MTException mtException) {
+                    throw mtException;
+                }
+
                 throw new MTException(
                     "Echec primitive : "
                     + javaMethod.getName(),

@@ -443,14 +443,14 @@ create Integer
 ...
 ```
 
-Dans ce bootstrap, en termes de relation (exprimée ici en miniTalk, mais à implémenté en Java) :
+Dans ce bootstrap, en termes de relation (exprimée ici en miniTalk, mais à implémenter en Java) :
 ```smalltalk
 Object  class: Class.
 Object  super: nil.
 Class   class: Class.
 Class   super: Object.
 ```
-et Class auront un mtClass pointant sur Class (une détection des boucles dans le lookup sera à prévoir)
+Object et Class auront donc une propriété interne mtClass pointant sur Class (une détection des boucles dans le lookup sera à prévoir)
 
 Leurs comportements initiaux sont implémentés par des MTNativeMethod.
 
@@ -476,7 +476,7 @@ ou avec héritage explicite :
 Employee <- Person subclass: #Employee.
 ```
 
-La création d'une classe retourne un objet classe.
+La création d'une classe retourne un objet de type Class.
 
 ### Enrichissement d'une classe
 
@@ -515,7 +515,7 @@ Person << instMethods: [
 ```smalltalk
 Person << classMethods: [
 
-    newNamed: aName [
+    newName: aName [
 
         p <- self new.
         p name: aName.
@@ -713,7 +713,7 @@ array size
 
 ```
 
-Note importante concernant les opérateurs : 
+Note importante concernant les opérateurs arithmétiques : 
 
 contrairement à Smalltalk qui les considérent comme des messages binaires normaux pouvant s'enchaîner les uns après les autres, ceux-ci suivent les règles de précédence usuelles définies dans d'autres langages comme le C ou Java. Ainsi :
 
@@ -730,8 +730,8 @@ Les règles de précédence des opérateurs sont les suivantes, de la plus élev
 * '\+', '\-' : addition et soustraction
 
 Note : `**` est associatif à droite, à la manière de
-Python (2 ** 3 ** 2 = 512) ; tous les autres
-opérateurs s'évaluent de gauche à droite.
+Python (2 ** 3 ** 2 = 2 ** ( 3 ** 2) = 2 ** 9 = 512);
+tous les autres opérateurs s'évaluent de gauche à droite.
 
 ---
 

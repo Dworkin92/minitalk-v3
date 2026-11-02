@@ -25,11 +25,30 @@ public final class MTArrayPrimitives {
         return receiver.getMTClass().getContext();
     }
 
-    private static MTMethod asBlock(MTObject argument) {
+    /** Cast durci : l'indice doit etre un Integer */
+    private static MTInteger asInteger(
+            MTObject value,
+            String selector) {
+
+        if (value instanceof MTInteger i) {
+            return i;
+        }
+
+        throw new MTException(
+            value + " n'est pas un Integer (" + selector + ")");
+    }
+
+    /** Cast durci (02/11) : l'argument doit etre un bloc */
+    private static MTMethod asBlock(
+            MTObject argument,
+            String selector) {
+
         if (!(argument instanceof MTMethod method)) {
             throw new MTException(
-                "Un bloc est attendu en argument");
+                argument + " n'est pas un Block ("
+                + selector + ")");
         }
+
         return method;
     }
 
@@ -62,7 +81,8 @@ public final class MTArrayPrimitives {
             MTObject... arguments) {
 
         MTArray self = (MTArray) receiver;
-        int index = ((MTInteger) arguments[0]).javaValue();
+        int index =
+            asInteger(arguments[0], "at:").javaValue();
 
         if (index < 1 || index > self.javaValue().size()) {
             throw new MTException(
@@ -119,7 +139,7 @@ public final class MTArrayPrimitives {
     public static MTObject do_(MTObject receiver, MTObject... arguments) {
 
         MTArray self = (MTArray) receiver;
-        MTMethod block = asBlock(arguments[0]);
+        MTMethod block = asBlock(arguments[0], "do:");
 
         for (MTObject element : self.javaValue()) {
             block.invoke(null, element);
@@ -135,7 +155,7 @@ public final class MTArrayPrimitives {
             MTObject... arguments) {
 
         MTArray self = (MTArray) receiver;
-        MTMethod block = asBlock(arguments[0]);
+        MTMethod block = asBlock(arguments[0], "collect:");
 
         List<MTObject> results = new ArrayList<>();
 
@@ -158,7 +178,7 @@ public final class MTArrayPrimitives {
             MTObject... arguments) {
 
         MTArray self = (MTArray) receiver;
-        MTMethod block = asBlock(arguments[0]);
+        MTMethod block = asBlock(arguments[0], "select:");
 
         List<MTObject> kept = new ArrayList<>();
 

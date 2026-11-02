@@ -1,10 +1,27 @@
 package mt.runtime.primitives;
 
+import mt.runtime.MTBlock;
+import mt.runtime.MTMethod;
 import mt.runtime.MTObject;
+import mt.runtime.exceptions.MTException;
 
 public final class MTBlockPrimitives {
 
     private MTBlockPrimitives() {
+    }
+
+    /** Cast durci (02/11) : l'argument doit etre un bloc */
+    private static MTMethod asBlock(
+            MTObject argument,
+            String selector) {
+
+        if (!(argument instanceof MTMethod method)) {
+            throw new MTException(
+                argument + " n'est pas un Block ("
+                + selector + ")");
+        }
+
+        return method;
     }
 
     /** Evaluation sans argument : [ ... ] value */
@@ -54,8 +71,8 @@ public final class MTBlockPrimitives {
         mt.runtime.MTBlock condition =
             (mt.runtime.MTBlock) receiver;
 
-        mt.runtime.MTBlock body =
-            (mt.runtime.MTBlock) arguments[0];
+        mt.runtime.MTMethod body = asBlock(
+            arguments[0], "whileTrue:");
 
         int iterations = 0;
 
@@ -83,8 +100,8 @@ public final class MTBlockPrimitives {
         mt.runtime.MTBlock condition =
             (mt.runtime.MTBlock) receiver;
 
-        mt.runtime.MTBlock body =
-            (mt.runtime.MTBlock) arguments[0];
+        mt.runtime.MTMethod body = asBlock(
+            arguments[0], "whileFalse:");
 
         int iterations = 0;
 

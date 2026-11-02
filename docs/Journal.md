@@ -329,5 +329,8 @@
 
 ### Prochain objectif
 - durcissement des cast
+- Dictionary ({} réservé),
+- String>>includes:, ou une réflexion SGBD/persistance (prospective reprend).
+- ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb, etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux ou sur serveur distant gérant le multi accès.
 
 

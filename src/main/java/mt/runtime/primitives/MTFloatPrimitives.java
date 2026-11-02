@@ -26,9 +26,12 @@ public final class MTFloatPrimitives {
 
     /**
      * Operande numerique : Integer ou Float, promu
-     * en double. Tout le reste est une erreur explicite.
+     * en double. Tout le reste est une erreur explicite
+     * au format uniforme du 02/11.
      */
-    private static double numeric(MTObject value) {
+    private static double numeric(
+            MTObject value,
+            String selector) {
 
         if (value instanceof MTInteger i) {
             return i.javaValue();
@@ -40,7 +43,8 @@ public final class MTFloatPrimitives {
 
         throw new MTException(
             "Operande invalide : " + value
-            + " n'est ni un Integer ni un Float");
+            + " n'est ni un Integer ni un Float ("
+            + selector + ")");
     }
 
     //
@@ -54,7 +58,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newFloat(
-            self.javaValue() + numeric(arguments[0]));
+            self.javaValue() + numeric(arguments[0], "+"));
     }
 
     @Primitive("-")
@@ -64,7 +68,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newFloat(
-            self.javaValue() - numeric(arguments[0]));
+            self.javaValue() - numeric(arguments[0], "-"));
     }
 
     @Primitive("*")
@@ -74,7 +78,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newFloat(
-            self.javaValue() * numeric(arguments[0]));
+            self.javaValue() * numeric(arguments[0], "*"));
     }
 
     /**
@@ -88,7 +92,7 @@ public final class MTFloatPrimitives {
             MTObject... arguments) {
 
         MTFloat self = (MTFloat) receiver;
-        double divisor = numeric(arguments[0]);
+        double divisor = numeric(arguments[0], "/");
 
         if (divisor == 0.0) {
             throw new MTException(
@@ -106,7 +110,7 @@ public final class MTFloatPrimitives {
             MTObject... arguments) {
 
         MTFloat self = (MTFloat) receiver;
-        double divisor = numeric(arguments[0]);
+        double divisor = numeric(arguments[0], "%");
 
         if (divisor == 0.0) {
             throw new MTException(
@@ -130,7 +134,7 @@ public final class MTFloatPrimitives {
         MTFloat self = (MTFloat) receiver;
         return context(self).newFloat(
             Math.pow(self.javaValue(),
-                     numeric(arguments[0])));
+                     numeric(arguments[0], "**")));
     }
 
     @Primitive("negated")
@@ -154,7 +158,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newBoolean(
-            self.javaValue() == numeric(arguments[0]));
+            self.javaValue() == numeric(arguments[0], "="));
     }
 
     @Primitive("==")
@@ -175,7 +179,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newBoolean(
-            self.javaValue() < numeric(arguments[0]));
+            self.javaValue() < numeric(arguments[0], "<"));
     }
 
     @Primitive(">")
@@ -185,7 +189,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newBoolean(
-            self.javaValue() > numeric(arguments[0]));
+            self.javaValue() > numeric(arguments[0], ">"));
     }
 
     @Primitive("<=")
@@ -195,7 +199,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newBoolean(
-            self.javaValue() <= numeric(arguments[0]));
+            self.javaValue() <= numeric(arguments[0], "<="));
     }
 
     @Primitive(">=")
@@ -205,7 +209,7 @@ public final class MTFloatPrimitives {
 
         MTFloat self = (MTFloat) receiver;
         return context(self).newBoolean(
-            self.javaValue() >= numeric(arguments[0]));
+            self.javaValue() >= numeric(arguments[0], ">="));
     }
 
     //

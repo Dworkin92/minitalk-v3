@@ -1,12 +1,12 @@
 package mt.runtime.primitives;
 
 import mt.runtime.MTBoolean;
+import mt.runtime.MTCharacter;
 import mt.runtime.MTContext;
 import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
 import mt.runtime.MTString;
 import mt.runtime.exceptions.MTException;
-import mt.runtime.MTCharacter;
 
 public final class MTCharacterPrimitives {
 
@@ -17,36 +17,41 @@ public final class MTCharacterPrimitives {
         return receiver.getMTClass().getContext();
     }
 
-    //
-    // Comparaisons
-    //
+    /** Cast durci (02/11), format uniforme */
+    private static MTCharacter asCharacter(
+            MTObject value,
+            String selector) {
 
-    /** Egalite par codepoint : $a = $a est vrai */
-    @Primitive("=")
-    public static MTObject equals(
-            MTObject receiver,
-            MTObject... arguments) {
+        if (value instanceof MTCharacter c) {
+            return c;
+        }
 
-        MTCharacter self = (MTCharacter) receiver;
-        MTCharacter other = (MTCharacter) arguments[0];
-
-        return context(self).newBoolean(
-            self.javaValue() == other.javaValue());
+        throw new MTException(
+            value + " n'est pas un Character (" + selector + ")");
     }
 
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
+    /** Cast durci : le nombre de repetitions */
+    private static MTInteger asInteger(
+            MTObject value,
+            String selector) {
 
-        // Identite stricte, comme Integer et Float.
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
+        if (value instanceof MTInteger i) {
+            return i;
+        }
+
+        throw new MTException(
+            value + " n'est pas un Integer (" + selector + ")");
     }
 
     //
     // Concatenation
     //
+
+    /**
+     * $a , $b -> 'ab' ; $a , 'bc' -> 'abc'.
+     * Le resultat d'une concatenation est TOUJOURS une
+     * String -- le Character se fond dedans.
+     */
     @Primitive(",")
     public static MTObject concatenate(
             MTObject receiver,
@@ -67,7 +72,7 @@ public final class MTCharacterPrimitives {
         } else {
             throw new MTException(
                 "Concatenation invalide : " + other
-                + " n'est ni une String ni un Character");
+                + " n'est ni une String ni un Character (,)");
         }
 
         return context(self).newString(
@@ -76,9 +81,8 @@ public final class MTCharacterPrimitives {
 
     /**
      * $a * 5 -> 'aaaaa'. Repetition : le dual de la
-     * multiplication entiere (a ajoute n fois, $a
-     * concatene n fois). Resultat : une String.
-     * n entier >= 0 ; negatif = erreur explicite.
+     * multiplication entiere. n entier >= 0 ;
+     * negatif = erreur explicite.
      */
     @Primitive("*")
     public static MTObject times(
@@ -86,15 +90,8 @@ public final class MTCharacterPrimitives {
             MTObject... arguments) {
 
         MTCharacter self = (MTCharacter) receiver;
-        MTObject other = arguments[0];
-
-        if (!(other instanceof MTInteger n)) {
-            throw new MTException(
-                "Repetition invalide : " + other
-                + " n'est pas un Integer");
-        }
-
-        int count = n.javaValue();
+        int count =
+            asInteger(arguments[0], "*").javaValue();
 
         if (count < 0) {
             throw new MTException(
@@ -110,6 +107,33 @@ public final class MTCharacterPrimitives {
 
         return context(self).newString(
             result.toString());
+    }
+
+    //
+    // Comparaisons
+    //
+
+    /** Egalite par codepoint : $a = $a est vrai */
+    @Primitive("=")
+    public static MTObject equals(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTCharacter self = (MTCharacter) receiver;
+        MTCharacter other = asCharacter(arguments[0], "=");
+
+        return context(self).newBoolean(
+            self.javaValue() == other.javaValue());
+    }
+
+    @Primitive("==")
+    public static MTObject sameAs(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        // Identite stricte, comme Integer et Float.
+        return context(receiver).newBoolean(
+            receiver.identityEquals(arguments[0]));
     }
 
     //
