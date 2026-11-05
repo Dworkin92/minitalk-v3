@@ -405,6 +405,8 @@
 
 ### Prochains objectifs
 
+- décision =/== sur Object,
+- la réflexivité,
 - ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb,
   etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux
   ou sur serveur distant gérant le multi accès.
