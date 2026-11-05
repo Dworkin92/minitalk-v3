@@ -30,6 +30,17 @@
 - MTScope (portee lexicale : lookup/assign remontent la chaine)
 - MTBlockPrimitives (value, value:, value:value:)
 - MTCharacterPrimitives ( concatenation, ajout multiples, asString, asInteger)
+- MTDictionary :
+  *  => = hash rocket de Ruby (pas -> l'association Smalltalk) —
+     précédent Ruby assumé, comme * répétition ; et token réservé : => n'est plus 
+    disponible comme sélecteur binaire.
+  * Divergence #(...) vs {...} : le tableau refuse les expressions, 
+    le dictionnaire les accepte — deux littéraux, deux règles,
+    documentée comme telle.
+  * La sonde n'est pas une comparaison : prober { 'a' => 1 } avec 1 est
+    une absence, pas une MTException « n'est pas une String » — l'exigence
+    du 02/11 s'applique aux comparaisons explicites, pas au
+    fonctionnement interne d'une table de hachage.
 
 ### Retour a l'AOS
 
@@ -352,11 +363,36 @@
 ### 05/11/2026
 
 - String>>includes: : appartenance d'un caractere,
-  symetrique du contains: (sous-chaine) et de
-  l'Array>>includes: (element). STRICT : une String en
-  argument -> MTException (un selecteur, un sens).
-  Parcours par codepoints. Chaine vide et casse
-  respectees.
+  STRICT (une String en argument -> MTException, un
+  selecteur un sens) ; parcours par codepoints, casse
+  respectee. Symetrie complete : includes: = element,
+  contains: = fragment.
+- Dictionary : litteral { cle => valeur. ... }, vide { }.
+  => = hash rocket de Ruby/Perl (familiarite assumee),
+  token ROCKET avant BINARY donc reserve -- plus jamais
+  un selecteur binaire (geste POWER/ASSIGN). >= > =
+  intacts (suites de caracteres differentes).
+  Divergence assumee avec #(...) : contenu = expressions
+  COMPLETES (facon Pharo), le tableau reste strict.
+  Cles PAR VALEUR : 2 et 2.0 = meme cle (coherent avec =),
+  hash toujours d'accord avec l'egalite (valeur pour les
+  objets de valeur, profond pour Array, identite pour le
+  reste). Ordre d'insertion (LinkedHashMap).
+  La sonde n'est pas une comparaison : prober avec un
+  type incompatible = absence (false), jamais MTException.
+  Primitives : size isEmpty at: at:put: includesKey:
+  keys values do: (valeurs, convention Smalltalk)
+  removeKey: = (profond) == asString. Affichage
+  Dictionary(3), minimal, a affiner.
+- Bugs de session : atPut avec de mauvais indices
+  (le recepteur n'est pas dans le tableau) ; valueEquals/
+  hashOf rendus public (package different).
+- Trou revele par un test : == n'est PAS installe sur
+  Object -- la Reference l'y inscrit a tort, chaque
+  classe porte le sien. A trancher : monter =/== sur
+  Object ou corriger la Reference. Frere de l'item
+  reflexivite (protocole de la racine).
+- 173 tests verts.
 
 ## Prochain objectif
 
@@ -368,8 +404,7 @@
   vivent dans MTContext.)
 
 ### Prochains objectifs
-- Dictionary ({} réservé),
-- String>>includes:, ou une réflexion SGBD/persistance (prospective reprend).
+
 - ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb,
   etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux
   ou sur serveur distant gérant le multi accès.

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import mt.ast.MTArrayNode;
 import mt.ast.MTAssignmentNode;
 import mt.ast.MTBlockNode;
+import mt.ast.MTDictionaryLiteralNode;
 import mt.ast.MTLocalsNode;
 import mt.ast.MTIdentifierNode;
 import mt.ast.MTLiteralInteger;
@@ -311,6 +312,22 @@ public final class AstBuilderVisitor
         return ctx.getChild(0).accept(this);
     }
 
+    @Override
+    public MTNode visitDictionaryLiteral(
+            MiniTalkParser.DictionaryLiteralContext ctx) {
+
+        List<MTDictionaryLiteralNode.Entry> entries =
+            new ArrayList<>();
+
+        for (var pairCtx : ctx.dictionaryPair()) {
+            entries.add(new MTDictionaryLiteralNode.Entry(
+                pairCtx.expression(0).accept(this),
+                pairCtx.expression(1).accept(this)));
+        }
+
+        return new MTDictionaryLiteralNode(entries);
+    }
+    
     @Override
     public MTNode visitSymbolLiteral(
             MiniTalkParser.SymbolLiteralContext ctx) {

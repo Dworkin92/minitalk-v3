@@ -72,6 +72,7 @@ powerExpression
 primary
     : literal
     | arrayLiteral
+    | dictionaryLiteral
     | symbolLiteral
     | block
     | identifier
@@ -110,6 +111,27 @@ arrayElement
     | arrayLiteral
     ;
 
+//
+// Dictionnaires : { 1 => 'a'. 2 => 'b' }
+//
+// La marque {} est reservee depuis le 25/10 ; la fleche =>
+// est le hash rocket de Ruby (divergence assumee avec
+// Smalltalk, dont l'association s'ecrit ->).
+//
+// Divergence assumee avec #(...) : les cles et les valeurs
+// sont des EXPRESSIONS completes, facon Pharo (decision du
+// 05/11). Le dictionnaire est reconstruit a chaque
+// evaluation, comme #(...).
+//
+
+dictionaryLiteral
+    : LBRACE (dictionaryPair (DOT dictionaryPair)* DOT?)? RBRACE
+    ;
+
+dictionaryPair
+    : expression ROCKET expression
+    ;
+    
 //
 // Symbole : #ident. Le pool MTSymbol.intern existe deja
 // cote runtime ; le langage l'expose enfin.
@@ -182,6 +204,7 @@ MINUS    : '-' ;
 STAR     : '*' ;
 SLASH    : '/' ;
 PERCENT  : '%' ;
+ROCKET   : '=>' ;
 BINARY   : [+\-*/=<>%~,&]+ ;
 
 HASH     : '#' ;
@@ -189,6 +212,8 @@ HASH     : '#' ;
 COLON    : ':' ;
 BAR      : '|' ;
 DOT      : '.' ;
+LBRACE   : '{' ;
+RBRACE   : '}' ;
 LBRACK   : '[' ;
 RBRACK   : ']' ;
 LPAREN   : '(' ;

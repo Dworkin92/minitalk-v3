@@ -674,7 +674,7 @@ public class MTInterpreterTest {
         assertEquals(15, ((MTInteger) result).javaValue());
     }
 
-        //
+    //
     // and:/or: paresseux
     //
 
@@ -815,7 +815,7 @@ public class MTInterpreterTest {
             () -> run("1 messageQuiNExistePas"));
     }
 
-        //
+    //
     // to:by: et includes: (suite de la journee)
     //
 
@@ -882,5 +882,132 @@ public class MTInterpreterTest {
         // 2 = 2.0 est vrai, donc includes: 2.0 trouve 2.
         MTObject r = run("#(1 2) includes: 2.0");
         assertTrue(((MTBoolean) r).javaValue());
+    }
+
+        //
+    // Dictionary (05/11)
+    //
+
+    @Test
+    void dictionnaireLitteralBasique() {
+        MTObject r = run("{ 1 => 'a' } at: 1");
+        assertEquals("a",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void dictionnaireVide() {
+        MTObject r = run("{ } size");
+        assertEquals(0, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void atPutRemplaceEtRendLaValeur() {
+        MTObject r = run(
+            "| d | d := { 1 => 'a' }. "
+            + "d at: 1 put: 'b'. d at: 1");
+        assertEquals("b",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void clesParValeurNumerique() {
+        // 2 = 2.0, donc 2.0 ouvre la meme cle
+        MTObject r = run("{ 2 => 'a' } at: 2.0");
+        assertEquals("a",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void clesParValeurChaines() {
+        MTObject r = run("{ 'x' => 1 } at: 'x'");
+        assertEquals(1, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void includesKeyVraiEtFaux() {
+        assertTrue(((MTBoolean)
+            run("{ 1 => 'a' } includesKey: 1")).javaValue());
+        assertFalse(((MTBoolean)
+            run("{ 1 => 'a' } includesKey: 5")).javaValue());
+    }
+
+    @Test
+    void includesKeyNumeriqueInterTypes() {
+        MTObject r =
+            run("{ 2 => 'a' } includesKey: 2.0");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void sondeTypeIncompatibleEstAbsence() {
+        // La table SONDE : une cle d'un autre type est
+        // une absence, pas une erreur (contrairement au
+        // = strict du 02/11).
+        MTObject r =
+            run("{ 'a' => 1 } includesKey: 1");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void atAvecCleIncompatibleLeveCleAbsente() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("{ 'a' => 1 } at: 1"));
+        assertTrue(e.getMessage().contains("Cle absente"));
+    }
+
+    @Test
+    void expressionsCompletesDansLeLitteral() {
+        // Divergence assumee avec #(...) : contenu dynamique
+        MTObject r = run("{ 1 + 1 => 'a' } at: 2");
+        assertEquals("a",
+            ((MTString) r).javaValue());
+    }
+
+    @Test
+    void litteralReconstruitAEvaluation() {
+        // Comme #(...) : deux evaluations = deux objets
+        MTObject r = run(
+            "| a b | a := { 1 => 2 }. "
+            + "b := { 1 => 2 }. a == b");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void keysEtValuesDansLOrdreInsertion() {
+        MTObject r = run(
+            "({ 1 => 'a'. 2 => 'b' } keys) at: 2");
+        assertEquals(2, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void doParcourtLesValeurs() {
+        MTObject r = run(
+            "| total | total := 0. "
+            + "{ 1 => 10. 2 => 20 } do: "
+            + "[:v | total := total + v]. total");
+        assertEquals(30, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void removeKeyRetireEtRendLaValeur() {
+        MTObject r = run(
+            "| d | d := { 1 => 'a'. 2 => 'b' }. "
+            + "d removeKey: 1. d size");
+        assertEquals(1, ((MTInteger) r).javaValue());
+    }
+
+    @Test
+    void removeKeyAbsentLeveMTException() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("{ } removeKey: 1"));
+        assertTrue(e.getMessage().contains("Cle absente"));
+    }
+
+    @Test
+    void atAbsentLeveMTException() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("{ 1 => 'a' } at: 2"));
+        assertTrue(e.getMessage().contains("Cle absente"));
     }
 }

@@ -8,6 +8,7 @@ import mt.runtime.MTClass;
 import mt.runtime.primitives.MTArrayPrimitives;
 import mt.runtime.primitives.MTBlockPrimitives;
 import mt.runtime.primitives.MTBooleanPrimitives;
+import mt.runtime.primitives.MTDictionaryPrimitives;
 import mt.runtime.primitives.MTIntegerPrimitives;
 import mt.runtime.primitives.MTFloatPrimitives;
 import mt.runtime.primitives.MTCharacterPrimitives;
@@ -41,6 +42,7 @@ public final class MTContext {
     private final MTClass blockClass;
     private final MTClass stringClass;
     private final MTClass arrayClass;
+    private final MTClass dictionaryClass;
     private final MTClass symbolClass;
     private final MTClass characterClass;
 
@@ -79,6 +81,7 @@ public final class MTContext {
         stringClass  = new MTClass(this, "String", objectClass);
         blockClass   = new MTClass(this, "Block", objectClass);
         arrayClass   = new MTClass(this, "Array", objectClass);
+        dictionaryClass = new MTClass(this, "Dictionary", objectClass);
         symbolClass  = new MTClass(this, "Symbol", objectClass);
         characterClass = new MTClass(this, "Character", objectClass);
 
@@ -102,6 +105,7 @@ public final class MTContext {
         registerClass(stringClass);
         registerClass(blockClass);
         registerClass(arrayClass);
+        registerClass(dictionaryClass);
         registerClass(symbolClass);
         registerClass(characterClass);
     }
@@ -123,16 +127,17 @@ public final class MTContext {
     //
 
     private void installPrimitives() {
-        MTPrimitiveInstaller.install(objectClass,    MTObjectPrimitives.class);
-        MTPrimitiveInstaller.install(nilClass,       MTNilPrimitives.class);
-        MTPrimitiveInstaller.install(booleanClass,   MTBooleanPrimitives.class);
-        MTPrimitiveInstaller.install(integerClass,   MTIntegerPrimitives.class);
-        MTPrimitiveInstaller.install(floatClass,     MTFloatPrimitives.class);
-        MTPrimitiveInstaller.install(stringClass,    MTStringPrimitives.class);
-        MTPrimitiveInstaller.install(blockClass,     MTBlockPrimitives.class);
-        MTPrimitiveInstaller.install(arrayClass,     MTArrayPrimitives.class);
-        MTPrimitiveInstaller.install(symbolClass,    MTSymbolPrimitives.class);
-        MTPrimitiveInstaller.install(characterClass, MTCharacterPrimitives.class);
+        MTPrimitiveInstaller.install(objectClass,     MTObjectPrimitives.class);
+        MTPrimitiveInstaller.install(nilClass,        MTNilPrimitives.class);
+        MTPrimitiveInstaller.install(booleanClass,    MTBooleanPrimitives.class);
+        MTPrimitiveInstaller.install(integerClass,    MTIntegerPrimitives.class);
+        MTPrimitiveInstaller.install(floatClass,      MTFloatPrimitives.class);
+        MTPrimitiveInstaller.install(stringClass,     MTStringPrimitives.class);
+        MTPrimitiveInstaller.install(blockClass,      MTBlockPrimitives.class);
+        MTPrimitiveInstaller.install(arrayClass,      MTArrayPrimitives.class);
+        MTPrimitiveInstaller.install(dictionaryClass, MTDictionaryPrimitives.class);
+        MTPrimitiveInstaller.install(symbolClass,     MTSymbolPrimitives.class);
+        MTPrimitiveInstaller.install(characterClass,  MTCharacterPrimitives.class);
     }
 
     //
@@ -165,6 +170,10 @@ public final class MTContext {
 
     public MTArray newArray(List<MTObject> elements) {
         return new MTArray(arrayClass, elements);
+    }
+
+    public MTDictionary newDictionary() {
+        return new MTDictionary(dictionaryClass);
     }
 
     /**
@@ -252,6 +261,10 @@ public final class MTContext {
 
     public MTClass getArrayClass() {
         return arrayClass;
+    }
+
+    public MTClass getDictionaryClass() {
+        return dictionaryClass;
     }
 
     public MTClass getSymbolClass() {
