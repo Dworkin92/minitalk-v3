@@ -584,6 +584,38 @@ public class MTInterpreterTest {
     }
 
     //
+    // String>>includes: (05/11)
+    //
+
+    @Test
+    void includesCaracterePresent() {
+        MTObject r = run("'hello' includes: $h");
+        assertTrue(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesCaractereAbsent() {
+        MTObject r = run("'hello' includes: $z");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesRespecteLaCasse() {
+        MTObject r = run("'hello' includes: $H");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void includesAvecUneChaineLeveMTException() {
+        // Strict : une String n'est pas un caractere ;
+        // la sous-chaine, c'est contains:.
+        MTException e = assertThrows(MTException.class,
+            () -> run("'hello' includes: 'ell'"));
+        assertTrue(e.getMessage().contains(
+            "n'est pas un Character (includes:)"));
+    }
+
+    //
     // Affectation et temporaires
     //
 

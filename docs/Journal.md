@@ -349,6 +349,14 @@
   de getDeclaredMethods() n'est pas garanti -> table
   litterale Git ou enumeration deterministe, a trancher.
 
+### 05/11/2026
+
+- String>>includes: : appartenance d'un caractere,
+  symetrique du contains: (sous-chaine) et de
+  l'Array>>includes: (element). STRICT : une String en
+  argument -> MTException (un selecteur, un sens).
+  Parcours par codepoints. Chaine vide et casse
+  respectees.
 
 ## Prochain objectif
 
@@ -359,9 +367,16 @@
   pas l'etat d'un monde. (A differencier des fabriques, qui
   vivent dans MTContext.)
 
-### Prochain objectif
+### Prochains objectifs
 - Dictionary ({} réservé),
 - String>>includes:, ou une réflexion SGBD/persistance (prospective reprend).
-- ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb, etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux ou sur serveur distant gérant le multi accès.
+- ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb,
+  etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux
+  ou sur serveur distant gérant le multi accès.
+- reflexivite des classes : retirer / modifier une methode
+  (ou une propriete d'instance, quand elles existeront) --
+  remove/replace dans MTClass, remplacement atomique,
+  vocabulaire a definir. Prepare la persistance des
+  methodes (une methode modifiable est une donnee).
 
 

@@ -45,6 +45,20 @@ public final class MTStringPrimitives {
             value + " n'est pas un Integer (" + selector + ")");
     }
 
+    /** Cast durci : includes: attend un caractere */
+    private static MTCharacter asCharacter(
+            MTObject value,
+            String selector) {
+
+        if (value instanceof MTCharacter c) {
+            return c;
+        }
+
+        throw new MTException(
+            value + " n'est pas un Character ("
+            + selector + ")");
+    }
+
     /** Concatenation : 'abc' , 'def' ou 'abc' , $d */
     @Primitive(",")
     public static MTObject concatenate(
@@ -160,6 +174,40 @@ public final class MTStringPrimitives {
         return context(receiver).newBoolean(
             string.javaValue()
                 .contains(sought.javaValue()));
+    }
+
+    /**
+     * Appartenance d'un caractere (05/11) :
+     * 'hello' includes: $h -> true. Symetrique de
+     * contains: (sous-chaine) et de l'Array>>includes:
+     * (element). STRICT : une String en argument est
+     * une erreur explicite -- un selecteur, un sens
+     * (orthogonalite, comme pour + et ,).
+     */
+    @Primitive("includes:")
+    public static MTObject includes(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString self = (MTString) receiver;
+        MTCharacter sought =
+            asCharacter(arguments[0], "includes:");
+
+        String chars = self.javaValue();
+
+        // Parcours par codepoints : les caracteres
+        // supplementaires tiennent en deux chars.
+        for (int i = 0; i < chars.length(); ) {
+            int cp = chars.codePointAt(i);
+
+            if (cp == sought.javaValue()) {
+                return context(self).newBoolean(true);
+            }
+
+            i += Character.charCount(cp);
+        }
+
+        return context(self).newBoolean(false);
     }
 
     /** 'ab' * 3 -> 'ababab' (repetition, cf. Character) */
