@@ -394,6 +394,48 @@
   reflexivite (protocole de la racine).
 - 173 tests verts.
 
+
+### 06/11/2026
+
+- Perspective Q1, resolution en esprit : deux regimes
+  d'identite. Table Git = la GENESIS du langage seule
+  (OID 0-40960 figes, livree dans l'archive, seed de
+  toute base, ne grossit jamais). Objets d'utilisateurs
+  = UUID aleatoires, allocation decentralisee, aucune
+  coordination ni table partagee. Topologie des bases
+  = configuration (locale / reseau), la confidentialite
+  nait de la topologie ; le multi-monde inclut un meme
+  utilisateur sur plusieurs machines. Reste ouvert,
+  beaucoup plus tard : les classes definies par les
+  utilisateurs sont presque du SCHEMA -- divergence,
+  pas collision -- la migration de schema aura son
+  heure.
+
+- Perspective point 4 : candidats SGBD revus (06/11) : Derby
+  RETIRE -- derniere release 14/11/2023, retraite
+  officielle en read-only le 10/10/2025, Java DB
+  abandonne par Oracle en 2015. Attachement DB2 note,
+  decision assume. Entree de H2 : pur Java, embarque/
+  memoire/serveur TCP, UUID natif, actif -- il reprend
+  le role de Derby (precedent : PaperCut fait cette
+  migration). La couche MiniTalk n'emettra que du SQL
+  plat genere par le mapping : la conformance qui
+  compte est celle du noyau. Tete de liste :
+  SQLite + H2, HSQLDB en observation.
+
+- Perspective Q2, resolution en esprit (06/11) : une
+  table par type de base (oid, world, value). Objets de
+  valeur : OID DERIVE DU CONTENU (geste des symboles
+  etendu) -> dedup, save idempotent, et MODELE DE
+  REFERENCE UNIFORME : toute reference est un OID.
+  Distingo sauveur : un bloc n'est pas un monde -- les
+  portees se rangent en lignes (bindings), pas en
+  fichiers. Fichier par monde en local, colonne world
+  en reseau : les deux etages de la topologie. Blocs :
+  lambda insécable -> non persistables en phase 1
+  (refus explicite), tables blocks/bindings quand
+  l'AST arrivera. L'AST = pivot de la strategie.
+
 ## Prochain objectif
 
 ### Notes pour plus tard

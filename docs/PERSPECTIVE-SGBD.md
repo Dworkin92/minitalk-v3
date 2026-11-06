@@ -121,6 +121,70 @@ Reste ouvert : le choix entre les deux parades ; la
 convention exacte des OID de symboles (dérivation du nom —
 hash ? bande dédiée ?).
 
+### Q1 — résolution en esprit (06/11, réflexion Jean-Marc)
+
+La tension « table Git ou énumération » se dissout dès qu'on
+sépare les DEUX régimes d'identité, qui n'ont pas les
+mêmes besoins :
+
+**Régime 1 — les objets du langage : la table Git, figée.**
+La table des OID built-in est LA GENÈSE : l'identité du
+langage lui-même, livrée dans l'archive, identique pour
+tous. Ces OID ne sont jamais alloués, ils sont le langage.
+Toute base, où qu'elle naisse, démarre par le même seed :
+la table de genèse (premier insert, rituel de fondation).
+Elle ne grossit jamais avec l'usage. Le choix table
+littérale s'impose : ses OID doivent traverser le temps,
+or l'énumération déterministe décale tout à chaque
+insertion au milieu — stable par construction > stable
+par discipline.
+
+**Régime 2 — les objets des utilisateurs : UUID
+aléatoires, PAS de table.** Quand plusieurs personnes
+pilotent leur langage et créent classes et objets, chacun
+tire un UUIDv4 : 122 bits aléatoires, collision
+pratiquement impossible, AUCUNE coordination, aucun
+allocateur central, aucune table partagée à verrouiller.
+L'allocation est décentralisée par construction — le
+dividende du choix UUID dès le départ. La table Git ne
+contient que le langage ; la croissance vit dans les
+bases, en UUID sauvages.
+
+**Topologie des bases : de la configuration, pas de la
+conception.**
+
+    archive du langage (Git)
+       └─ table de genèse (OID 0-40960, figée)
+              │  seed commun à chaque base
+              ▼
+       ┌──────────────────┐   ┌─────────────────────┐
+       │ base locale      │   │ base réseau          │
+       │ (un PC, un       │   │ (l'entreprise ou    │
+       │  serveur)        │   │  les appareils      │
+       │                  │   │  d'une personne)   │
+       │ mondes de la     │   │ mondes qui partagent │
+       │ machine          │   │ leurs données       │
+       └──────────────────┘   └─────────────────────┘
+
+La confidentialité naît de la topologie : chacun sa base,
+ou une base partagée par ceux qui le veulent — le langage
+n'impose rien. Le multi-monde n'est pas seulement
+multi-utilisateurs : c'est aussi UN même utilisateur sur
+plusieurs machines (le MiniTalk du bureau retrouve les
+mondes du MiniTalk de la maison).
+
+**Reste ouvert (une seule question, pour beaucoup plus
+tard)** : les classes et méthodes DÉFINIES par les
+utilisateurs. Un objet = une donnée, UUID sans souci.
+Mais une classe créée par quelqu'un est presque du
+SCHÉMA : deux personnes définissant « la même » classe
+dans deux bases différentes auront deux OID distincts —
+pas une collision (bénin), une DIVERGENCE (fusionner ou
+coexister ?). Cette question a un nom connu en SGBD : la
+migration de schéma. Elle ne se posera qu'au jour où des
+classes définies en MiniTalk voyageront. En attendant :
+chaque base est souveraine.
+
 ### Q2 — Qu'est-ce qui se sérialise ?
 
 - Integer, Float, String, Character, Symbol, Array : faciles.
@@ -133,6 +197,87 @@ hash ? bande dédiée ?).
 - Les classes définies en MiniTalk (le jour où le langage
   saura en définir) : leur définition est-elle des
   données ?
+
+### Q2 — résolution en esprit (06/11, réflexion Jean-Marc)
+
+**Une table par type de base d'objets**, trois colonnes :
+un OID, éventuellement l'OID du monde, la valeur.
+   Table | Contenu |
+ |---|---|
+ | integers | oid, world, value |
+ | floats | oid, world, value |
+ | strings | oid, world, value |
+ | characters | oid, world, value |
+
+**La clé de voûte : les objets de valeur reçoivent un
+OID DÉRIVÉ DU CONTENU** (UUID déterministe calculé depuis
+la valeur : tous les 42 du monde entier partagent le même
+OID). C'est le geste des symboles (OID par nom) étendu aux
+objets de valeur : l'identité logique d'une valeur, c'est
+la valeur elle-même.
+
+Cela réconcilie trois décisions déjà prises :
+- en mémoire, rien ne change : chaque monde matérialise
+  son propre MTInteger(42), jamais == entre eux (pas de
+  cache, 11/10) ; l'invariant « un OID = une
+  matérialisation par monde » tient ;
+- en base, une seule ligne pour tous les 42 (dédup),
+  save idempotent ;
+- surtout : MODÈLE DE RÉFÉRENCE UNIFORME — toute
+  référence vers quoi que ce soit est un OID, sans
+  discriminer valeur/identité. Les éléments de tableau,
+  les valeurs de dictionnaire, les variables capturées :
+  tout pointe par OID.
+
+Question de plomberie ouverte (secondaire) : comment
+savoir quelle table un OID désigne — table d'indexage
+objects(oid, kind), ou bandes réservées supplémentaires ?
+
+**Monde vs portée — un distinguo qui sauve la
+conception :** un bloc n'est PAS un monde. Un monde = un
+MTContext (18/10), créé par newStandard() et rien
+d'autre. Les blocs, même imbriqués par centaines,
+habitent leur monde : ce qui se multiplie, ce sont les
+PORTÉES, et une portée se range en LIGNES (bindings),
+pas en fichiers. Conséquence : le nombre de mondes ne
+grossit pas avec l'exécution du code (une session REPL
+= un monde, un programme à mille blocs = ce monde).
+
+**Colonne world vs fichier par monde : les deux étages
+de la topologie, pas des concurrents.**
+- base LOCALE : un fichier par monde (quelques unités —
+  isolation physique, confidentiel par construction) ;
+- base RÉSEAU : une seule base, une colonne world
+  (sessions nombreuses, mondes éphémères créés et
+  détruits, partage des lignes de valeur à OID de
+  contenu — créer/supprimer des fichiers à tout bout de
+  champ serait insensé).
+
+**Les blocs : insécables aujourd'hui, données demain.
+La lambda Java est insécable** — un bloc de granit :
+un pointeur d'exécution, aucun moyen d'aller lire le
+code ou les variables capturées. Trois voies :
+- sérialiser la lambda : impasse (opaque, et ne
+  survivrait pas à un changement de version du code) ;
+- stocker le source et re-parser au chargement :
+  séduisant mais boiteux (le monde rechargé
+  dépendrait du parseur d'aujourd'hui) ;
+- LA BONNE, en deux étapes : phase 1, un bloc est NON
+  PERSISTABLE (save le refuse explicitement, erreur
+  honnête et visible) ; phase 2, quand les blocs
+  porteront leur AST (prévu de toute façon), trois
+  tables suffisent :
+ | Table | Contenu |
+ |---|---|
+ | blocks | oid, world, ast (versionné) |
+ | block_parameters | oid, position, symbol |
+ | bindings | oid (portée), symbol, ref_oid |
+
+La portée lexicale chaînée devient une chaîne de
+références en base. Convergence notée : ce qui rend un
+bloc persistable le rend transmissible (Q4) — l'AST
+n'est pas une étape d'interpréteur, c'est le pivot de
+toute la stratégie de persistance.
 
 ### Q3 — La granularité du save
 
@@ -161,20 +306,38 @@ Idéal lointain : que ce soit des mots du langage —
 les étapes : le nom du concept d'abord, le sucre syntaxique
 plus tard.
 
-## 4. Les candidats SGBD
+## 4. Les candidats SGBD (révisé le 06/11)
 
-Grille de lecture (note du 02/11) : derby et hsqldb
-permettent des bases en fichiers locaux OU sur serveur
-distant gérant le multi-accès.
+Derby est RETIRÉ des candidats (décision du 06/11) : la
+dernière release date du 14/11/2023, et le 10/10/2025 les
+développeurs ont voté la retraite du projet en état
+read-only — plus aucune release, plus aucun correctif
+de sécurité. Java DB avait déjà été abandonné par Oracle
+en 2015 (hors JDK depuis le 9). L'attachement à Derby
+(similitudes DB2, sa base au travail) est noté comme tel
+: raison légitime, décision refusée quand même — on ne
+fonde pas une couche de persistance sur un moteur mort.
+Preuve que le mouvement est général : Spring déprécie le
+support Derby, PaperCut migre son base embarquée de Derby
+vers H2.
    SGBD | Modèle | Atout | Usage naturel |
  |---|---|---|---|
- | SQLite (Xerial, JDBC) | fichier unique, embarqué | zéro administration | le poste de travail, le monde mono-utilisateur |
- | Derby | pur Java, embarqué **ou** client-serveur | même jar pour les deux modes | la montée vers le multi-accès |
- | HSQLDB | pur Java, fichier/serveur/mémoire | mode mémoire | les tests unitaires de persistance |
+ | SQLite (Xerial, JDBC) | fichier unique, embarqué | zéro administration, type présent partout | le monde mono-poste, la base de poche |
+ | **H2** | pur Java : embarqué, mémoire, ou serveur TCP | type UUID natif, très actif (2.x), 3 modes dans un seul jar | l'embarqué ET le multi-accès — il reprend le rôle de Derby |
+ | HSQLDB | pur Java, fichier/serveur/mémoire | mode mémoire | candidat de repli ; maintenance lente, H2 est son successeur spirituel (même auteur fondateur) |
 
-Tous trois JDBC : l'abstraction `java.sql` suffit à
-commencer, le choix concret n'a pas à être définitif tant
-que la couche de mapping (Q1-Q3) n'est pas décidée.
+Sur la conformance SQL de H2 : le cœur standard est
+confortablement couvert (dont le type UUID), mais le point
+décisif est ailleurs — la couche MiniTalk n'écrira PAS de
+SQL artisanal, seulement quelques requêtes plates générées
+par le mapping. La conformance qui compte est celle du
+noyau, pas celle des modes de compatibilité (émulations
+partielles, sources de surprises en migration humaine).
+
+Décision d'architecture en résultant : SQLite + H2 en
+tête de liste, HSQLDB en observation. L'abstraction
+java.sql reste la règle : le choix définitif n'a pas à
+être fait avant l'étape 3 de la feuille de route.
 
 ## 5. Feuille de route indicative
 
