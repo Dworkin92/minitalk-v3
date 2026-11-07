@@ -122,15 +122,6 @@ public final class MTArrayPrimitives {
         return context(receiver).newBoolean(true);
     }
 
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
-    }
-
     /**
      * do: parcours le tableau, invoque le bloc avec
      * chaque element. Retourne le recepteur.

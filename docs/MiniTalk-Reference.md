@@ -220,19 +220,28 @@ d'itérations).
 ## 2. Primitives par classe
 
 ### Object
-    identity class print printLn
-    isNil notNil
-    ==
+    - identity class print printLn
+
+    - isNil notNil
+
+    - `=` — égalité par défaut : IDENTITÉ (convention
+      Smalltalk-80). Les classes à sémantique de valeur
+      (Integer, Float, Character, String, Array, Dictionary)
+      surchargent. La comparaison est TOTALE : entre types
+      différents, elle rend false, jamais une erreur.
+    - `==` — identité stricte, définie ICI et héritée par
+      toutes les classes (07/11) : plus aucune classe ne la
+      redéfinit.
 
 ### Boolean
     ifTrue: ifFalse: ifTrue:ifFalse:
     and: or: not asString
 
-`and:` et `or:` sont **paresseux** (29/10) :
+    `and:` et `or:` sont **paresseux** (29/10) :
 
-    false and: [n'importe quoi]    -> false, le bloc
-                                     n'est JAMAIS évalué
-    true or: [n'importe quoi]       -> true, idem
+    false and: [un block]    -> false, le bloc
+                                n'est JAMAIS évalué
+    true or: [un block]      -> true, idem
 
 L'opérande est un **bloc** (évalué seulement si nécessaire)
 ou un booléen nu (`true and: false` reste valide). Le
@@ -242,7 +251,7 @@ C, décision du 24/10 étendue ici).
 
 ### Integer
     + - * / % ** negated
-    = == < > <= >=
+    = < > <= >=
     to:
     asString asFloat yourself
 
@@ -257,7 +266,7 @@ dédiée : « tout est message ».
 
 ### Float
     + - * / % ** negated
-    = == < > <= >=
+    = < > <= >=
     asString asInteger yourself
 
 Un `Float` est un `double` IEEE 754. Affichage : `2.0`
@@ -302,7 +311,7 @@ Autres règles :
 
 ### String
     , * size at: isEmpty
-    = ==
+    = 
     reverse uppercase lowercase
     indexOf: contains:
     asString
@@ -315,7 +324,7 @@ est toujours une `String`.
 
 ### Character
     , *
-    = ==
+    =
     asString asInteger yourself
 
 Un caractère est un **codepoint Unicode** (type distinct,
@@ -346,7 +355,7 @@ pourrait pas le représenter).
 
 ### Nil
     isNil notNil ifNil: ifNotNil:
-    = ==
+    =
     asString
 
 ### Tableaux et symboles

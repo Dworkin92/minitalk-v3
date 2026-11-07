@@ -161,16 +161,6 @@ public final class MTFloatPrimitives {
             self.javaValue() == numeric(arguments[0], "="));
     }
 
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        // Identite stricte : deux MTFloat de meme valeur
-        // ne sont PAS le meme objet. == reste strict.
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
-    }
 
     @Primitive("<")
     public static MTObject lessThan(

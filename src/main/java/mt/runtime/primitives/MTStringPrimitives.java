@@ -117,14 +117,6 @@ public final class MTStringPrimitives {
             self.javaValue().equals(other.javaValue()));
     }
 
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
-    }
 
     /**
      * Acces 1-based : 'abc' at: 2 -> $b.

@@ -184,15 +184,7 @@ public final class MTDictionaryPrimitives {
         return context(receiver).newBoolean(true);
     }
 
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
-    }
-    
+   
     @Primitive("asString")
     public static MTObject asString(
             MTObject receiver,

@@ -436,6 +436,25 @@
   (refus explicite), tables blocks/bindings quand
   l'AST arrivera. L'AST = pivot de la strategie.
 
+### 07/11/2026
+
+- = / == montes sur Object (decision du 07/11) : ==
+  = identite, herite par toutes les classes ; = par
+  defaut = identite (convention Smalltalk-80),
+  surcharge par les classes de valeur. Le lookup
+  remontait deja la chaine : monte une fois,
+  profite partout.
+  Menage : les == redondants supprimes (Integer,
+  Float, String, Character, Array, Dictionary) ;
+  Nil et Boolean abandonnent aussi leur = (identite
+  = valeur pour des singletons). Reparation au
+  passage : true = true (Boolean n'avait pas de =).
+  Changement assume : la comparaison explicite est
+  TOTALE -- [1] = 42 rend false, plus de « message
+  non compris ». La Reference disait vrai sur
+  l'intention, faux sur la mecanique : elle est
+  maintenant vraie des deux cotes.
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -447,7 +466,6 @@
 
 ### Prochains objectifs
 
-- décision =/== sur Object,
 - la réflexivité,
 - ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb,
   etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux

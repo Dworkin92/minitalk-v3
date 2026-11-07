@@ -75,19 +75,6 @@ public final class MTNilPrimitives {
         return argument;
     }
 
-    /**
-     * = et == : nil n'est egal qu'a lui-meme.
-     */
-    @Primitive("=")
-    @Primitive("==")
-    public static MTObject equals(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
-    }
-
     @Primitive("asString")
     public static MTObject asString(
             MTObject receiver,

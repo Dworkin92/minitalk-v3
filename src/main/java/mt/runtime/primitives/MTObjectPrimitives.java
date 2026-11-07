@@ -1,6 +1,8 @@
 package mt.runtime.primitives;
 
 import mt.runtime.MTContext;
+import mt.runtime.MTFloat;
+import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
 
 public final class MTObjectPrimitives {
@@ -37,6 +39,42 @@ public final class MTObjectPrimitives {
     @Primitive("notNil")
     public static MTObject notNil(MTObject receiver, MTObject... arguments) {
         return context(receiver).newBoolean(!receiver.isNil());
+    }
+
+    //
+    // Comparaisons
+    //
+
+    /**
+     * Egalite d'identite : la valeur par defaut de ==
+     * pour TOUT objet du monde, heritee par toutes les
+     * classes (le lookup remonte la chaine). Les classes
+     * n'ont plus a le redefinir -- sauf divergence
+     * assumee, il n'y en a aucune aujourd'hui.
+     */
+    @Primitive("==")
+    public static MTObject sameAs(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        return context(receiver).newBoolean(
+            receiver.identityEquals(arguments[0]));
+    }
+
+    /**
+     * Egalite par defaut : IDENTITE, comme en
+     * Smalltalk-80 (Object>>= retourne ==). Les classes
+     * a semantique de valeur (Integer, String, Array,
+     * Dictionary, ...) SURCHARGENT avec leur egalite
+     * de valeur ; les autres heritent de l'identite.
+     */
+    @Primitive("=")
+    public static MTObject equals(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        return context(receiver).newBoolean(
+            receiver.identityEquals(arguments[0]));
     }
 
     /**

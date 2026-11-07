@@ -267,10 +267,6 @@ public final class MTIntegerPrimitives {
         return context(receiver).newArray(elements);
     }
 
-    //
-    // Comparaisons
-    //
-
     @Primitive("=")
     public static MTObject equals(
             MTObject receiver,
@@ -289,16 +285,6 @@ public final class MTIntegerPrimitives {
         MTInteger o = asInteger(other, "=");
         return context(self).newBoolean(
             self.javaValue() == o.javaValue());
-    }
-
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        // Identite : deux MTInteger de meme valeur ne sont
-        // PAS le meme objet (pas de cache). == reste strict.
-        return context(receiver).newBoolean(receiver.identityEquals(arguments[0]));
     }
 
     @Primitive("<")

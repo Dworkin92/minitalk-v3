@@ -126,15 +126,6 @@ public final class MTCharacterPrimitives {
             self.javaValue() == other.javaValue());
     }
 
-    @Primitive("==")
-    public static MTObject sameAs(
-            MTObject receiver,
-            MTObject... arguments) {
-
-        // Identite stricte, comme Integer et Float.
-        return context(receiver).newBoolean(
-            receiver.identityEquals(arguments[0]));
-    }
 
     //
     // Conversions

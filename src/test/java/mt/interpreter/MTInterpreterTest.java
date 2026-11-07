@@ -1010,4 +1010,43 @@ public class MTInterpreterTest {
             () -> run("{ 1 => 'a' } at: 2"));
         assertTrue(e.getMessage().contains("Cle absente"));
     }
+
+    //
+    // = / == herites de Object (07/11)
+    //
+
+    @Test
+    void egaliteParDefautIdentiteSurLesBlocs() {
+        // Un bloc n'a pas de = de valeur : il herite de
+        // Object -- identite, facon Smalltalk-80. Et la
+        // comparaison est TOTALE : plus de « message non
+        // compris », un boolien.
+        assertFalse(((MTBoolean)
+            run("[1] = [1]")).javaValue());
+        assertFalse(((MTBoolean)
+            run("[1] == [1]")).javaValue());
+        assertTrue(((MTBoolean)
+            run("| b | b := [1]. b == b")).javaValue());
+    }
+
+    @Test
+    void booleensComparablesParHeritage() {
+        // Reparation au passage : si Boolean n'avait
+        // pas de =, « true = true » levait « Message non
+        // compris ». L'heritage depuis Object y pourvoit.
+        assertTrue(((MTBoolean)
+            run("true = true")).javaValue());
+        assertFalse(((MTBoolean)
+            run("true = false")).javaValue());
+    }
+
+    @Test
+    void nilEgalNilParHeritage() {
+        assertTrue(((MTBoolean)
+            run("nil = nil")).javaValue());
+        assertTrue(((MTBoolean)
+            run("nil == nil")).javaValue());
+        assertFalse(((MTBoolean)
+            run("nil = 1")).javaValue());
+    }
 }
