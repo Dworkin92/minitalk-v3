@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import mt.runtime.exceptions.MTException;
 
@@ -119,7 +120,7 @@ public final class MTClass
         return null;
     }
 
-    public void addInstanceMethod(MTSymbol selector,MTMethod method) {
+    public void addInstanceMethod(MTSymbol selector, MTMethod method) {
         instMethods.put(selector, method);
     }
 
@@ -145,4 +146,166 @@ public final class MTClass
         return lookup(selector, true);
     }
 
+    //
+    // Reflexivite (07/11)
+    //
+
+    /**
+     * Clefs brutes des methodes d'instance LOCALES, pour
+     * la primitive instSelectors. Le tri vit dans la
+     * primitive, pas ici.
+     */
+    public Set<MTSymbol> getInstSelectors() {
+        return instMethods.keySet();
+    }
+
+    /**
+     * Clefs brutes des methodes de classe LOCALES.
+     */
+    public Set<MTSymbol> getClassSelectors() {
+        return classMethods.keySet();
+    }
+
+    /**
+     * Retire une methode d'instance LOCALE (07/11).
+     * Symetrique de addInstanceMethod. Rend la methode
+     * retiree ; une methode absente est une erreur
+     * explicite, pas un silence. Une methode modifiable
+     * est une donnee -- ca commence par savoir l'enlever.
+     */
+    public MTMethod removeInstanceMethod(MTSymbol selector) {
+        MTMethod removed = instMethods.remove(selector);
+
+        if (removed == null) {
+            throw new MTException(
+                "methode absente : " + name
+                + " >> " + selector);
+        }
+
+        return removed;
+    }
+
+    /**
+     * Retire une methode de classe LOCALE (07/11).
+     */
+    public MTMethod removeClassMethod(MTSymbol selector) {
+        MTMethod removed = classMethods.remove(selector);
+
+        if (removed == null) {
+            throw new MTException(
+                "methode absente : " + name
+                + " (classe) >> " + selector);
+        }
+
+        return removed;
+    }
+
+    /**
+     * Methode d'instance LOCALE (07/11) : la REND, donc
+     * en fait une valeur (reification). LOCALE, au
+     * contraire de lookupInstanceMethod qui remonte la
+     * chaine : le nom, pas ce que le monde comprend.
+     */
+    public MTMethod instanceMethodAt(MTSymbol selector) {
+        MTMethod method = instMethods.get(selector);
+
+        if (method == null) {
+            throw new MTException(
+                "methode absente : " + name
+                + " >> " + selector);
+        }
+
+        return method;
+    }
+
+    /**
+     * Methode de classe LOCALE (07/11).
+     */
+    public MTMethod classMethodAt(MTSymbol selector) {
+        MTMethod method = classMethods.get(selector);
+
+        if (method == null) {
+            throw new MTException(
+                "methode absente : " + name
+                + " (classe) >> " + selector);
+        }
+
+        return method;
+    }
+
+    /**
+     * Remplacement ATOMIQUE d'une methode d'instance
+     * (07/11) : un seul put, jamais de fenetre ou la
+     * methode n'existe pas -- c'est le dividende de
+     * Map.put. Remplacer n'est pas ajouter : absent =
+     * erreur explicite et la classe reste INCHANGEE
+     * (le put est annule) ; l'ajout reste
+     * addInstanceMethod, canal du bootstrap.
+     */
+    public MTMethod replaceInstanceMethod(
+            MTSymbol selector,
+            MTMethod method) {
+
+        MTMethod previous = instMethods.put(selector, method);
+
+        if (previous == null) {
+            instMethods.remove(selector);
+            throw new MTException(
+                "methode absente : " + name
+                + " >> " + selector);
+        }
+
+        return previous;
+    }
+
+    /**
+     * Remplacement atomique d'une methode de classe
+     * (07/11).
+     */
+    public MTMethod replaceClassMethod(
+            MTSymbol selector,
+            MTMethod method) {
+
+        MTMethod previous = classMethods.put(selector, method);
+
+        if (previous == null) {
+            classMethods.remove(selector);
+            throw new MTException(
+                "methode absente : " + name
+                + " (classe) >> " + selector);
+        }
+
+        return previous;
+    }
+
+    //
+    // Alias pragmatiques (07/11) : le raccourci delegue,
+    // la logique vit dans UN seul endroit.
+    //
+
+    /** Alias de addInstanceMethod. */
+    public void addInstMethod(MTSymbol selector, MTMethod method) {
+        addInstanceMethod(selector, method);
+    }
+
+    /** Alias de removeInstanceMethod. */
+    public MTMethod removeInstMethod(MTSymbol selector) {
+        return removeInstanceMethod(selector);
+    }
+
+    /** Alias de replaceInstanceMethod. */
+    public MTMethod replaceInstMethod(
+            MTSymbol selector, MTMethod method) {
+        return replaceInstanceMethod(selector, method);
+    }
+
+    /** Alias de instanceMethodAt. */
+    public MTMethod instMethodAt(MTSymbol selector) {
+        return instanceMethodAt(selector);
+    }
+
+    /** Alias de lookupInstanceMethod. */
+    public MTMethod lookupInstMethod(MTSymbol selector) {
+        return lookupInstanceMethod(selector);
+    }
 }

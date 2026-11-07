@@ -438,22 +438,81 @@
 
 ### 07/11/2026
 
-- = / == montes sur Object (decision du 07/11) : ==
-  = identite, herite par toutes les classes ; = par
-  defaut = identite (convention Smalltalk-80),
-  surcharge par les classes de valeur. Le lookup
-  remontait deja la chaine : monte une fois,
-  profite partout.
-  Menage : les == redondants supprimes (Integer,
-  Float, String, Character, Array, Dictionary) ;
-  Nil et Boolean abandonnent aussi leur = (identite
-  = valeur pour des singletons). Reparation au
-  passage : true = true (Boolean n'avait pas de =).
-  Changement assume : la comparaison explicite est
-  TOTALE -- [1] = 42 rend false, plus de « message
-  non compris ». La Reference disait vrai sur
-  l'intention, faux sur la mecanique : elle est
-  maintenant vraie des deux cotes.
+- = / == montes sur Object : == = identite, herite par
+  toutes les classes ; = par defaut = identite (convention
+  Smalltalk-80), surcharge par les classes de valeur.
+  Menage : les == redondants supprimes (Integer, Float,
+  String, Character, Array, Dictionary) ; Nil et Boolean
+  abandonnent aussi leur = (identite = valeur pour des
+  singletons). Reparation au passage : true = true.
+  La comparaison explicite est TOTALE : [1] = 42 rend
+  false, plus de « message non compris ». 176 verts.
+
+- Reflexivite, couche Java : removeInstanceMethod /
+  removeClassMethod (symetriques des add, format
+  « methode absente : X >> sel ») et replaceInstanceMethod
+  / replaceClassMethod (ATOMIQUE : un seul put ; absent =
+  erreur et classe INCHANGEE). Alias pragmatiques :
+  addInstMethod, removeInstMethod, replaceInstMethod,
+  instMethodAt, lookupInstMethod -- le raccourci delegue,
+  la logique vit dans un seul endroit.
+  instanceMethodAt / classMethodAt : LOCALES (au
+  contraire du lookup qui remonte la chaine) -- la
+  reification commence par savoir lire une table exacte.
+
+- Bug decouvert par la reflexivite : le champ mtClass
+  n'etait cible que pour Object et Class -- dix classes
+  sur douze repondaient null et tout message a une
+  classe-objet partait en NPE. Regle pour toute future
+  primitive de creation de classe : setMTClass(classClass).
+
+- DOUZIEME BRIQUE : MTClassPrimitives, la premiere
+  installee sur Class. Tout message reflexif herite a
+  toutes les classes. Vocabulaire (systeme Inst-miroir,
+  arbitre du jour) : superclass (nil a la racine),
+  instSelectors / classSelectors (LOCAUX, tries par nom
+  pour le determinisme des tests), removeInstMethod: /
+  removeClassMethod: (rend la classe). Regle : le prefixe
+  inst/class dit le COTE, toujours explicite --
+  contrepartie de la classe-unique.
+  selectors nu REFUSE : ambigu (deux tables, un
+  recepteur).
+
+- Regle de vocabulaire pour la Reference : SELECTEUR =
+  le NOM d'une methode (toujours un symbole) ; METHODE =
+  le CODE, la donnee. En MiniTalk, on ne designe une
+  methode qu'en la nommant. La carte n'est pas le
+  territoire (Korzybski/Van Vogt, epigraphe retenue).
+
+- Permission assumee : retirer une builtin est legal.
+  Reponse a « et si on casse une builtin ? » : le monde
+  boiteux se ferme et newStandard() en recree un neuf --
+  la guerison par le monde neuf. Liste des SELECTEURS
+  PORTEURS a documenter (leur disparition casse le
+  mecanisme interne du monde) : =, value, value:,
+  value:value:.
+
+- Enrichissement par le langage lui-meme : le
+  remplacement peut CAPTURER l'ancienne methode (rendue
+  par le replace) et l'invoquer -- motif decorateur, en
+  attente d'un exemple au journal. Piste pour la
+  reification future : instMethodAt: au langage, un
+  cousin du Block ; super ECARTE pour l'enrobage (il
+  delegue au PARENT, pas au remplace).
+  instMethodAt: langage IMPOSSIBLE aujourd'hui : une
+  primitive doit rendre un MTObject, une MTMethod n'en
+  est pas une (seul MTBlock est les deux).
+
+- Premiere suite qui MUTTE volontairement son monde :
+  MTReflexivityTest, monde a soi.
+
+- Notes de fond : lookupClassMethod et les classMethods
+  semblent dormir (le dispatch passe par la
+  metaclasse-unique) -- a unifier un jour. Les cartes de
+  MTClass sont des HashMap ; le jour des mondes
+  partages (Q4), ConcurrentHashMap. Q1 : retirer une
+  builtin ne touche jamais la genes Git, tout monde
+  neuf repart entier.
 
 ## Prochain objectif
 
@@ -466,14 +525,61 @@
 
 ### Prochains objectifs
 
-- la réflexivité,
-- ajout de gestion et utilisation de bases de données sqlite3, derby, hsqldb,
-  etc. Note : derby et hsqldb permettent l'usage de bases en fichiers locaux
-  ou sur serveur distant gérant le multi accès.
-- reflexivite des classes : retirer / modifier une methode
-  (ou une propriete d'instance, quand elles existeront) --
-  remove/replace dans MTClass, remplacement atomique,
-  vocabulaire a definir. Prepare la persistance des
-  methodes (une methode modifiable est une donnee).
+1. Le confort immédiat (petits chantiers, effets visibles chaque session)
+
+  - Dictionary : 
+    * at:ifAbsent:, at:ifAbsentPut:,
+    * l'affichage complet (on en est à Dictionary(3) — un affichage lisible change le REPL),
+    * peut-être keysDo:/associationsDo:.
+
+  - Integer : 
+    * abs, even/odd, min:/max:,
+    * et surtout to:do: — itérer par bloc au lieu de fabriquer un tableau : 1 to: 10 do: [:i | ...]. C'est le genre de message qui rend le langage fluide.
+
+  - String :
+    * asUppercase/asLowercase, trim, 
+    * sous-chaînes (copyFrom:to:), indexOf:, replaceAll:with:.
+      Rien ne fatigue plus que de ne pas pouvoir tailler une chaîne.
+
+  - Array :
+    * detect:ifNone:,
+    * inject:into: (le couteau suisse),
+    *  with:do:, asSorted, la concaténation ,.
+
+  - Les finitions promises au journal : 
+    * le message « Echec primitive » qui nomme le sélecteur MiniTalk au lieu du nom Java,
+    *  le piège REPL $',
+    * ifNil: ifNotNil:.
+
+2. Le grand chantier — les classes définies en MiniTalk
+
+C'est LE chantier qui transforme le langage : aujourd'hui, tout vit en Java (primitives) ; un utilisateur ne peut pas créer Point. Il faudra :
+
+- une syntaxe de création (Integer subclass: #Point ... façon Smalltalk, ou une autre forme à inventer) ;
+- la définition de méthodes en MiniTalk — grammaire + compilation vers addInstMethod (et là, votre réflexivité d'aujourd'hui devient le moteur : replaceInstMethod sert à chaud) ;
+- les variables d'instance (instVars existent déjà dans MTClass, elles attendent),
+- self, super, le ^retour, les cascades.
+- ajout de gestion et utilisation de bases de données sqlite3, h2, hsqldb,
+  etc.
+  
+  **Note :** h2 et/ou hsqldb permettent l'usage de bases en fichiers locaux
+  en mémoire, ou sur serveur distant gérant le multi accès.
+  
+C'est gros, c'est passionnant, et tout ce qu'on a semé y converge : l'AST (méthodes = données), la réflexivité (muter à chaud), la persistance (classes = schéma léger, la question ouverte de Q1).
+
+3. L'infrastructure douce
+
+- Charger un fichier : MTInterpreter.evaluate sait évaluer une source ; il manque juste un point d'entrée « exécute ce fichier .mt » et le REPL peut charger des scripts. Petit, et ça change la vie.
+
+- La réification : instMethodAt: au langage + objet-méthode cousin du Block — le décorateur de vendredi s'écrit alors en MiniTalk.
+
+- La Référence à jour : elle accuse le retard sur Dictionary, la réflexivité, la règle sélecteur/méthode (avec son épigraphe Van Vogt 😄).
+
+
+4. L'horizon (déjà tracé)
+
+La persistance SGBD (Q3, Q5 restantes), les blocs porteurs d'AST (transmissibilité), la VM bytecode de votre projet myVM.
+
+
 
 

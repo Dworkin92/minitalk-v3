@@ -1,8 +1,15 @@
 # MiniTalk V3 — Référence du langage et du runtime
 
-État au 29/10/2026. MiniTalk est un Smalltalk-like : tout
-est objet, tout calcul est un message, les blocs sont des
-fermetures. Cette page décrit la syntaxe supportée par
+"La  carte n'est pas le territoire"
+   Le Monde du non-A, A.E. Van Vogt
+
+MiniTalk est un Smalltalk-like :
+- tout est objet,
+- tout calcul est un message,
+- les blocs sont des fermetures.
+- les sélecteurs ne sont pas les méthodes
+
+Cette page décrit la syntaxe supportée par
 l'interpréteur, la sémantique, puis les classes Java du
 runtime.
 

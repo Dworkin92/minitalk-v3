@@ -14,6 +14,7 @@ import mt.runtime.primitives.MTFloatPrimitives;
 import mt.runtime.primitives.MTCharacterPrimitives;
 import mt.runtime.primitives.MTNilPrimitives;
 import mt.runtime.primitives.MTObjectPrimitives;
+import mt.runtime.primitives.MTClassPrimitives;
 import mt.runtime.primitives.MTPrimitiveInstaller;
 import mt.runtime.primitives.MTStringPrimitives;
 import mt.runtime.primitives.MTSymbolPrimitives;
@@ -91,6 +92,17 @@ public final class MTContext {
 
         objectClass.setMTClass(classClass);
         classClass.setMTClass(classClass);
+        integerClass.setMTClass(classClass);
+        floatClass.setMTClass(classClass);
+        stringClass.setMTClass(classClass);
+        blockClass.setMTClass(classClass);
+        arrayClass.setMTClass(classClass);
+        dictionaryClass.setMTClass(classClass);
+        symbolClass.setMTClass(classClass);
+        characterClass.setMTClass(classClass);
+        nilClass.setMTClass(classClass);
+        booleanClass.setMTClass(classClass);
+
 
         nil.setMTClass(nilClass);
         trueObject.setMTClass(booleanClass);
@@ -128,6 +140,7 @@ public final class MTContext {
 
     private void installPrimitives() {
         MTPrimitiveInstaller.install(objectClass,     MTObjectPrimitives.class);
+        MTPrimitiveInstaller.install(classClass,      MTClassPrimitives.class);
         MTPrimitiveInstaller.install(nilClass,        MTNilPrimitives.class);
         MTPrimitiveInstaller.install(booleanClass,    MTBooleanPrimitives.class);
         MTPrimitiveInstaller.install(integerClass,    MTIntegerPrimitives.class);
