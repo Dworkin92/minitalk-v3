@@ -254,6 +254,48 @@ public final class MTDictionary
 
     @Override
     public String toString() {
-        return "Dictionary(" + entries.size() + ")";
+        if (entries.isEmpty()) {
+            return "{ }";
+        }
+
+        StringBuilder out = new StringBuilder("{ ");
+
+        boolean first = true;
+        for (Pair pair : entries.values()) {
+
+            if (!first) {
+                out.append(". ");
+            }
+            first = false;
+
+            out.append(printable(pair.key()))
+               .append(" => ")
+               .append(printable(pair.value()));
+        }
+
+        out.append(" }");
+        return out.toString();
+    }
+
+    /**
+     * Rendu RE-EVALUABLE : les chaines sont quotees
+     * (echappement ''), les caracteres prennent leur $.
+     * Les autres types : leur asString. Miroir du jeu
+     * ferme de valueEquals/hashOf -- meme famille de
+     * types traites, meme fichier.
+     */
+    private static String printable(MTObject object) {
+
+        if (object instanceof MTString s) {
+            return "'" + s.javaValue()
+                .replace("'", "''") + "'";
+        }
+
+        if (object instanceof MTCharacter c) {
+            return "$"
+                + Character.toString(c.javaValue());
+        }
+
+        return object.asString().javaValue();
     }
 }

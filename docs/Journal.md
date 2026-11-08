@@ -514,6 +514,14 @@
   builtin ne touche jamais la genes Git, tout monde
   neuf repart entier.
 
+### 08/11/2026
+
+- complétion de la classe MTDictionary avec quelques méthodes
+  supplémentaires : **at:ifAbsent:**, **at:ifAbsentPut:**,
+  puis adaptation de **toString** et ajout de **printable**.
+
+
+
 ## Prochain objectif
 
 ### Notes pour plus tard

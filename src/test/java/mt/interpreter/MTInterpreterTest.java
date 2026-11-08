@@ -884,7 +884,7 @@ public class MTInterpreterTest {
         assertTrue(((MTBoolean) r).javaValue());
     }
 
-        //
+    //
     // Dictionary (05/11)
     //
 
@@ -1009,6 +1009,70 @@ public class MTInterpreterTest {
         MTException e = assertThrows(MTException.class,
             () -> run("{ 1 => 'a' } at: 2"));
         assertTrue(e.getMessage().contains("Cle absente"));
+    }
+
+    @Test
+    void atIfAbsentAbsentEvalueLeBloc() {
+        assertEquals(
+            "défaut",
+            ((MTString) run(
+                "| d | d := { 1 => 'x' }. "
+                + "d at: 2 ifAbsent: [ 'défaut' ]"))
+                .javaValue());
+    }
+
+    @Test
+    void atIfAbsentPutInsereUneSeuleFois() {
+        assertEquals(
+            1,
+            ((MTInteger) run(
+                "| d | d := { }. "
+                + "d at: 'cle' ifAbsentPut: [ 42 ]. "
+                + "d at: 'cle' ifAbsentPut: [ 43 ]. "
+                + "d size"))
+                .javaValue());
+
+        // Et c'est bien le PREMIER calcul qui est garde :
+        assertEquals(
+            42,
+            ((MTInteger) run(
+                "| d | d := { }. "
+                + "d at: 'cle' ifAbsentPut: [ 42 ]. "
+                + "d at: 'cle'"))
+                .javaValue());
+    }
+
+    @Test
+    void affichageReevaluable() {
+        // L'echo du REPL est du MiniTalk valide.
+        assertEquals(
+            "{ 1 => 2. 'a' => $b }",
+            ((MTString) run(
+                "{ 1 => 2. 'a' => $b } asString"))
+                .javaValue());
+
+        // Echappement '' dans une cle.
+        assertEquals(
+            "{ 'l''eau' => 1 }",
+            ((MTString) run(
+                "{ 'l''eau' => 1 } asString"))
+                .javaValue());
+
+        // Vide : la forme litterale exacte.
+        assertEquals(
+            "{ }",
+            ((MTString) run("{ } asString"))
+                .javaValue());
+    }
+
+    @Test
+    void atIfAbsentPresentNeTouchePasLeBloc() {
+        assertEquals(
+            "x",
+            ((MTString) run(
+                "| d | d := { 1 => 'x' }. "
+                + "d at: 1 ifAbsent: [ 'défaut' ]"))
+                .javaValue());
     }
 
     //

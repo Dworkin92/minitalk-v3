@@ -68,6 +68,53 @@ public final class MTDictionaryPrimitives {
         return value;
     }
 
+    /**
+     * Derogation propre a la cle absente : le bloc est
+     * evalue SEULEMENT dans ce cas (paresseux, precedent
+     * and:/or: du 29/10). Present -> la valeur, le bloc
+     * n'est jamais touche.
+     */
+    @Primitive("at:ifAbsent:")
+    public static MTObject atIfAbsent(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTDictionary self = (MTDictionary) receiver;
+        MTObject value = self.get(arguments[0]);
+
+        if (value != null) {
+            return value;
+        }
+
+        return asBlock(
+            arguments[1], "at:ifAbsent:").invoke(null);
+    }
+
+    /**
+     * Present -> la valeur. Absent -> le bloc (paresseux)
+     * est evalue, le resultat EST INSERE sous la cle,
+     * et rendu. Convention Smalltalk.
+     */
+    @Primitive("at:ifAbsentPut:")
+    public static MTObject atIfAbsentPut(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTDictionary self = (MTDictionary) receiver;
+        MTObject value = self.get(arguments[0]);
+
+        if (value != null) {
+            return value;
+        }
+
+        MTObject computed = asBlock(
+            arguments[1], "at:ifAbsentPut:").invoke(null);
+
+        self.put(arguments[0], computed);
+
+        return computed;
+    }
+
     /** Retourne la valeur inseree (convention Smalltalk) */
     @Primitive("at:put:")
     public static MTObject atPut(
