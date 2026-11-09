@@ -243,50 +243,49 @@ d'itérations).
 ### Class
 
 Les messages de cette section sont envoyés À UNE CLASSE
-(le récepteur est un objet classe). Règle de vocabulaire :
-le SÉLECTEUR est le nom d'une méthode (toujours un
-symbole) ; la MÉTHODE est le code, la donnée. On ne
-désigne une méthode qu'en la nommant.
+(le récepteur est un objet classe). Résolution : SES
+méthodes de classe d'abord, puis le socle commun
+(`superclass`, `new`, ...) ; une méthode de classe
+homonyme d'un message du socle GAGNE (09/11).
+
+Règle de vocabulaire : le SÉLECTEUR est le nom d'une
+méthode (toujours un symbole) ; la MÉTHODE est le code,
+la donnée. On ne désigne une méthode qu'en la nommant.
 
 #### Naissance et instances (08/11)
- |  Message | Sémantique |
+ | Message | Sémantique |
  |---|---|
- | `subclass: #Nom` | crée la classe fille, l'enregistre, rend la classe. Nom déjà pris : `Classe existante : Nom`. |
+ | `subclass: #Nom` | crée la classe fille, l'enregistre, rend la classe ; nom déjà pris : `Classe existante : Nom` |
  | `new` | instance vide : les variables déclarées se lisent `nil` tant que rien n'a écrit |
  | `instVars: #(#a #b)` | déclare des variables d'instance (symboles EXPLICITES) |
  | `classVars: #(#C)` | déclare des variables de classe EN CRÉANT LES ENTRÉES À NIL ; re-déclarer est un no-op, la valeur est gardée |
- | `accessors: #(#a)` | génère getter (`a`) et setter (`a:`) — le setter rend la valeur affectée |
- | `getters: #(#a)` / `setters: #(#a)` | la moitié seule de la génération |
-
+ | `accessors: #(#a)` | génère le getter (`a`) et le setter (`a:`) — le setter rend la valeur affectée |
+ | `getters: #(#a)` | génère le getter seul |
+ | `setters: #(#a)` | génère le setter seul |
 
 - La génération exige la déclaration préalable, sinon
   `variable inconnue : X >> a` (le flux est ordonné :
   on déclare, puis on génère).
-
-- **La dernière déclaration l'emporte sur les
-  précédentes** : la génération écrase une méthode
-  existante — la main de l'homme comme la machine, la
-  dernière écriture gagne.
+- LA DERNIERE DECLARATION L'EMPORTE SUR LES
+  PRECEDENTES : la génération écrase une méthode
+  existante.
 
 #### Réflexivité (07/11)
  | Message | Sémantique |
  |---|---|
- | `superclass` | retourne la classe parente  de la classe courante, ou `nil` si la classe est `Object` |
- | `instSelectors` | retourne tous les selecteurs d'instance pour la classe courante |
- | `classSelectors` | retourne tous les sélecteurs de classe pour la classe courante |
- | `removeInstMethod: #method` | supprime le sélecteur #method et la méthode d'instance associée dans la classe courante |
- | `removeClassMethod: #method` | supprime le sélecteur #method et la méthode de classe associée dans la classe courante |
-
-- si une méthodes est absente, on a une levée d'exception : `methode absente : X >> s`
+ | `superclass` | la classe mère ; `nil` à la racine (Object) |
+ | `instSelectors` | sélecteurs d'instance LOCAUX à la classe, triés par nom |
+ | `classSelectors` | sélecteurs de classe LOCAUX, triés par nom |
+ | `removeInstMethod: #s` | retire la méthode d'instance, rend la classe ; absente : `methode absente : X >> s` |
+ | `removeClassMethod: #s` | retire la méthode de classe, rend la classe ; absente : idem |
 
 - Le préfixe `inst`/`class` dit le CÔTÉ, toujours
   explicite (contrepartie de la classe-unique : pas de
   métaclasse par classe, `X class` répond toujours
   `Class`). `selectors` nu est refusé : ambigu.
-
-- Retirer une primitive du bootstrap est LÉGAL : le monde
-  boiteux se ferme, `newStandard()` en recrée un neuf.
-  Sélecteurs PORTEURS (leur disparition casse la
+- Retirer une primitive du bootstrap est LÉGAL : le
+  monde boiteux se ferme, `newStandard()` en recrée un
+  neuf. Sélecteurs PORTEURS (leur disparition casse la
   mécanique interne) : `=`, `value`, `value:`,
   `value:value:`.
 

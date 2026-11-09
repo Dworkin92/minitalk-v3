@@ -156,6 +156,13 @@ public final class MTClassPrimitives {
         return receiver;
     }
 
+    /**
+     * Person << classVars: #(#Population) (08/11).
+     * DECLARE en creant les entrees A NIL : le
+     * dictionnaire est declaration ET stockage
+     * (ARCHITECTURE.md). Redeclarer une variable
+     * existante est un no-op, la valeur est GARDEE.
+     */
     @Primitive("classVars:")
     public static MTObject classVars(
             MTObject receiver, MTObject... arguments) {
