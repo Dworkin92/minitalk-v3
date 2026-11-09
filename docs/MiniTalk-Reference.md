@@ -249,7 +249,7 @@ symbole) ; la MÉTHODE est le code, la donnée. On ne
 désigne une méthode qu'en la nommant.
 
 #### Naissance et instances (08/11)
-   Message | Sémantique |
+ |  Message | Sémantique |
  |---|---|
  | `subclass: #Nom` | crée la classe fille, l'enregistre, rend la classe. Nom déjà pris : `Classe existante : Nom`. |
  | `new` | instance vide : les variables déclarées se lisent `nil` tant que rien n'a écrit |
@@ -258,9 +258,11 @@ désigne une méthode qu'en la nommant.
  | `accessors: #(#a)` | génère getter (`a`) et setter (`a:`) — le setter rend la valeur affectée |
  | `getters: #(#a)` / `setters: #(#a)` | la moitié seule de la génération |
 
+
 - La génération exige la déclaration préalable, sinon
   `variable inconnue : X >> a` (le flux est ordonné :
   on déclare, puis on génère).
+
 - **La dernière déclaration l'emporte sur les
   précédentes** : la génération écrase une méthode
   existante — la main de l'homme comme la machine, la
@@ -269,14 +271,19 @@ désigne une méthode qu'en la nommant.
 #### Réflexivité (07/11)
  | Message | Sémantique |
  |---|---|
- | `superclass` | la classe mère ; `nil` à la racine (Object) |
- | `instSelectors` / `classSelectors` | sélecteurs LOCAUX à la classe, triés par nom |
- | `removeInstMethod: #s` / `removeClassMethod: #s` | retire la méthode, rend la classe ; absente : `methode absente : X >> s` |
+ | `superclass` | retourne la classe parente  de la classe courante, ou `nil` si la classe est `Object` |
+ | `instSelectors` | retourne tous les selecteurs d'instance pour la classe courante |
+ | `classSelectors` | retourne tous les sélecteurs de classe pour la classe courante |
+ | `removeInstMethod: #method` | supprime le sélecteur #method et la méthode d'instance associée dans la classe courante |
+ | `removeClassMethod: #method` | supprime le sélecteur #method et la méthode de classe associée dans la classe courante |
+
+- si une méthodes est absente, on a une levée d'exception : `methode absente : X >> s`
 
 - Le préfixe `inst`/`class` dit le CÔTÉ, toujours
   explicite (contrepartie de la classe-unique : pas de
   métaclasse par classe, `X class` répond toujours
   `Class`). `selectors` nu est refusé : ambigu.
+
 - Retirer une primitive du bootstrap est LÉGAL : le monde
   boiteux se ferme, `newStandard()` en recrée un neuf.
   Sélecteurs PORTEURS (leur disparition casse la
@@ -429,17 +436,24 @@ Littéral : `{ cle => valeur. ... }`, vide `{ }`. La
 `=>` est la hash rocket de Ruby/Perl (token réservé :
 plus jamais un sélecteur binaire). Divergence assumée
 avec `#(...)` : les valeurs sont des expressions
-COMPLÈTES. Clés PAR VALEUR (2 et 2.0 = même clé), ordre
-d'insertion. La sonde n'est pas une comparaison : sonder
-avec un type incompatible est une absence, jamais une
-erreur.
-   Message | Sémantique |
+COMPLÈTES. Clés PAR VALEUR (`2` et `2.0` = même clé),
+ordre d'insertion. La sonde n'est pas une comparaison :
+sonder avec un type incompatible est une absence, jamais
+une erreur.
+ | Message | Sémantique |
  |---|---|
- | `size isEmpty at: at:put: includesKey: keys values removeKey:` | protocole de base (05/11) |
- | `do: unBloc` | parcourt les VALEURS (convention Smalltalk) |
- | `at: cle ifAbsent: unBloc` | la valeur, ou le bloc évalué si la clé manque (bloc PARESSEUX, jamais touché si présent) |
- | `at: cle ifAbsentPut: unBloc` | la valeur ; si absente, le bloc est évalué, INSÉRÉ sous la clé, et rendu |
- | `= == asString` | évidents |
+ | `size` | nombre d'associations |
+ | `isEmpty` | vide ou non |
+ | `at: uneCle` | la valeur ; clé absente : `MTException` |
+ | `at: uneCle put: uneValeur` | écrit, rend la valeur |
+ | `includesKey: uneCle` | vrai si la clé existe |
+ | `keys` / `values` | tableaux des clés / des valeurs |
+ | `removeKey: uneCle` | retire et rend la valeur ; absente : `MTException` |
+ | `do: unBloc` | parcourt les VALEURS (convention Smalltalk), rend le récepteur |
+ | `at: uneCle ifAbsent: unBloc` | la valeur, ou le bloc évalué si la clé manque (bloc PARESSEUX, jamais touché si la clé existe) |
+ | `at: uneCle ifAbsentPut: unBloc` | la valeur ; si absente, le bloc est évalué, INSÉRÉ sous la clé, et rendu |
+ | `=` / `==` | valeur (profonde) / identité |
+ | `asString` | forme littérale ré-évaluable |
 
 Affichage RE-ÉVALUABLE : `asString` rend la forme
 littérale — `{ 1 => 2. 'a' => $b }` — chaînes quotées
