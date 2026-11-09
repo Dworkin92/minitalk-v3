@@ -34,9 +34,28 @@ public final class MTInstance
         return method.invoke(this, arguments);
     }
 
+    /** (08/11) Lecture d'une variable d'instance.
+     * null = jamais assignee : l'appelant rendra nil. */
+    public MTObject getProperty(MTSymbol name) {
+        return properties.get(name);
+    }
+
+    /** (08/11) Ecriture d'une variable d'instance. */
+    public void setProperty(MTSymbol name, MTObject value) {
+        properties.put(name, value);
+    }
+
     @Override
     public MTString asString() {
+        // (08/11) « an » devant voyelle, « a » sinon,
+        // AVEC l'espace -- anPoint etait un accident.
+        String article =
+            "AEIOUaeiou".indexOf(
+                mtClass.getName().charAt(0)) >= 0
+            ? "an " : "a ";
+
         return mtClass.getContext()
-            .newString("an" + mtClass.getName());
+            .newString(article + mtClass.getName());
     }
+    
 }

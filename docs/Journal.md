@@ -520,7 +520,101 @@
   supplémentaires : **at:ifAbsent:**, **at:ifAbsentPut:**,
   puis adaptation de **toString** et ajout de **printable**.
 
+- Mise en Oeuvre du chantier classes, d'apres ARCHITECTURE.md
+  relu AVANT toute proposition :
+  * creation : Object subclass: #Person -- le nom seul ;
+    l'enrichissement vient APRES, par messages.
+  * << : FLUX ENTRANT d'informations vers le receveur
+    (amendement de l'architecture par Jean-Marc) --
+    formes simples ET agregation en bloc ; desucrage en
+    cascade a recepteur implicite, PROMESSE D'ORDEN
+    rendue explicite (on declare avant de generer).
+  * >> : flux sortant, REMPLACE -> pour les pipelines ;
+    couple shell complet <</>>. Decalages binaires :
+    shl: / shr: (precedent assembleur), messages a
+    mot-cle donc priorite usuelle (la plus basse) --
+    2 + 8 shr: 1 = (2+8) shr: 1, parentheses a la
+    Reference. Tokens a reserver avant BINARY le jour
+    de la grammaire (meme geste que => et **).
+  * Retour sans ^ : la valeur de la derniere
+    expression evaluee avant la sortie (phrase ajoutee
+    au chapitre ^ ; meme contrat que les blocs).
+  * ACCES AUTOMATIQUES par message EXPLICITE :
+    accessors: / getters: / setters: (banco les trois) ;
+    la garde : variable DECLAREE prealablement sinon
+    « variable inconnue : X >> var » ; LE DERNIER QUI
+    CAUSE A RAISON : la generation ecrase une methode
+    existante (loi du flux).
 
+- PHASE A implementee : subclass: (rend la classe,
+  enregistre, setMTClass(classClass) -- regle du
+  07/11 tenue a la naissance ; « Classe existante »),
+  instVars: (symboles explicites, coherence 26/10),
+  accessors:/getters:/setters: (getter = nil par
+  defaut ; setter rend la valeur affectee), new
+  (instance vide). MTInstance : getProperty/setProperty
+  + correctif de l'article (« anPoint » -> a/an espace).
+  Question encore ouverte, hors phase A : comment NOMMER
+  une classe dans le source MiniTalk (portee racine,
+  rabat du registre, ou dictionnaire global).
+
+### 08/11/2026 (suite, Phase A)
+
+- LECON DE METHODE : la session de design a débuté par la relecture
+  du fichier ARCHITECTURE.md -- qui avait deja tranché 
+  
+    * subclass: seul,
+    * l'enrichissement par messages,
+    * la syntaxe des methodes [ en-tete [ corps ] ],
+    * le ^ locale-bloc.
+
+  Règle : le document AVANT toute proposition.
+
+- Regle de localisation (née d'un collage dans le mauvais fichier) :
+  
+  MTClass = la MECANIQUE Java interne (détient les méthodes :
+  addInstVar/hasInstVar, hasClassVar/putClassVar/
+  classVarAt),
+  
+  MTClassPrimitives = la SURFACE LANGAGE miniTalk
+  (messages, gardes, emballage).
+  
+  Toute erreur « asX undefined for MTClass » = bloc dans le
+  mauvais fichier.
+
+- PHASE A VERTE (vérifie les 195 tests) :
+  subclass: (rend la classe,
+  enregistre, setMTClass(classClass), « Classe
+  existante : X »), instVars: (symboles explicites),
+  classVars: (declare en creant les entrees A NIL --
+  le dictionnaire est declaration ET stockage ;
+  redeclarer = no-op, la valeur est GARDEE),
+  accessors:/getters:/setters: (garde : variable
+  declaree sinon « variable inconnue : X >> var » ;
+  LA DERNIERE DECLARATION L'EMPORTE SUR LES
+  PRECEDENTES -- la génération
+  ecrase), new (instance vide, variables lues nil ;
+  getter = nil par defaut, setter rend la valeur
+  affectee). MTInstance : getProperty/setProperty,
+  article a/an + espace (« anPoint » etait un
+  accident).
+
+- Lecons du jour : negated est un MESSAGE MiniTalk,
+  pas une methode Java -- la fabrique du contexte
+  (world.newInteger(-v)) dans les lambdas de test.
+
+- OUVERTS : (1) canal de classe dormant -- le send()
+  d'une classe devrait chercher SES classMethods
+  d'abord puis le socle Class, exactement comme la
+  « Resolution des messages » du document le
+  specifie ; tests de regression a prevoir.
+  (2) Accesseurs unifies (priorite instVars puis
+  classVars, la premiere trouvee gagne) ou separes
+  (classAccessors:) ; une classVar generee des deux
+  cotes. (3) Nommage des classes dans le source
+  (portee racine / rabat du registre / dictionnaire
+  global) -- verrou REPL du kit. (4) <- d'affectation
+  promis par le document, jamais implante.
 
 ## Prochain objectif
 

@@ -240,6 +240,49 @@ d'itérations).
       toutes les classes (07/11) : plus aucune classe ne la
       redéfinit.
 
+### Class
+
+Les messages de cette section sont envoyés À UNE CLASSE
+(le récepteur est un objet classe). Règle de vocabulaire :
+le SÉLECTEUR est le nom d'une méthode (toujours un
+symbole) ; la MÉTHODE est le code, la donnée. On ne
+désigne une méthode qu'en la nommant.
+
+#### Naissance et instances (08/11)
+   Message | Sémantique |
+ |---|---|
+ | `subclass: #Nom` | crée la classe fille, l'enregistre, rend la classe. Nom déjà pris : `Classe existante : Nom`. |
+ | `new` | instance vide : les variables déclarées se lisent `nil` tant que rien n'a écrit |
+ | `instVars: #(#a #b)` | déclare des variables d'instance (symboles EXPLICITES) |
+ | `classVars: #(#C)` | déclare des variables de classe EN CRÉANT LES ENTRÉES À NIL ; re-déclarer est un no-op, la valeur est gardée |
+ | `accessors: #(#a)` | génère getter (`a`) et setter (`a:`) — le setter rend la valeur affectée |
+ | `getters: #(#a)` / `setters: #(#a)` | la moitié seule de la génération |
+
+- La génération exige la déclaration préalable, sinon
+  `variable inconnue : X >> a` (le flux est ordonné :
+  on déclare, puis on génère).
+- **La dernière déclaration l'emporte sur les
+  précédentes** : la génération écrase une méthode
+  existante — la main de l'homme comme la machine, la
+  dernière écriture gagne.
+
+#### Réflexivité (07/11)
+ | Message | Sémantique |
+ |---|---|
+ | `superclass` | la classe mère ; `nil` à la racine (Object) |
+ | `instSelectors` / `classSelectors` | sélecteurs LOCAUX à la classe, triés par nom |
+ | `removeInstMethod: #s` / `removeClassMethod: #s` | retire la méthode, rend la classe ; absente : `methode absente : X >> s` |
+
+- Le préfixe `inst`/`class` dit le CÔTÉ, toujours
+  explicite (contrepartie de la classe-unique : pas de
+  métaclasse par classe, `X class` répond toujours
+  `Class`). `selectors` nu est refusé : ambigu.
+- Retirer une primitive du bootstrap est LÉGAL : le monde
+  boiteux se ferme, `newStandard()` en recrée un neuf.
+  Sélecteurs PORTEURS (leur disparition casse la
+  mécanique interne) : `=`, `value`, `value:`,
+  `value:value:`.
+
 ### Boolean
     ifTrue: ifFalse: ifTrue:ifFalse:
     and: or: not asString
@@ -259,17 +302,24 @@ C, décision du 24/10 étendue ici).
 ### Integer
     + - * / % ** negated
     = < > <= >=
+    shr: shl:
     to:
     asString asFloat yourself
 
+`shr:`, `shr:` : 
+
+  ce sont les opérateurs binaires de décalage à droite ou à gauche des
+  valeur binaire. `shr: 1` correspond à 'multiplié par 2', tandis que
+  `shl: 1` correspond à 'divisé par 2'.
+  
 `to:`,`to:by:` :
 
-`1 to: 10` → `#(1 2 ... 10)`, inclusif.
+  `1 to: 10` → `#(1 2 ... 10)`, inclusif.
 
-`1 to: 10 by: 2` → `#(1 3 5 7 9)` :
-le pas est signé, des bornes mal orientées donnent un tableau vide
-(`1 to: 10 by: -2` → `#()`), un pas nul lève `MTException`. Pas de syntaxe
-dédiée : « tout est message ».
+  `1 to: 10 by: 2` → `#(1 3 5 7 9)` :
+        le pas est signé, des bornes mal orientées donnent un tableau vide
+        (`1 to: 10 by: -2` → `#()`), un pas nul lève `MTException`. Pas de syntaxe
+        dédiée : « tout est message ».
 
 ### Float
     + - * / % ** negated
@@ -364,6 +414,29 @@ pourrait pas le représenter).
     isNil notNil ifNil: ifNotNil:
     =
     asString
+
+### Dictionary
+
+Littéral : `{ cle => valeur. ... }`, vide `{ }`. La
+`=>` est la hash rocket de Ruby/Perl (token réservé :
+plus jamais un sélecteur binaire). Divergence assumée
+avec `#(...)` : les valeurs sont des expressions
+COMPLÈTES. Clés PAR VALEUR (2 et 2.0 = même clé), ordre
+d'insertion. La sonde n'est pas une comparaison : sonder
+avec un type incompatible est une absence, jamais une
+erreur.
+   Message | Sémantique |
+ |---|---|
+ | `size isEmpty at: at:put: includesKey: keys values removeKey:` | protocole de base (05/11) |
+ | `do: unBloc` | parcourt les VALEURS (convention Smalltalk) |
+ | `at: cle ifAbsent: unBloc` | la valeur, ou le bloc évalué si la clé manque (bloc PARESSEUX, jamais touché si présent) |
+ | `at: cle ifAbsentPut: unBloc` | la valeur ; si absente, le bloc est évalué, INSÉRÉ sous la clé, et rendu |
+ | `= == asString` | évidents |
+
+Affichage RE-ÉVALUABLE : `asString` rend la forme
+littérale — `{ 1 => 2. 'a' => $b }` — chaînes quotées
+(`''` échappé), caractères en `$`. L'écho du REPL est
+du MiniTalk valide.
 
 ### Tableaux et symboles
 
@@ -502,4 +575,16 @@ Une erreur de syntaxe remonte en `ParseCancellationException`
   fermée sur String ; `*` = répétition ; `+` refusé comme
   concaténation (sélecteurs orthogonaux, divergence
   assumée avec Ruby) ; division par `0.0` = `MTException`.
-  
+
+- 02/11 : casts durcis, format uniforme <valeur> n'est
+  pas un <Type> (<sélecteur>) ;
+
+- 05/11 : String>>includes: strict ; Dictionary 
+  (littéral, =>, clés par valeur, ordre d'insertion) ;
+
+- 07/11 : =/== montés sur Object ; réflexivité ; règle
+  sélecteur/méthode ; sélecteurs porteurs ;
+
+- 08/11 : classes définies en MiniTalk (subclass:,
+  flux de déclarations, accès automatiques par message) ;
+  shl:/shr: ; retour sans ^ = dernière expression.

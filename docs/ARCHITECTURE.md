@@ -352,7 +352,7 @@ classMethods
 ```
 
 
-is, name et superclass sont des metadonnées.
+id, name et superclass sont des metadonnées :
 * **id** l'identifiant unique de l'objet courant
 * **name** indique le nom de la classe.
 * **superclass** pointe sur la classe parente dans la hiérarchie
@@ -372,7 +372,6 @@ Les variables sont stockées dans instVars et classVars.
   ```
 
 * **classVars** référence les variables de classe ET leurs valeurs. C'est un dictionnaire de type clé/valeurs avec pour les clés des symboles, et pour les valeurs des objets.
-
 
 Les méthodes seront elles aussi distinguées en deux types :
 * **instMethods** : un dictionnaires référençant les méthodes s'appliquant aux instances
@@ -528,21 +527,42 @@ Person << classMethods: [
 
 ### Philosophie
 
-Le message `<<` est utilisé pour enrichir une classe existante.
+Le message `<<` désigne un flux séquentiel d'informations entrantes envoyées à l'objet receveur.
 
-Il ne représente pas une métaclasse et n'introduit aucun mécanisme spécial dans le langage.
+Utilisé avec une classe, il permet d'injecter dans la classe plusieurs déclarations
+pour enrichir cette classe.
 
 Conceptuellement :
 
 ```smalltalk
-Person << instVars: ...
-Person << classVars: ...
+Person << instVars: #( #var1 #var2 ...)
+Person << classVars: #( #cVar1 #cVar2 ...)
 Person << instMethods: ...
 Person << classMethods: ...
 ```
 
-sont simplement des envois de messages à un objet classe.
+que l'on pourra agréger dans un bloc :
+```smalltalk
+Person << [
+  instVars: #( #var1 #var2 ...).
+  classVars: #( #cVar1 #cVar2 ...).
+  instMethods: [ ... ].
+  classMethods: [ ... ].
+]
+```
 
+sont donc des envois de messages à un objet classe regroupés sous forme de flux vers cet objet.
+
+**Remarque importante** :
+  on notera ici que l'ordre des séquences (déclaration de variables,
+  puis des méthodes) a son importance, car, la plupart du temps, ces
+  variables sont traitées dans les méthodes. 
+
+  Dans le cas contraire, toutes ces variables seront
+  considérées, lors de la construction des AST, à l'interprétation
+  du code, comme des variables locales aux méthodes et généreront
+  donc des erreurs puisqu'elles ne sont pas déclarées comme telles
+  dans les blocs des méthodes.
 
 ---
 
@@ -956,6 +976,8 @@ En smalltalk natif, le retour de ce bloc serait : 42, car on sortirait immédiat
 
 En miniTalk, il sera : 62, car le calcul contuinue dans le bloc englobant.
 
+Si un bloc n'a pas de retour explicite '^', c'est la valeur de la dernière expression évaluée qui fournira sa valeur au bloc.
+
 ---
 
 
@@ -1270,10 +1292,9 @@ MiniTalk introduit l'opérateur :
 
 ```smalltalk
 
-->
+>>
 
 ```
-
 
 
 Utilisé pour relier des flux de commandes.
@@ -1287,8 +1308,8 @@ Exemple :
 ```smalltalk
 
 'find . -name \*.java' asCommand
-   -> ('grep Service' asCommand)
-   -> ('sort' asCommand)
+   >> ('grep Service' asCommand)
+   >> ('sort' asCommand)
 
 ```
 

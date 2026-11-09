@@ -58,13 +58,49 @@ public final class MTClass
         this.mtClass = mtClass;
     }
 
-    @Override
-    public MTObject send(
-            MTSymbol selector,
-            MTObject... arguments) {
+    /** (08/11) Nomme une variable d'instance de la
+     * classe. Une DONNEE de classe autant qu'une cle
+     * de stockage : la persistance (Q2) s'en souviendra. */
+    public void addInstVar(MTSymbol name) {
+        instVars.add(name);
+    }
 
-        // Cote classe : on cherche dans les methodes de classe
-        MTMethod method = mtClass.lookupInstanceMethod(selector);
+    /** (08/11) La garde des acces automatiques :
+     * on ne genere que ce qui est DECLARE. */
+    public boolean hasInstVar(MTSymbol name) {
+        return instVars.contains(name);
+    }
+
+    /** (08/11) La variable de classe existe-t-elle ?
+     * (declaree = une entree, meme a nil). */
+    public boolean hasClassVar(MTSymbol name) {
+        return classVars.containsKey(name);
+    }
+
+    /** (08/11) Ecriture d'une variable de classe. */
+    public void putClassVar(MTSymbol name, MTObject value) {
+        classVars.put(name, value);
+    }
+
+    /** (08/11) Lecture d'une variable de classe.
+     * Rend null si jamais declaree : l'appelant
+     * decide (nil ou garde). */
+    public MTObject classVarAt(MTSymbol name) {
+        return classVars.get(name);
+    }    
+
+    @Override
+    public MTObject send(MTSymbol selector, MTObject... arguments) {
+        // (08/11) Resolution du document enfin honoree :
+        // d'abord SES methodes de classe (canal longtemps
+        // dormant), puis les methodes de la classe-unique
+        // Class (superclass, new, accessors, ...) qui
+        // restent le socle commun.
+        MTMethod method = lookupClassMethod(selector);
+
+        if (method == null) {
+            method = mtClass.lookupInstanceMethod(selector);
+        }
 
         if (method == null) {
             throw new MTException(
