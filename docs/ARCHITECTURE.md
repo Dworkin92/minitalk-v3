@@ -1184,7 +1184,7 @@ true
 ---
 
 
-# Commandes -> Process -> Stream
+# Commandes >> Process >> Stream
 
 Dans le schéma suivant, **stdin**, **stdout**, **stderr** sont des instances de MTStream.
 
@@ -1474,7 +1474,7 @@ MiniTalk évite :
 ✅ Gestion des erreurs via `catch:`
 
 
-✅ Pipelines via `->`
+✅ Pipelines via `>>`
 
 
 ✅ Projet Maven mono-module pour démarrer

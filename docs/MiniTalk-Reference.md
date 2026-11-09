@@ -306,11 +306,19 @@ C, décision du 24/10 étendue ici).
     to:
     asString asFloat yourself
 
-`shr:`, `shr:` : 
+`shl:`, `shr:` :
 
-  ce sont les opérateurs binaires de décalage à droite ou à gauche des
-  valeur binaire. `shr: 1` correspond à 'multiplié par 2', tandis que
-  `shl: 1` correspond à 'divisé par 2'.
+  ce sont les opérateurs de décalage binaire à gauche (`shl:`,
+  shift left) ou à droite (`shr:`, shift right).
+  
+  * `shl: 1` correspond à « multiplié par 2 », tandis que
+  * `shr: 1` correspond à « divisé par 2» (quotient entier,
+    bits perdus).
+
+> **Attention** : messages à mot-clé, donc priorité usuelle
+> (la plus basse). `2 + 8 shr: 1` = `(2 + 8) shr: 1` = 5,
+> pas 6 ; avec l'arithmétique, mettre des parenthèses :
+> `2 + (8 shr: 1)`.
   
 `to:`,`to:by:` :
 

@@ -542,9 +542,9 @@
   * ACCES AUTOMATIQUES par message EXPLICITE :
     accessors: / getters: / setters: (banco les trois) ;
     la garde : variable DECLAREE prealablement sinon
-    « variable inconnue : X >> var » ; LE DERNIER QUI
-    CAUSE A RAISON : la generation ecrase une methode
-    existante (loi du flux).
+    « variable inconnue : X >> var » ; La dernière
+    mise à jour l'emporte : la génération peut écraser une
+     methode existante (loi du flux).
 
 - PHASE A implementee : subclass: (rend la classe,
   enregistre, setMTClass(classClass) -- regle du
@@ -616,6 +616,29 @@
   global) -- verrou REPL du kit. (4) <- d'affectation
   promis par le document, jamais implante.
 
+### 09/11/2026
+
+- Dettes d'hier soldees :
+  * TESTS DU CANAL DE CLASSE : une methode de
+    classe specifique repond (le canal
+    lookupClassMethod, longtemps dormant, est
+    desormais EMPRUNTE par la suite) ; elle BAT
+    le socle (superclass redirige sur Integer,
+    les autres classes gardent le socle). Le
+    send() des classes n'a plus de branche
+    morte. 197 verts.
+  * ARCHITECTURE : derniere ligne -> restante
+    (Etat des decisions) remplacee par >>.
+  * JOURNAL : la formule d'entre-nous remplacee
+    partout par LA DERNIERE DECLARATION L'EMPORTE
+    SUR LES PRECEDENTES.
+  * REFERENCE : shl:/shr: dans le protocole
+    Integer -- CORRECTION d'une inversion du
+    brouillon (shl: = gauche = x2 ; shr: =
+    droite = /2, quotient entier) ; note de
+    priorite : messages a mot-cle, la plus
+    basse, parentheses avec l'arithmetique.
+    
 ## Prochain objectif
 
 ### Notes pour plus tard

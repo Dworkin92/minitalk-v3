@@ -169,4 +169,46 @@ public class MTReflexivityTest {
             "Message non compris : Integer >> negated",
             e.getMessage());
     }
+
+    private MTClass declarePerson() {
+        MTClass person = (MTClass) world.getObjectClass()
+            .send(MTSymbol.intern("subclass:"),
+                world.symbolObject(MTSymbol.intern("Person")));
+
+        person.send(MTSymbol.intern("instVars:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(MTSymbol.intern("name")),
+                world.symbolObject(MTSymbol.intern("age")))));
+
+        return person;
+    }
+
+    @Test
+    void leCanalDeClasseRepond() {
+        MTClass person = declarePerson();
+        person.addClassMethod(MTSymbol.intern("stamp"),
+            (receiver, arguments) ->
+                world.newString("classe Person"));
+
+        // La methode de classe gagne :
+        assertEquals("classe Person", ((MTString)
+            person.send(MTSymbol.intern("stamp"))).javaValue());
+    }
+
+    @Test
+    void laMethodeDeClasseBatLeSocle() {
+        // Integer gagne : "superclass" redirige par sa propre
+        // methode de classe...
+        world.getIntegerClass().addClassMethod(
+            MTSymbol.intern("superclass"),
+            (receiver, arguments) -> world.newString("batard"));
+
+        assertEquals("batard", ((MTString) world.getIntegerClass()
+            .send(MTSymbol.intern("superclass"))).javaValue());
+
+        // ...mais les AUTRES classes gardent le socle :
+        MTClass person = declarePerson();
+        assertEquals(world.getObjectClass(),
+            person.send(MTSymbol.intern("superclass")));
+    }
 }
