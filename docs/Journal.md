@@ -638,7 +638,31 @@
     droite = /2, quotient entier) ; note de
     priorite : messages a mot-cle, la plus
     basse, parentheses avec l'arithmetique.
-    
+
+- accessors: UNIFIE : la table de declaration dit
+  le COTE de l'installation (instVars -> instance,
+  classVars -> classe seule). Le RECEVEUR
+  desambiguise : un selecteur ne vit que d'un
+  cote, la collision homonyme est impossible.
+  Divergence assumee avec Smalltalk : les
+  instances n'ont pas d'acces implicite aux
+  variables de classe ; la voie explicite est
+  p class Population. Plus de regle de priorite.
+  Le canal de classe, eveille ce matin, travaille
+  des aujourd'hui pour les variables de classe.
+
+- Tests : la classVar repond au receveur classe
+  (nee a nil, setter rend la valeur) ; p Population
+  = Message non compris, la divergence testee
+  comme une PROPRIETE ; la chimere (instVar a +
+  classVar a) est tranchee par le receveur seul.
+  200 verts.
+  
+- Poussieres : commentaire menteur du getter
+  corrige, diablerie purgee du code (la phrase
+  d'entre-nous remplacee partout par LA DERNIERE
+  DECLARATION L'EMPORTE).
+
 ## Prochain objectif
 
 ### Notes pour plus tard

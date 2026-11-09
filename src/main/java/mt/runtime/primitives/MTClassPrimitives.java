@@ -184,9 +184,10 @@ public final class MTClassPrimitives {
         
     /**
      * accessors: -- getter ET setter par variable
-     * declaree. Le DERNIER QUI CAUSE A RAISON : si une
-     * methode existe deja, la generation l'ecrase
-     * (addInstanceMethod, meme loi que le flux).
+     * declaree (instVars OU classVars). LA DERNIERE
+     * DECLARATION L'EMPORTE : si une methode existe
+     * deja, la generation l'ecrase (meme loi que le
+     * flux).
      */
     @Primitive("accessors:")
     public static MTObject accessors(
@@ -256,13 +257,16 @@ public final class MTClassPrimitives {
     // Aides de generation
     //
 
-    /** La garde : on ne genere que le DECLARE. */
+    /** La garde : on ne genere que le DECLARE --
+     * d'un cote ou de l'autre. accessors: est UNIFIE :
+     * la TABLE DE DECLARATION dit le cote (09/11). */
     private static MTSymbol declareOrRefuse(
             MTClass owner, MTObject value, String selector) {
 
         MTSymbol var = asSymbol(value, selector);
 
-        if (!owner.hasInstVar(var)) {
+        if (!owner.hasInstVar(var)
+                && !owner.hasClassVar(var)) {
             throw new MTException(
                 "variable inconnue : "
                 + owner.getName() + " >> " + var);
@@ -271,36 +275,64 @@ public final class MTClassPrimitives {
         return var;
     }
 
-    /** Le getter unaire : rend la valeur, nil si
-     * jamais assignee. Rend le receiver (convention
-     * du flux). */
+    /** Le getter : la TABLE DE DECLARATION dit le
+     * cote. instVar -> methode d'INSTANCE (rend la
+     * valeur, nil si jamais assignee) ; classVar ->
+     * methode de CLASSE (09/11 : le RECEVEUR
+     * desambiguise, un selecteur ne vit que d'un
+     * cote -- divergence assumee avec Smalltalk). */
     private static void installGetter(
             MTClass owner, MTSymbol varName) {
 
-        owner.addInstanceMethod(varName,
-            (receiver, arguments) -> {
-                MTObject value =
-                    ((MTInstance) receiver)
-                        .getProperty(varName);
+        if (owner.hasInstVar(varName)) {
+            owner.addInstanceMethod(varName,
+                (receiver, arguments) -> {
+                    MTObject value =
+                        ((MTInstance) receiver)
+                            .getProperty(varName);
 
-                return value == null
-                    ? owner.getContext().nil() : value;
-            });
+                    return value == null
+                        ? owner.getContext().nil()
+                        : value;
+                });
+        }
+
+        if (owner.hasClassVar(varName)) {
+            owner.addClassMethod(varName,
+                (receiver, arguments) ->
+                    ((MTClass) receiver)
+                        .classVarAt(varName));
+        }
     }
 
     /** Le setter : rend la VALEUR AFFECTEE
-     * (valeur de l'affectation). */
+     * (valeur de l'affectation). Meme aiguillage :
+     * instVar -> instance, classVar -> classe. */
     private static void installSetter(
             MTClass owner, MTSymbol varName) {
 
-        owner.addInstanceMethod(
-            MTSymbol.intern(varName.getValue() + ":"),
-            (receiver, arguments) -> {
-                ((MTInstance) receiver)
-                    .setProperty(varName, arguments[0]);
+        MTSymbol selector =
+            MTSymbol.intern(varName.getValue() + ":");
 
-                return arguments[0];
-            });
+        if (owner.hasInstVar(varName)) {
+            owner.addInstanceMethod(selector,
+                (receiver, arguments) -> {
+                    ((MTInstance) receiver)
+                        .setProperty(varName, arguments[0]);
+
+                    return arguments[0];
+                });
+        }
+
+        if (owner.hasClassVar(varName)) {
+            owner.addClassMethod(selector,
+                (receiver, arguments) -> {
+                    ((MTClass) receiver)
+                        .putClassVar(varName, arguments[0]);
+
+                    return arguments[0];
+                });
+        }
     }
 
     /** L'argument des messages de declaration :

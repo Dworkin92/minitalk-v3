@@ -177,4 +177,87 @@ public class MTClassesTest {
         assertEquals(world.nil(),
             b.send(MTSymbol.intern("name")));
     }
+
+    private MTClass declarePersonneACompteur() {
+        MTClass person = declarePerson();
+        person.send(MTSymbol.intern("classVars:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(
+                    MTSymbol.intern("Population")))));
+        return person;
+    }
+
+    @Test
+    void laVariableDeClasseRepondAuReceveurClasse() {
+        MTClass person = declarePersonneACompteur();
+        person.send(MTSymbol.intern("accessors:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(
+                    MTSymbol.intern("Population")))));
+
+        // L'entree est nee A NIL (classVars:) :
+        assertEquals(world.nil(),
+            person.send(MTSymbol.intern("Population")));
+
+        // Le setter de classe ecrit et rend la valeur :
+        assertEquals(3, ((MTInteger) person.send(
+            MTSymbol.intern("Population:"),
+            world.newInteger(3))).javaValue());
+
+        assertEquals(3, ((MTInteger) person.send(
+            MTSymbol.intern("Population"))).javaValue());
+    }
+
+    @Test
+    void laVariableDeClasseNEstPasImpliciteCoteInstance() {
+        // LA divergence, testee comme une PROPRIETE :
+        MTClass person = declarePersonneACompteur();
+        person.send(MTSymbol.intern("accessors:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(
+                    MTSymbol.intern("Population")))));
+
+        MTObject p = person.send(MTSymbol.intern("new"));
+
+        MTException e = assertThrows(MTException.class,
+            () -> p.send(MTSymbol.intern("Population")));
+
+        assertTrue(e.getMessage()
+            .contains("Message non compris"));
+        // La voie explicite existe : p class Population
+        MTObject viaClasse = ((MTInstance) p)
+            .getMTClass().send(MTSymbol.intern("Population"));
+        assertEquals(world.nil(), viaClasse);
+    }
+
+    @Test
+    void laChimereEstTrancheeParLeReceveur() {
+        // instVar 'a' ET classVar 'a' -- le cas
+        // impossible en pratique, legal en theorie :
+        MTClass chimere = (MTClass) world.getObjectClass()
+            .send(MTSymbol.intern("subclass:"),
+                world.symbolObject(
+                    MTSymbol.intern("Chimere")));
+
+        chimere.send(MTSymbol.intern("instVars:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(MTSymbol.intern("a")))));
+        chimere.send(MTSymbol.intern("classVars:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(MTSymbol.intern("a")))));
+        chimere.send(MTSymbol.intern("accessors:"),
+            world.newArray(java.util.List.of(
+                world.symbolObject(MTSymbol.intern("a")))));
+
+        MTObject inst = chimere.send(MTSymbol.intern("new"));
+        inst.send(MTSymbol.intern("a:"), world.newInteger(7));
+        chimere.send(MTSymbol.intern("a:"),
+            world.newInteger(99));
+
+        // Deux 'a', deux receveurs, deux tables :
+        assertEquals(7, ((MTInteger)
+            inst.send(MTSymbol.intern("a"))).javaValue());
+        assertEquals(99, ((MTInteger)
+            chimere.send(MTSymbol.intern("a"))).javaValue());
+    }
 }
