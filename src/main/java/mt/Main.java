@@ -22,7 +22,7 @@ public class Main {
      * et parentheses ouverts, et chaine en cours.
      * Sert au REPL a savoir si l'entree est complete.
      */
-    private static final class SourceState {
+    static final class SourceState {
         int depth = 0;
         boolean inString = false;
     }
@@ -32,7 +32,8 @@ public class Main {
      * Les apostrophes echappees ('') sont
      * respectees : un '' ne referme pas une chaine.
      */
-    private static void scan(String source, SourceState state) {
+    
+    static void scan(String source, SourceState state) {
 
         for (int i = 0; i < source.length(); i++) {
             char c = source.charAt(i);
@@ -48,6 +49,13 @@ public class Main {
                 }
             } else if (c == '\'') {
                 state.inString = true;
+            } else if (c == '$') {
+                // (10/11) Litteral de caractere : le
+                // caractere suivant vit hors du balayage
+                // -- sinon $' ouvrirait une fausse chaine
+                // et le REPL attendrait sa fermeture
+                // pour toujours.
+                i++;
             } else if (c == '[' || c == '(') {
                 state.depth++;
             } else if (c == ']' || c == ')') {

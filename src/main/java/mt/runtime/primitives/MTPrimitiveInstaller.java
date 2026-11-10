@@ -21,9 +21,7 @@ public final class MTPrimitiveInstaller {
     private MTPrimitiveInstaller() {
     }
 
-    public static void install(
-            MTClass target,
-            Class<?> primitivesClass) {
+    public static void install(MTClass target, Class<?> primitivesClass) {
 
         for (Method javaMethod
                 : primitivesClass.getDeclaredMethods()) {
@@ -37,12 +35,16 @@ public final class MTPrimitiveInstaller {
 
             checkSignature(primitivesClass, javaMethod);
 
-            MTMethod nativeMethod = wrap(javaMethod);
-
             for (Primitive primitive : primitives) {
 
                 MTSymbol selector =
                         MTSymbol.intern(primitive.value());
+
+                // (10/11) Enveloppe PAR SELECTEUR : l'echec
+                // nommera le message MiniTalk, pas le nom
+                // Java de la methode.
+                MTMethod nativeMethod =
+                        wrap(javaMethod, primitive.value());
 
                 if (primitive.classSide()) {
                     target.addClassMethod(selector, nativeMethod);
@@ -95,7 +97,9 @@ public final class MTPrimitiveInstaller {
      * Emballe la methode Java reflechie en MTMethod.
      * Le boxing des varargs est gere par invoke().
      */
-    private static MTMethod wrap(Method javaMethod) {
+    private static MTMethod wrap(
+            Method javaMethod,
+            String selector) {
 
         javaMethod.setAccessible(true);
 
@@ -116,9 +120,14 @@ public final class MTPrimitiveInstaller {
                     throw mtException;
                 }
 
+                // (10/11) Le message parle le LANGAGE :
+                // le selecteur MiniTalk d'abord, le nom
+                // Java en second, entre parentheses,
+                // pour la chasse.
                 throw new MTException(
                     "Echec primitive : "
-                    + javaMethod.getName(),
+                    + selector
+                    + " (" + javaMethod.getName() + ")",
                     cause);
             }
         };

@@ -673,13 +673,36 @@
   pas nul : MTException explicite. Placement :
   to:do: entre to: et to:by: (la version simple
   avant la version a pas).
+
 - MTIntegerPrimitivesTest REVEILLE : le fichier
   d'octobre (7 tests de nos premiers pas) devient
   LA suite d'Integer par messages, 13 tests.
   Regle d'etage des tests : la suite interpreter
   prouve la SURFACE (la grammaire), les suites
   runtime prouvent la SEMANTIQUE (les messages).
-  206 verts.
+
+- Les deux dettes du 29/10 ETEINTES :
+  - ECHEC PRIMITIVE PARLE LE LANGAGE : le
+    remballage nomme le SELECTEUR MiniTalk
+    d'abord, le nom Java ensuite, entre
+    parentheses, pour la chasse. wrap() descend
+    dans la boucle des annotations : une
+    enveloppe PAR SELECTEUR (un meme corps Java
+    peut servir plusieurs messages, chaque
+    message porte son propre diagnostic).
+  - PIEGE REPL $' CORRIGE : hors chaine, un $
+    fait vivre son caractere suivant hors du
+    balayage. $' est un CARACTERE, pas une
+    fausse chaine ouverte -- le REPL ne se
+    pend plus a un apostrophe.
+
+- Deux suites de test nees : MTPrimitiveInstallerTest
+  (classe-piege Bombes, l'echec doit nommer le
+  selecteur) et MainTest (scan/SourceState passes
+  package-private, contregarde : une vraie chaine
+  ouverte reste ouverte).
+
+- 210 verts.
   
 ## Prochain objectif
 
@@ -701,7 +724,7 @@
 
   - Integer : 
     * abs, even/odd, min:/max:,
-    * et surtout to:do: — itérer par bloc au lieu de fabriquer un tableau : 1 to: 10 do: [:i | ...]. C'est le genre de message qui rend le langage fluide.
+
 
   - String :
     * asUppercase/asLowercase, trim, 
