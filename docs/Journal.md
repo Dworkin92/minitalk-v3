@@ -663,6 +663,24 @@
   d'entre-nous remplacee partout par LA DERNIERE
   DECLARATION L'EMPORTE).
 
+### 10/11/2026
+
+- Famille to: COMPLETE : to:do: et to:by:do: --
+  iteration par bloc SANS fabriquer de tableau.
+  Convention do: (comme Array) : le RECEVEUR est
+  rendu ; bornes mal orientees : le bloc n'est
+  JAMAIS invoque (symetrique du tableau vide) ;
+  pas nul : MTException explicite. Placement :
+  to:do: entre to: et to:by: (la version simple
+  avant la version a pas).
+- MTIntegerPrimitivesTest REVEILLE : le fichier
+  d'octobre (7 tests de nos premiers pas) devient
+  LA suite d'Integer par messages, 13 tests.
+  Regle d'etage des tests : la suite interpreter
+  prouve la SURFACE (la grammaire), les suites
+  runtime prouvent la SEMANTIQUE (les messages).
+  206 verts.
+  
 ## Prochain objectif
 
 ### Notes pour plus tard

@@ -9,6 +9,7 @@ import mt.runtime.MTContext;
 import mt.runtime.MTFloat;
 import mt.runtime.MTInteger;
 import mt.runtime.MTObject;
+import mt.runtime.MTMethod;
 import mt.runtime.exceptions.MTException;
 
 public final class MTIntegerPrimitives {
@@ -37,6 +38,20 @@ public final class MTIntegerPrimitives {
 
         throw new MTException(
             value + " n'est pas un Integer (" + selector + ")");
+    }
+
+    /** Cast durci : l'argument doit etre un bloc */
+    private static MTMethod asBlock(
+            MTObject argument,
+            String selector) {
+
+        if (!(argument instanceof MTMethod method)) {
+            throw new MTException(
+                argument + " n'est pas un Block ("
+                + selector + ")");
+        }
+
+        return method;
     }
 
     //
@@ -226,6 +241,32 @@ public final class MTIntegerPrimitives {
     }
 
     /**
+     * 1 to: 10 do: [:i | ...] : itere par bloc SANS
+     * fabriquer de tableau -- la version fluide de
+     * to: (10/11). Retourne le recepteur (convention
+     * do:, comme Array). Bornes inclusives ; des
+     * bornes mal orientees n'invoquent jamais le
+     * bloc, comme 5 to: 1 rend #().
+     */
+    @Primitive("to:do:")
+    public static MTObject toDo(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+        MTInteger last = asInteger(arguments[0], "to:do:");
+        MTMethod block = asBlock(arguments[1], "to:do:");
+
+        for (int i = self.javaValue();
+                i <= last.javaValue(); i++) {
+            block.invoke(null,
+                context(receiver).newInteger(i));
+        }
+
+        return self;
+    }
+
+    /**
      * 1 to: 10 by: 2 -> #(1 3 5 7 9). Le sens de
      * parcours est donne par le signe du pas ; des
      * bornes mal orientees donnent un tableau vide
@@ -265,6 +306,51 @@ public final class MTIntegerPrimitives {
         }
 
         return context(receiver).newArray(elements);
+    } 
+
+    /**
+     * 1 to: 10 by: 2 do: [:i | ...] : la version
+     * fluide de to:by: -- meme sens de parcours, memes
+     * lois (pas nul explicite, bornes mal orientees
+     * n'invoquent JAMAIS le bloc). Retourne le
+     * recepteur (convention do:).
+     */
+    @Primitive("to:by:do:")
+    public static MTObject toByDo(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+        MTInteger last =
+            asInteger(arguments[0], "to:by:do:");
+        MTInteger step =
+            asInteger(arguments[1], "to:by:do:");
+        MTMethod block =
+            asBlock(arguments[2], "to:by:do:");
+
+        int from = self.javaValue();
+        int to = last.javaValue();
+        int by = step.javaValue();
+
+        if (by == 0) {
+            throw new MTException(
+                "Pas nul : " + self
+                + " to: " + to + " by: 0");
+        }
+
+        if (by > 0) {
+            for (int i = from; i <= to; i += by) {
+                block.invoke(null,
+                    context(receiver).newInteger(i));
+            }
+        } else {
+            for (int i = from; i >= to; i += by) {
+                block.invoke(null,
+                    context(receiver).newInteger(i));
+            }
+        }
+
+        return self;
     }
 
     @Primitive("=")

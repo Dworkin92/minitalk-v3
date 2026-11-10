@@ -328,12 +328,32 @@ C, décision du 24/10 étendue ici).
   
 `to:`,`to:by:` :
 
-  `1 to: 10` → `#(1 2 ... 10)`, inclusif.
+  `1 to: 10` → `#(1 2 ... 10)`, génère un array avec les n entiers entre 1 et 10, bornes incluses.
 
   `1 to: 10 by: 2` → `#(1 3 5 7 9)` :
         le pas est signé, des bornes mal orientées donnent un tableau vide
         (`1 to: 10 by: -2` → `#()`), un pas nul lève `MTException`. Pas de syntaxe
         dédiée : « tout est message ».
+
+`to:do:`, `to:by:do:` :
+  `1 to: 20 do: [ :i | aBlock ]`,
+    exécution du block aBlock 20 fois (bornes incluses, donc).
+    L'indice d'exécution est fourni au bloc, qui doit déclarer
+    un paramètre pour le recevoir — l'arité est un contrat,
+    un bloc muet lève une exception (le paramètre peut rester
+    inutilisé dans le corps).
+    Il n'y a pas de génération d'un array intermédiaire.
+
+`1 to: 20 by: 2 do: [ :i | aBlock ]`
+    exécution du block aBlock pour tous les entiers impairs,
+    bornes incluses. Même loi pour le paramètre.
+    Il n'y a pas de génération d'un array intermédiaire.
+
+Des bornes mal orientées n'invoquent JAMAIS le bloc
+(5 to: 1 do: [...] ne fait rien, comme 5 to: 1 rend #()).
+Le pas nul est une erreur explicite.
+Rend le récepteur (convention `do:`).
+
 
 ### Float
     + - * / % ** negated
