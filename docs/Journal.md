@@ -706,10 +706,32 @@
 
 ### 11/11/2026
 
-- ajout de nouvelle fonction aux entiers :
-  abs, even/odd, min:/max:
+- LE NOMMAGE DES CLASSES : décidé (Jean-Marc),
+  implanté, testé, ET validé au cours d'une session REPL.
+  La déclaration d'une classe crée automatiquement
+  une VARIABLE GLOBALE du même nom dans le monde.
+- Mecanisme : le monde possède une portée globale des
+  noms ; registerClass y insère le nom en même temps
+  que dans le registre ; la portée programme est
+  FILLE des noms du monde. Chaine lexicale
+  pure -- le RABAT n'existe pas.
+- Consequence historique : les douze classes du
+  noyau sont nommees dans le LANGAGE.
+- Session live : Object subclass: #Person.
+  Person instVars: #(#nom). Person accessors:
+  #(#nom). Person new nom: 'Jean-Marc'. -- la
+  derniere ligne rend Jean-Marc. Premiere
+  classe completee, de la naissance a l'usage,
+  100% en miniTalk.
+- Lois verrouillees : une locale ECLIPSE un nom
+  du monde ; une redeclaration de classe est
+  REFUSEE (le nom est une identite, pas une
+  variable a ecraser -- "derniere declaration"
+  vaut pour les methodes, PAS pour les classes) ;
+  noms uniques par test (monde partage).
+- Matin : abs, odd/even, min:/max: sur Integer.
+  224 verts.
 
-- 217 verts
 
 
 ## Prochain objectif
@@ -749,10 +771,8 @@
 
 C'est LE chantier qui transforme le langage : aujourd'hui, tout vit en Java (primitives) ; un utilisateur ne peut pas créer Point. Il faudra :
 
-- une syntaxe de création (Integer subclass: #Point ... façon Smalltalk, ou une autre forme à inventer) ;
 - la définition de méthodes en MiniTalk — grammaire + compilation vers addInstMethod (et là, votre réflexivité d'aujourd'hui devient le moteur : replaceInstMethod sert à chaud) ;
-- les variables d'instance (instVars existent déjà dans MTClass, elles attendent),
-- self, super, le ^retour, les cascades.
+- self, super, les cascades.
 - ajout de gestion et utilisation de bases de données sqlite3, h2, hsqldb,
   etc.
   

@@ -255,7 +255,7 @@ la donnée. On ne désigne une méthode qu'en la nommant.
 #### Naissance et instances (08/11)
  | Message | Sémantique |
  |---|---|
- | `subclass: #Nom` | crée la classe fille, l'enregistre, rend la classe ; nom déjà pris : `Classe existante : Nom` |
+ | `subclass: #Nom` | crée la classe fille, l'enregistre et lie la classe au monde courant en créant une variable de même nom. Retourne la classe ; si le nom est déjà pris : `Classe existante : Nom` |
  | `new` | instance vide : les variables déclarées se lisent `nil` tant que rien n'a écrit |
  | `instVars: #(#a #b)` | déclare des variables d'instance (symboles EXPLICITES) |
  | `classVars: #(#C)` | déclare des variables de classe EN CRÉANT LES ENTRÉES À NIL ; re-déclarer est un no-op, la valeur est gardée |
@@ -269,6 +269,11 @@ la donnée. On ne désigne une méthode qu'en la nommant.
 - LA DERNIERE DECLARATION L'EMPORTE SUR LES
   PRECEDENTES : la génération écrase une méthode
   existante.
+- une classe nommée provoque la création automatique d'une
+  variable globale de même nom dans le monde courant.
+
+  exemple: `Object subclass: #Person` crée une variable `Person`
+  portant la classe dans le monde courant.
 
 #### Réflexivité (07/11)
  | Message | Sémantique |
