@@ -730,10 +730,6 @@
     * l'affichage complet (on en est à Dictionary(3) — un affichage lisible change le REPL),
     * peut-être keysDo:/associationsDo:.
 
-  - Integer : 
-    * abs, even/odd, min:/max:,
-
-
   - String :
     * asUppercase/asLowercase, trim, 
     * sous-chaînes (copyFrom:to:), indexOf:, replaceAll:with:.

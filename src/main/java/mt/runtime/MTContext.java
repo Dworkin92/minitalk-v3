@@ -65,8 +65,8 @@ public final class MTContext {
     //
     // Registre : toutes les classes, par nom
     //
-
     private final Map<MTSymbol, MTClass> classes;
+    private final MTScope globals = new MTScope(null);
 
     private MTContext() {
 
@@ -223,8 +223,15 @@ public final class MTContext {
     // Registre des classes
     //
 
+    public MTScope globals() {
+        return globals;
+    }
+
     public MTClass registerClass(MTClass mtClass) {
-        classes.put(MTSymbol.intern(mtClass.getName()), mtClass);
+        MTSymbol name = MTSymbol.intern(mtClass.getName());
+        
+        classes.put(name, mtClass);
+        globals.define(name, mtClass);
         return mtClass;
     }
 

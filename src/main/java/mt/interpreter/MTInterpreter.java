@@ -27,7 +27,8 @@ public final class MTInterpreter {
 
     public MTInterpreter(MTContext context) {
         this.context = context;
-        this.globalScope = context.newScope();
+
+        this.globalScope = new MTScope(context.globals());
     }
 
     public MTObject evaluate(String source) {

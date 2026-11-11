@@ -1113,4 +1113,47 @@ public class MTInterpreterTest {
         assertFalse(((MTBoolean)
             run("nil = 1")).javaValue());
     }
+
+    //
+    // Classes et noms (07/11)
+    //
+
+        //
+    // Nommage : une classe nee est une variable
+    // du monde (11/11)
+    //
+
+    @Test
+    void uneClasseNeeEstNommeeDansLeSource() {
+        MTObject r = run(
+            "Object subclass: #PersonSource."
+            + " PersonSource new isNil");
+
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void leNomVitDansLeMondePasDansLeProgramme() {
+        // Deux programmes distincts, UN monde : le
+        // nom ne meurt pas avec le programme qui
+        // l'a fait naitre.
+        run("Object subclass: #PersonMonde");
+
+        MTObject r = run("PersonMonde new isNil");
+        assertFalse(((MTBoolean) r).javaValue());
+    }
+
+    @Test
+    void uneRedeclarationDeClasseEstRefusee() {
+        // Le nom d'une classe est une IDENTITE, pas
+        // une variable a ecraser (garde de la
+        // Phase A, testee comme propriete).
+        run("Object subclass: #PointUnique");
+
+        MTException e = assertThrows(MTException.class,
+            () -> run("Object subclass: #PointUnique"));
+
+        assertTrue(e.getMessage()
+            .contains("Classe existante"));
+    }
 }
