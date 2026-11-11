@@ -37,6 +37,38 @@ public class MTIntegerPrimitivesTest {
     }
 
     @Test
+    void minEntrePetitreceveurEtGrandArgument() {
+        MTObject result =
+            context.newInteger(2).send(MTSymbol.intern("min:"), context.newInteger(3));
+
+        assertEquals(2, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void maxEntrePetitReceveurEtGrandArgument() {
+        MTObject result =
+            context.newInteger(2).send(MTSymbol.intern("max:"), context.newInteger(3));
+
+        assertEquals(3, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void minEntreGrandReceveurEtPetitArgument() {
+        MTObject result =
+            context.newInteger(3).send(MTSymbol.intern("min:"), context.newInteger(2));
+
+        assertEquals(2, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void maxEntreGrandReceveurEtPetitArgument() {
+        MTObject result =
+            context.newInteger(3).send(MTSymbol.intern("max:"), context.newInteger(2));
+
+        assertEquals(3, ((MTInteger) result).javaValue());
+    }
+
+    @Test
     void comparaison() {
         MTObject result =
             context.newInteger(2).send(MTSymbol.intern("<"), context.newInteger(3));
@@ -50,6 +82,62 @@ public class MTIntegerPrimitivesTest {
             context.newInteger(42).send(MTSymbol.intern("="), context.newInteger(42));
 
         assertSame(context.trueObject(), result);
+    }
+
+    @Test
+    void valeurPaireNestPasImpaire() {
+        MTObject result =
+            context.newInteger(42).send(MTSymbol.intern("odd"));
+
+        assertSame(context.falseObject(), result);
+    }
+
+    @Test
+    void valeurPaireEstPaire() {
+        MTObject result =
+            context.newInteger(42).send(MTSymbol.intern("even"));
+
+        assertSame(context.trueObject(), result);
+    }
+
+    @Test 
+    void valeurImpaireNestPasPaire() {
+        MTObject result =
+            context.newInteger(43).send(MTSymbol.intern("even"));
+
+        assertSame(context.falseObject(), result);
+    }
+
+    @Test 
+    void valeurImpaireEstImpaire() {
+        MTObject result =
+            context.newInteger(43).send(MTSymbol.intern("odd"));
+
+        assertSame(context.trueObject(), result);
+    }
+
+    @Test
+    void absDeValeurNegative() {
+        MTObject result =
+            context.newInteger(-42).send(MTSymbol.intern("abs"));
+
+        assertEquals(42, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void absDeValeurPositive() {
+        MTObject result =
+            context.newInteger(42).send(MTSymbol.intern("abs"));
+
+        assertEquals(42, ((MTInteger) result).javaValue());
+    }
+
+    @Test
+    void absDeZero() {
+        MTObject result =
+            context.newInteger(0).send(MTSymbol.intern("abs"));
+
+        assertEquals(0, ((MTInteger) result).javaValue());
     }
 
     @Test

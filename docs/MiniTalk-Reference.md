@@ -308,9 +308,27 @@ C, décision du 24/10 étendue ici).
 ### Integer
     + - * / % ** negated
     = < > <= >=
+    abs, even, odd, min:, max:
     shr: shl:
     to:
     asString asFloat yourself
+
+`abs` :
+  retourne la valeur absolue dy receveur.
+  exemple : `-7 abs` retournera `7`, `7 abs` retournera `7`.
+
+`even`, `odd` :
+
+  indique si le receveur est pair ou impair. Ces deux méthodes
+  retourne un Boolean.
+
+`min:`, `max:` :
+
+  retourne la plus petite ou la plus grande des deux valeurs
+  entre le receveur et l'argument.
+
+  Attention : pour les nombres négatifs, plus leur valeur absolue
+  est grande, plus ils sont petits (-8 < -5) !
 
 `shl:`, `shr:` :
 

@@ -703,7 +703,15 @@
   ouverte reste ouverte).
 
 - 210 verts.
-  
+
+### 11/11/2026
+
+- ajout de nouvelle fonction aux entiers :
+  abs, even/odd, min:/max:
+
+- 217 verts
+
+
 ## Prochain objectif
 
 ### Notes pour plus tard

@@ -213,6 +213,34 @@ public final class MTIntegerPrimitives {
     }
 
     //
+    // min:, max:
+    //
+
+    @Primitive ("min:")
+    public static MTObject min(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+        MTInteger other = asInteger(arguments[0], "min:");
+
+        return context(self).newInteger(
+            Math.min(self.javaValue(), other.javaValue()));
+    }
+
+    @Primitive ("max:")
+    public static MTObject max(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+        MTInteger other = asInteger(arguments[0], "max:");
+
+        return context(self).newInteger(
+            Math.max(self.javaValue(), other.javaValue()));
+    }
+
+    //
     // Intervalles
     //
 
@@ -445,9 +473,60 @@ public final class MTIntegerPrimitives {
             self.javaValue() >= o.javaValue());
     }
 
+    /**
+     * Vérifie si l'entier est pair.
+     * @param receiver
+     * @param arguments
+     * @return
+     */
+    @Primitive("even")
+    public static MTObject even(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+
+        return context(self).newBoolean(
+            self.javaValue() % 2 == 0);
+    }
+
+    /**
+     * Vérifie si l'entier est impair.
+     * @param receiver
+     * @param arguments
+     * @return
+     */
+    @Primitive("odd")
+    public static MTObject odd(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+
+        return context(self).newBoolean(
+            self.javaValue() % 2 != 0);
+    }
+
     //
     // Conversions
     //
+
+    /**
+     * Valeur absolue : -7 abs = 7, 7 abs = 7.
+     * @param receiver
+     * @param arguments
+     * @return
+     */
+    @Primitive("abs")
+    public static MTObject abs(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTInteger self = (MTInteger) receiver;
+
+        return context(self).newInteger(
+            Math.abs(self.javaValue()));
+    }
 
     @Primitive("asString")
     public static MTObject asString(
