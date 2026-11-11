@@ -40,7 +40,7 @@ Une remarque importante : ce langage, s'il est de la famille
 des Smalltalk, n'est toutefois pas du Smalltalk : la syntaxe
 de miniTalk s'éloigne par moment de celle de son illustre parent
 pour adopter des fonctionalités plus modernes, ou plus
-raisonnables pour ceux qui connaissent des langage plus classique
+raisonnables pour ceux qui connaissent des langages plus classiques
 comme Java, Python, Ruby.
 
 ## Ce qui existe déjà
@@ -59,7 +59,7 @@ comme Java, Python, Ruby.
 ## Documentation
 
 La documentation est minimale mais suffisante, je l'espère,
-pour que les débutant puissent se lancer
+pour que les débutants puissent se lancer
 
 - **`docs/MiniTalk-Reference.md`** — la référence du
   langage et du runtime : syntaxe, sémantique, protocole
