@@ -138,7 +138,8 @@ dictionaryPair
 //
 
 symbolLiteral
-    : HASH IDENTIFIER
+    : HASH IDENTIFIER (COLON IDENTIFIER)* COLON?
+    | HASH IDENTIFIER
     ;
 
 //

@@ -732,6 +732,16 @@
 - Matin : abs, odd/even, min:/max: sur Integer.
   224 verts.
 
+### 16/11/2026
+
+-  M1 : le canal des méthodes :
+   * instMethods: : dictionnaire { symbole => bloc } → addInstanceMethod, arité vérifiée à l'installation (selectorArity).
+   * Symboles complets dans la grammaire : #ident, #at:put:, #+.
+   * REPL : { reconnue en continuation multi-lignes.
+   * Bug débusqué à la sonde : MTScope.lookup remontait par champs, contournant les vues (MTInstanceScope). Corrigé par délégation parent à parent ;
+- 224 tests verts confirmés après coup.
+- Validé au REPL : self implicite, paramètres liés, instVars lues et écrites sans préfixe, isolation des instances.
+
 
 
 ## Prochain objectif
@@ -771,8 +781,8 @@
 
 C'est LE chantier qui transforme le langage : aujourd'hui, tout vit en Java (primitives) ; un utilisateur ne peut pas créer Point. Il faudra :
 
-- la définition de méthodes en MiniTalk — grammaire + compilation vers addInstMethod (et là, votre réflexivité d'aujourd'hui devient le moteur : replaceInstMethod sert à chaud) ;
-- self, super, les cascades.
+- la définition de méthodes en MiniTalk — grammaire + compilation vers addInstMethod (et là, votre réflexivité d'aujourd'hui devient le moteur : replaceInstMethod sert à chaud) (fait);
+- self (fait) , super, les cascades.
 - ajout de gestion et utilisation de bases de données sqlite3, h2, hsqldb,
   etc.
   

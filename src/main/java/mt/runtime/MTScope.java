@@ -10,7 +10,7 @@ import java.util.Map;
  * Un bloc est evalue dans une portee fille de sa portee
  * de definition (fermeture).
  */
-public final class MTScope {
+public class MTScope {
 
     private final MTScope parent;
 
@@ -39,17 +39,14 @@ public final class MTScope {
      * Remonte la chaine des portees ; null si introuvable.
      */
     public MTObject lookup(MTSymbol name) {
-        MTScope current = this;
 
-        while (current != null) {
-            if (current.variables.containsKey(name)) {
-                return current.variables.get(name);
-            }
-
-            current = current.parent;
+        if (variables.containsKey(name)) {
+            return variables.get(name);
         }
 
-        return null;
+        return (parent != null)
+            ? parent.lookup(name)
+            : null;
     }
 
     /**
@@ -59,15 +56,12 @@ public final class MTScope {
     public boolean assign(MTSymbol name, MTObject value) {
         MTScope current = this;
 
-        while (current != null) {
-            if (current.variables.containsKey(name)) {
-                current.variables.put(name, value);
-                return true;
-            }
-
-            current = current.parent;
+        if (variables.containsKey(name)) {
+            variables.put(name, value);
+            return true;
         }
 
-        return false;
+        return (parent != null)
+            && parent.assign(name, value);
     }
 }

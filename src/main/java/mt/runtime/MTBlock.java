@@ -105,4 +105,18 @@ public final class MTBlock
     public String toString() {
         return "aBlock";
     }
+
+        /** (16/11) Pour MTBlockMethod. */
+    public MTSymbol[] parameters() {
+        return parameters;
+    }
+
+    /**
+     * (16/11) Evalue le corps dans une portee DONNEE :
+     * le canal des methodes. Les locaux (| a b |) du
+     * bloc sont definis par la Body, comme d'habitude.
+     */
+    MTObject evaluateIn(MTScope scope) {
+        return body.value(scope);
+    }
 }

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mt.runtime.MTArray;
+import mt.runtime.MTBlock;
+import mt.runtime.MTBlockMethod;
 import mt.runtime.MTClass;
 import mt.runtime.MTContext;
+import mt.runtime.MTDictionary;
 import mt.runtime.MTInstance;
 import mt.runtime.MTObject;
 import mt.runtime.MTSymbol;
@@ -372,5 +375,99 @@ public final class MTClassPrimitives {
                 asSymbol(arguments[0], "removeClassMethod:"));
 
         return receiver;
+    }
+
+
+    @Primitive("instMethods:")
+    public static MTObject instMethods(
+            MTObject receiver,
+            MTObject ... arguments) {
+
+        if (!(receiver instanceof MTClass target)) {
+            throw new MTException(
+                "instMethods : receveur de classe requis");
+        }
+
+        if (arguments.length != 1) {
+            throw new MTException(
+                "instMethods : 1 argument attendu, "
+                + arguments.length + " fourni(s)");
+        }
+
+        MTObject argument = arguments[0];
+
+        if (!(argument instanceof MTDictionary dictionary)) {
+            throw new MTException(
+                "instMethods : dictionnaire requis");
+        }
+
+        for (MTObject keyObject : dictionary.keys()) {
+
+            if (!(keyObject
+                    instanceof MTSymbolObject keySymbol)) {
+
+                throw new MTException(
+                    "instMethods : cle de symbole requise, "
+                    + keyObject.asString().javaValue());
+            }
+
+            MTSymbol selector = keySymbol.symbol();
+
+            MTObject value = dictionary.get(keyObject);
+
+            if (!(value instanceof MTBlock block)) {
+                throw new MTException(
+                    "instMethods : "
+                    + selector.getValue()
+                    + " attend un bloc");
+            }
+
+            int arity = selectorArity(selector);
+
+            if (block.parameters().length != arity) {
+                throw new MTException(
+                    "Arity mismatch : "
+                    + selector.getValue()
+                    + " attend " + arity
+                    + " parametre(s), bloc avec "
+                    + block.parameters().length);
+            }
+
+            // put : cree ou ecrase,
+            // derniere declaration l'emporte
+            target.addInstanceMethod(
+                selector,
+                new MTBlockMethod(
+                    target, selector, block, false));
+        }
+
+        return receiver;
+    }
+
+    /**
+     * Arite d'un selecteur : nombre de ':' pour un
+     * mot-cle ; unaire si premiere lettre ; binaire
+     * sinon. (On ne passe pas par split : Java jette
+     * les vides finaux, "avec:" donnerait 0.)
+     */
+    private static int selectorArity(
+            MTSymbol selector) {
+
+        String s = selector.getValue();
+
+        int arity = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == ':') {
+                arity++;
+            }
+        }
+
+        if (arity > 0) {
+            return arity;
+        }
+
+        return Character.isLetter(
+            s.charAt(0)) ? 0 : 1;
     }
 }

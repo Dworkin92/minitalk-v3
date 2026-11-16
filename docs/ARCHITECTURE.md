@@ -495,35 +495,92 @@ Person << classVars: #( #Population ).
 
 #### Méthodes d'instance
 
+
 ```smalltalk
-Person << instMethods: [
+Person instMethods: {
 
-    greet [
+    #greet => [
         ('Bonjour ' + name) println.
-    ]
+    ].
 
-    name: newName [
+    #name: => [ :newName |
         name <- newName trim.
-    ]
+    ].
 
-].
+}.
 ```
+
+ou possibilité de définir chaque méthode individuellement de la façon suivante :
+
+```smalltalk
+Person addInstMethod: #name: body: [ 
+    :aName |
+    name <- aName trim.
+  ].
+```
+
+Qu'elles soient d'instance ou de classe, 
+  - les méthodes sont stockées dans des dictionnaires sous la forme
+    "#selecteur => [ block de traitement ]".
+
+  - Si la méthode possède un ou plusieurs arguments, alors
+
+    * #selecteur sera de la forme #selecteurPart1:selecteurPart2:...
+
+    * le block sera une closure dont les paramètres sont positionnels.
+      exemple :
+      ```smalltalk
+      Person << instMethods: { 
+          #name: => [ :aName | name <- aName trim. ].
+          #at:put: => [ :cle :valeur | ... ].
+      }
+      ```
+      l'arité est vérifié à l'installation de la méthode dans la classe
+
+  - une méthode appartient à sa classe, quel que soit l'endroit de sa
+    définition
+
+  - self correspond au receveur de la méthode en cours de définition :
+    l'instance de la classe en cours dans le cas des méthodes d'instance,
+    la classe courante pour les méthodes de classe.
+
+  - une nouvelle déclaration de méthode avec le même sélecteur écrase
+    la déclaration déjà enregistrée dans la classe : c'est la dernière
+    déclaration qui l'emporte.
+
+  - les méthodes doivent toujours être définies après la déclarations
+    des propriétés afin d'être capables de les manipuler.
+
+  - dans le corps de la méthode, il peut être fait référence au propriétés
+    de l'objet receveur et les manipuler sans avoir à utiliser les
+    accesseurs appliqués à 'self'
+
+**Note d'implémentation :** MTScope.lookup et assign remontent la chaîne en appelant la méthode lookup/assign de chaque portée parente. Les portées-vues (MTInstanceScope, MTClassVarScope) redéfinissent ces méthodes ; elles sont donc bien consultées lors de la remontée. (Correction du 16/11 : la remontée lisait avant les champs directement et contournait les vues.)
 
 #### Méthodes de classe
 
 ```smalltalk
-Person << classMethods: [
+Person classMethods: {
 
-    newName: aName [
-
+    # newName: => [ :aName |
         p <- self new.
         p name: aName.
         ^p
-
     ]
-
-].
+}.
 ```
+
+ou possibilité de définir chaque méthode individuellement de la façon suivante :
+
+```smalltalk
+Person addClassMethod: #name: body: [ 
+    :aName |
+    name <- aName trim.
+  ].
+```
+
+Les mêmes remarques développées pour les méthodes d'instances s'appliquent aux
+méthodes de classes.
 
 ### Philosophie
 
@@ -535,25 +592,25 @@ pour enrichir cette classe.
 Conceptuellement :
 
 ```smalltalk
-Person << instVars: #( #var1 #var2 ...)
-Person << classVars: #( #cVar1 #cVar2 ...)
-Person << instMethods: ...
-Person << classMethods: ...
+Person instVars: #( #var1 #var2 ...)
+Person classVars: #( #cVar1 #cVar2 ...)
+Person instMethods: { ... }
+Person classMethods: { ... }
 ```
 
-que l'on pourra agréger dans un bloc :
+que l'on pourra agréger dans un bloc passé comme flux à une classe :
 ```smalltalk
 Person << [
   instVars: #( #var1 #var2 ...).
   classVars: #( #cVar1 #cVar2 ...).
-  instMethods: [ ... ].
-  classMethods: [ ... ].
+  instMethods: { ... }.
+  classMethods: { ... }.
 ]
 ```
 
 sont donc des envois de messages à un objet classe regroupés sous forme de flux vers cet objet.
 
-**Remarque importante** :
+**Remarques importantes** :
   on notera ici que l'ordre des séquences (déclaration de variables,
   puis des méthodes) a son importance, car, la plupart du temps, ces
   variables sont traitées dans les méthodes. 
@@ -563,6 +620,8 @@ sont donc des envois de messages à un objet classe regroupés sous forme de flu
   du code, comme des variables locales aux méthodes et généreront
   donc des erreurs puisqu'elles ne sont pas déclarées comme telles
   dans les blocs des méthodes.
+
+  Cette forme pose la problématique de l'existence d'un receveur self implicite.
 
 ---
 

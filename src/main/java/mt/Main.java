@@ -56,9 +56,9 @@ public class Main {
                 // et le REPL attendrait sa fermeture
                 // pour toujours.
                 i++;
-            } else if (c == '[' || c == '(') {
+            } else if (c == '[' || c == '(' || c == '{') {
                 state.depth++;
-            } else if (c == ']' || c == ')') {
+            } else if (c == ']' || c == ')' || c == '}') {
                 state.depth--;
             }
         }

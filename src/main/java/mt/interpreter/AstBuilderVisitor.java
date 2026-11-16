@@ -332,8 +332,17 @@ public final class AstBuilderVisitor
     public MTNode visitSymbolLiteral(
             MiniTalkParser.SymbolLiteralContext ctx) {
 
+        // #greet, #nom:, #at:put:, #+
+        // (16/11) : une ou plusieurs pieces,
+        // on assemble le texte apres le '#'.
+        StringBuilder nom = new StringBuilder();
+
+        for (int i = 1; i < ctx.getChildCount(); i++) {
+            nom.append(ctx.getChild(i).getText());
+        }
+
         return new MTSymbolNode(
-            ctx.IDENTIFIER().getText());
+            nom.toString());
     }
 
     //
