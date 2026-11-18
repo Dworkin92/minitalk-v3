@@ -138,8 +138,26 @@ minitalk
      │   ├── java
      │   │   └── mt
      │   │       ├── ast
+     │   │       │    ├── MTArrayNode.java
+     │   │       │    ├── MTAssignmentNode.java
+     │   │       │    ├── MTBlockNode.java
+     │   │       │    ├── MTDictionaryLiteralNode.java
+     │   │       │    ├── MTIdentifierNode.java
+     │   │       │    ├── MTLiteralCharacter.java
+     │   │       │    ├── MTLiteralFloat.java
+     │   │       │    ├── MTLiteralInteger.java
+     │   │       │    ├── MTLiteralSpecial.java
+     │   │       │    ├── MTLiteralString.java
+     │   │       │    ├── MTLocalsNode.java
+     │   │       │    ├── MTMessageSendNode.java
+     │   │       │    ├── MTNode.java
+     │   │       │    ├── MTSequenceNode.java
+     │   │       │    └── MTSymbolNode.java
      |   |       ├── bootstrap
+     │   │       │      └── MTBootstrap.java
      │   │       ├── interpreter
+     │   │       │      ├── AstBuilderVisitor.java
+     │   │       │      └── MTInterpreter.java
      │   │       ├── parser (futur)
      │   │       ├── runtime
      |   |       |      ├── exceptions
@@ -388,7 +406,9 @@ public final class MTClass
     private final List<MTSymbol> instVars;
     private final Map<MTSymbol, MTObject> classVars;
     private final Map<MTSymbol, MTMethod> instMethods;
+    // a compléter pour les builtins methods d'instance
     private final Map<MTSymbol, MTMethod> classMethods;
+    // a compléter pour les builtins methods de classe
 }
 ```
 
@@ -400,6 +420,10 @@ A noter que les méthodes peuvent être de deux types :
 MTNativeMethod
 MTBlockMethod
 ```
+
+Les méthodes builtins ne sont pas mutables par le langage lui-même et constituent un
+socle sur lequel s'appuyer pour y ajouter des nouvelles fonctionalités 
+(des contrôles internes, ou de nouvelles opétations, par exemple).
 
 ## les Instances
 
