@@ -383,22 +383,57 @@ public final class MTClassPrimitives {
             MTObject receiver,
             MTObject ... arguments) {
 
+        return installMethods(
+            receiver, arguments, false);
+    }
+
+    /**
+     * classMethods: -- le miroir de cote du canal
+     * (18/11). Les blocs s'evaluent avec self = la
+     * classe ; les classVars DECLAREES sont
+     * lisibles et modifiables dans le corps (vue
+     * MTClassVarScope). Meme garde, meme arite.
+     */
+    @Primitive("classMethods:")
+    public static MTObject classMethods(
+            MTObject receiver,
+            MTObject ... arguments) {
+
+        return installMethods(
+            receiver, arguments, true);
+    }
+
+    /**
+     * Le corps commun du canal des methodes :
+     * dictionnaire { symbole => bloc }, cles en
+     * symboles complets, arite verifiee a
+     * l'installation, derniere declaration
+     * l'emporte.
+     */
+    private static MTObject installMethods(
+            MTObject receiver,
+            MTObject[] arguments,
+            boolean classSide) {
+
+        String selectorName =
+            classSide ? "classMethods:" : "instMethods:";
+
         if (!(receiver instanceof MTClass target)) {
-            throw new MTException(
-                "instMethods : receveur de classe requis");
+            throw new MTException(selectorName
+                + " : receveur de classe requis");
         }
 
         if (arguments.length != 1) {
-            throw new MTException(
-                "instMethods : 1 argument attendu, "
+            throw new MTException(selectorName
+                + " : 1 argument attendu, "
                 + arguments.length + " fourni(s)");
         }
 
         MTObject argument = arguments[0];
 
         if (!(argument instanceof MTDictionary dictionary)) {
-            throw new MTException(
-                "instMethods : dictionnaire requis");
+            throw new MTException(selectorName
+                + " : dictionnaire requis");
         }
 
         for (MTObject keyObject : dictionary.keys()) {
@@ -406,8 +441,8 @@ public final class MTClassPrimitives {
             if (!(keyObject
                     instanceof MTSymbolObject keySymbol)) {
 
-                throw new MTException(
-                    "instMethods : cle de symbole requise, "
+                throw new MTException(selectorName
+                    + " : cle de symbole requise, "
                     + keyObject.asString().javaValue());
             }
 
@@ -416,9 +451,8 @@ public final class MTClassPrimitives {
             MTObject value = dictionary.get(keyObject);
 
             if (!(value instanceof MTBlock block)) {
-                throw new MTException(
-                    "instMethods : "
-                    + selector.getValue()
+                throw new MTException(selectorName
+                    + " : " + selector.getValue()
                     + " attend un bloc");
             }
 
@@ -435,10 +469,18 @@ public final class MTClassPrimitives {
 
             // put : cree ou ecrase,
             // derniere declaration l'emporte
-            target.addInstanceMethod(
-                selector,
-                new MTBlockMethod(
-                    target, selector, block, false));
+            if (classSide) {
+                target.addClassMethod(
+                    selector,
+                    new MTBlockMethod(
+                        target, selector, block, true));
+            }
+            else {
+                target.addInstanceMethod(
+                    selector,
+                    new MTBlockMethod(
+                        target, selector, block, false));
+            }
         }
 
         return receiver;

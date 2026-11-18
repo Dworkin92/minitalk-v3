@@ -50,4 +50,14 @@ public final class MTInstanceScope
 
         return super.assign(name, value);
     }
+
+    @Override
+    public boolean canAssign(MTSymbol name) {
+        if (receiver.getMTClass()
+                .hasInstVar(name)) {
+            return true;
+        }
+
+        return super.canAssign(name);
+    }
 }

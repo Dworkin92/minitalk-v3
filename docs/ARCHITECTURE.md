@@ -559,6 +559,8 @@ Qu'elles soient d'instance ou de classe,
 
 #### Méthodes de classe
 
+Les méthodes de classe doivent être définies avec une classe pour receveur.
+
 ```smalltalk
 Person classMethods: {
 
@@ -570,7 +572,7 @@ Person classMethods: {
 }.
 ```
 
-ou possibilité de définir chaque méthode individuellement de la façon suivante :
+Il est possible, ici aussi, de définir chaque méthode individuellement de la façon suivante :
 
 ```smalltalk
 Person addClassMethod: #name: body: [ 
@@ -749,6 +751,11 @@ count := 42.
 
 Les deux syntaxes produisent exactement le même AST.
 
+**Attention :**
+ - toute variable doit être déclarée au préalable pour être utilisée
+ - une affectation vers une cible non déclarée est refusée avant même
+   l'évaluation du membre droit de l'affectation, ce qui permet
+   déviter les effets de bord.
 
 ---
 

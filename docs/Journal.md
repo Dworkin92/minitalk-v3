@@ -742,7 +742,12 @@
 - 224 tests verts confirmés après coup.
 - Validé au REPL : self implicite, paramètres liés, instVars lues et écrites sans préfixe, isolation des instances.
 
+### 18/11/2026
 
+- M2: le canal des méthodes (suite) :
+    * `classMethods:` par factorisation avec `instMethods:` avec l'aide de installMethods,
+    * échec précoce (canAssign dans MTScope + les deux vues + MTAssignmentNode),
+- 225 tests verts
 
 ## Prochain objectif
 

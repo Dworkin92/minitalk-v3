@@ -17,10 +17,20 @@ public record MTAssignmentNode(String name, MTNode value) implements MTNode {
     @Override
     public MTObject eval(MTContext context, MTScope scope) {
 
+        MTSymbol target = MTSymbol.intern(name);
+
+        // ECHEC PRECOCE (18/11) : la cible est
+        // verifiee AVANT l'evaluation du membre
+        // droit -- une ligne refusee ne produit
+        // AUCUN effet de bord.
+        if (!scope.canAssign(target)) {
+            throw new MTException(
+                "Variable non declaree : " + name);
+        }
+
         MTObject result = value.eval(context, scope);
 
-        boolean found = scope.assign(
-            MTSymbol.intern(name), result);
+        boolean found = scope.assign(target, result);
 
         if (!found) {
             throw new MTException(

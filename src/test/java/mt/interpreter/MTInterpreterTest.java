@@ -1156,4 +1156,36 @@ public class MTInterpreterTest {
         assertTrue(e.getMessage()
             .contains("Classe existante"));
     }
+
+    /**
+     * ECHEC PRECOCE (18/11) : une affectation refusee
+     * ne produit AUCUN effet de bord. L'ancien ordre
+     * evaluait le membre droit AVANT la garde : le
+     * compteur montait quand meme.
+     */
+    @Test
+    void affectationRefuseeNeProduitAucunEffet() {
+
+        // Compteur en variable de classe, monte
+        // par une methode de classe.
+        run("Object subclass: #Victime.");
+        run("Victime classVars: #(#Cpt).");
+        run("Victime accessors: #(#Cpt).");
+        run("Victime classMethods: {\n"
+            + "    #essaie => [ Cpt <- Cpt + 1 ].\n"
+            + "}.");
+        run("Victime Cpt: 0.");
+
+        // La cible n'est pas declaree :
+        // l'affectation est REFUSEE...
+        assertThrows(MTException.class,
+            () -> run("cibleInconnue := Victime essaie."));
+
+        // ... ET le membre droit n'a pas ete evalue :
+        // le compteur est INCHANGE. Avec l'ancien
+        // ordre, il vaudrait 1 ici.
+        assertEquals(0,
+            ((MTInteger) run("Victime Cpt."))
+                .javaValue());
+    }
 }

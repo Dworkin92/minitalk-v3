@@ -64,4 +64,20 @@ public class MTScope {
         return (parent != null)
             && parent.assign(name, value);
     }
+
+    /**
+     * La cible d'une affectation est-elle CONNUE ?
+     * Sans effet de bord : la garde de l'echec
+     * precoce la consulte AVANT d'evaluer le membre
+     * droit (18/11). Delegation parent a parent --
+     * une sous-classe-vue ajoute SES declarations.
+     */
+    public boolean canAssign(MTSymbol name) {
+        if (variables.containsKey(name)) {
+            return true;
+        }
+
+        return (parent != null)
+            && parent.canAssign(name);
+    }
 }

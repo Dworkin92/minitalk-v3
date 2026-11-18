@@ -43,4 +43,13 @@ public final class MTClassVarScope
 
         return super.assign(name, value);
     }
+
+    @Override
+    public boolean canAssign(MTSymbol name) {
+        if (target.hasClassVar(name)) {
+            return true;
+        }
+
+        return super.canAssign(name);
+    }
 }
