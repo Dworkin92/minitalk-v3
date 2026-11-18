@@ -161,6 +161,7 @@ minitalk
      │   │       ├── parser (futur)
      │   │       ├── runtime
      |   |       |      ├── exceptions
+     │   │       │      │        └──  MTExceptions.java
      |   |       |      └── primitives
      │   │       ├── process (futur)
      │   │       └── cli (futur)
