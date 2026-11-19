@@ -61,20 +61,22 @@ public final class MTBlockMethod
         if (classSide) {
             if (!(receiver instanceof MTClass rcv)) {
                 throw new MTException(
-                    "instMethods : receveur de classe requis");
+                    "classMethods : receveur de classe requis");
             }
 
             chain = new MTClassVarScope(
                 chain, rcv);
         }
         else {
-            if (!(receiver instanceof MTInstance inst)) {
-                throw new MTException(
-                    "classMethods : receveur d'instance requis");
+            // (19/11) Un receveur natif (MTInteger,
+            // MTString, ...) n'est PAS une MTInstance :
+            // pas de vue d'instVars a poser, mais self
+            // doit vivre. La surcharge des builtins
+            // -- le reve du 07/11 -- passe par ici.
+            if (receiver instanceof MTInstance inst) {
+                chain = new MTInstanceScope(
+                    chain, inst);
             }
-
-            chain = new MTInstanceScope(
-                chain, inst);
         }
 
         // self + parametres

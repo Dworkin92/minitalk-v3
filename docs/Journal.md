@@ -749,6 +749,15 @@
     * échec précoce (canAssign dans MTScope + les deux vues + MTAssignmentNode),
 - 225 tests verts
 
+### 19/11/2026
+
+- M2: le canal des méthodes (ter) :
+  définition d'un opérateur spécial `@` pour appeler une méthode Java native
+  de minitalk. Pour l'instant n'est traité que le cas des méthodes unaires.
+- 228 tests verts
+
+
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -787,7 +796,7 @@
 C'est LE chantier qui transforme le langage : aujourd'hui, tout vit en Java (primitives) ; un utilisateur ne peut pas créer Point. Il faudra :
 
 - la définition de méthodes en MiniTalk — grammaire + compilation vers addInstMethod (et là, votre réflexivité d'aujourd'hui devient le moteur : replaceInstMethod sert à chaud) (fait);
-- self (fait) , super, les cascades.
+- self (fait) , super (fait), les cascades.
 - ajout de gestion et utilisation de bases de données sqlite3, h2, hsqldb,
   etc.
   
@@ -800,9 +809,9 @@ C'est gros, c'est passionnant, et tout ce qu'on a semé y converge : l'AST (mét
 
 - Charger un fichier : MTInterpreter.evaluate sait évaluer une source ; il manque juste un point d'entrée « exécute ce fichier .mt » et le REPL peut charger des scripts. Petit, et ça change la vie.
 
-- La réification : instMethodAt: au langage + objet-méthode cousin du Block — le décorateur de vendredi s'écrit alors en MiniTalk.
+- La réification : instMethodAt: au langage + objet-méthode cousin du Block — le décorateur de vendredi s'écrit alors en MiniTalk. (??? est-ce nécessaire ?)
 
-- La Référence à jour : elle accuse le retard sur Dictionary, la réflexivité, la règle sélecteur/méthode (avec son épigraphe Van Vogt 😄).
+- La Référence à jour 
 
 
 4. L'horizon (déjà tracé)

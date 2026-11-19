@@ -53,9 +53,20 @@ multiplicativeExpression
     ;
 
 unaryExpression
-    : primary (IDENTIFIER)*
+    : primary (IDENTIFIER | qualifiedSelector)*
     ;
 
+// (19/11) p Integer@negated : la primitive NATIVE
+// negated de Integer, appliquee au receveur p.
+// La fenetre @ : le socle reste joignable meme
+// si la table du langage a ete ecrasee.
+// La boucle essaie le qualifie D'ABORD : IDENTIFIER
+// suivi de AT ne peut pas etre confondu avec une
+// invite unaire ordinaire.
+qualifiedSelector
+    : IDENTIFIER AT IDENTIFIER (COLON IDENTIFIER)* COLON?
+    ;
+    
 // Signe unaire : le plus haut niveau (ARCHITECTURE.md).
 // -6, +5.34, 3 * -4
 //
@@ -199,6 +210,7 @@ STRING   : '\'' ('\'' '\'' | ~'\'')* '\'' ;
 CHARACTER : '$' ~[\r\n] ;
 
 ASSIGN   : '<-' | ':=' ;
+AT       : '@' ;
 POWER    : '**' ;
 PLUS     : '+' ;
 MINUS    : '-' ;

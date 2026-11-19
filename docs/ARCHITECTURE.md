@@ -407,9 +407,9 @@ public final class MTClass
     private final List<MTSymbol> instVars;
     private final Map<MTSymbol, MTObject> classVars;
     private final Map<MTSymbol, MTMethod> instMethods;
-    // a compléter pour les builtins methods d'instance
+    private final Map<MTSymbol, MTMethod> nativeInstMethods;
     private final Map<MTSymbol, MTMethod> classMethods;
-    // a compléter pour les builtins methods de classe
+    private final Map<MTSymbol, MTMethod> nativeClassMethods;
 }
 ```
 
@@ -579,6 +579,15 @@ Qu'elles soient d'instance ou de classe,
   - dans le corps de la méthode, il peut être fait référence au propriétés
     de l'objet receveur et les manipuler sans avoir à utiliser les
     accesseurs appliqués à 'self'
+
+  - il est possible de redéfinir miniTalk en miniTalk : lorsqu'une
+    méthode native est écrasée par une nouvelle définition, il est
+    possible d'y faire appel dans la méthode grâce à l'opérateur `@`.
+    celui-ci s'emploie de la façon suivante : `Classe@methode` .
+    exemple :
+    ```smalltalk
+       -3 Integer@negated
+    ```
 
 **Note d'implémentation :** MTScope.lookup et assign remontent la chaîne en appelant la méthode lookup/assign de chaque portée parente. Les portées-vues (MTInstanceScope, MTClassVarScope) redéfinissent ces méthodes ; elles sont donc bien consultées lors de la remontée. (Correction du 16/11 : la remontée lisait avant les champs directement et contournait les vues.)
 

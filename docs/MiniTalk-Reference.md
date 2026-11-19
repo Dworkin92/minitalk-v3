@@ -266,9 +266,15 @@ la donnée. On ne désigne une méthode qu'en la nommant.
 - La génération exige la déclaration préalable, sinon
   `variable inconnue : X >> a` (le flux est ordonné :
   on déclare, puis on génère).
-- LA DERNIERE DECLARATION L'EMPORTE SUR LES
-  PRECEDENTES : la génération écrase une méthode
-  existante.
+- LA DERNIERE DECLARATION D'UNE METHODE L'EMPORTE SUR LES
+  PRECEDENTES : la génération écrase une méthode existante.
+- les méthodes natives sont toujours accessibles, même si
+  elles ont été écrasées par une méthode miniTalk. On peut les
+  appeler avec : `UneClasse@uneMethode`. 
+  Exemple : 
+  ```smalltalk
+     -5 Integer@negated
+  ```
 - une classe nommée provoque la création automatique d'une
   variable globale de même nom dans le monde courant.
 
@@ -288,6 +294,7 @@ la donnée. On ne désigne une méthode qu'en la nommant.
   explicite (contrepartie de la classe-unique : pas de
   métaclasse par classe, `X class` répond toujours
   `Class`). `selectors` nu est refusé : ambigu.
+  
 - Retirer une primitive du bootstrap est LÉGAL : le
   monde boiteux se ferme, `newStandard()` en recrée un
   neuf. Sélecteurs PORTEURS (leur disparition casse la
@@ -652,3 +659,7 @@ Une erreur de syntaxe remonte en `ParseCancellationException`
 - 08/11 : classes définies en MiniTalk (subclass:,
   flux de déclarations, accès automatiques par message) ;
   shl:/shr: ; retour sans ^ = dernière expression.
+
+- 19/11 : les méthodes natives en Java, fondement du
+  langage sont toujours accessibles, même si elles ont
+  été redéfinies en miniTalk !

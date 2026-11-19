@@ -47,10 +47,10 @@ public final class MTPrimitiveInstaller {
                         wrap(javaMethod, primitive.value());
 
                 if (primitive.classSide()) {
-                    target.addClassMethod(selector, nativeMethod);
+                    target.addNativeClassMethod(selector, nativeMethod);
                 }
                 else {
-                    target.addInstanceMethod(selector, nativeMethod);
+                    target.addNativeInstanceMethod(selector, nativeMethod);
                 }
             }
         }

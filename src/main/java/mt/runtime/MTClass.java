@@ -24,6 +24,11 @@ public final class MTClass
     private Map<MTSymbol, MTMethod> instMethods;
     private Map<MTSymbol, MTMethod> classMethods;
 
+    // (19/11) Le socle natif : depose AU BOOTSTRAP,
+    // intouchable par le flux. Le @ l'atteint.
+    private Map<MTSymbol, MTMethod> nativeInstMethods;
+    private Map<MTSymbol, MTMethod> nativeClassMethods;
+
     public MTClass(
         MTContext context,
         String name,
@@ -38,6 +43,9 @@ public final class MTClass
 
             this.instMethods = new HashMap<>();
             this.classMethods = new HashMap<>();
+
+            this.nativeInstMethods = new HashMap<>();
+            this.nativeClassMethods = new HashMap<>();
     }
 
     /**
@@ -180,6 +188,67 @@ public final class MTClass
 
     public MTMethod lookupClassMethod(MTSymbol selector) {
         return lookup(selector, true);
+    }
+
+    //
+    // Le socle natif (19/11)
+    //
+
+    /**
+     * Depose une primitive du BOOTSTRAP : ET la table
+     * native (intouchable par le flux, jamais lue par
+     * le dispatch ordinaire), ET la table du langage
+     * (le canal ordinaire, que add/replace/remove et
+     * la derniere declaration continuent de gouverner).
+     * Meme instance des deux cotes : le cout est nul.
+     */
+    public void addNativeInstanceMethod(
+            MTSymbol selector, MTMethod method) {
+
+        nativeInstMethods.put(selector, method);
+        instMethods.put(selector, method);
+    }
+
+    /** Depose une primitive NATIVE de cote classe. */
+    public void addNativeClassMethod(
+            MTSymbol selector, MTMethod method) {
+
+        nativeClassMethods.put(selector, method);
+        classMethods.put(selector, method);
+    }
+
+    /**
+     * Recherche dans LA COUCHE NATIVE seulement : c'est
+     * la cible du Classe@selecteur. Remonte la chaine
+     * des superclasses, comme la resolution ordinaire
+     * -- printLn vit chez Object, donc String@printLn
+     * doit l'y trouver.
+     */
+    public MTMethod lookupNativeMethod(
+            MTSymbol selector, boolean classSide) {
+
+        MTClass current = this;
+
+        while (current != null) {
+            MTMethod method;
+
+            if (classSide) {
+                method =
+                    current.nativeClassMethods.get(selector);
+            }
+            else {
+                method =
+                    current.nativeInstMethods.get(selector);
+            }
+
+            if (method != null) {
+                return method;
+            }
+
+            current = current.superclass;
+        }
+
+        return null;
     }
 
     //

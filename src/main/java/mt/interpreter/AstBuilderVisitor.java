@@ -19,6 +19,7 @@ import mt.ast.MTMessageSendNode;
 import mt.ast.MTNode;
 import mt.ast.MTSequenceNode;
 import mt.ast.MTSymbolNode;
+import mt.ast.MTNativeSendNode;
 import mt.generated.MiniTalkBaseVisitor;
 import mt.generated.MiniTalkParser;
 import mt.runtime.MTSymbol;
@@ -227,14 +228,47 @@ public final class AstBuilderVisitor
 
         MTNode result = ctx.primary().accept(this);
 
-        for (var selector : ctx.IDENTIFIER()) {
-            result = new MTMessageSendNode(
-                result,
-                MTSymbol.intern(selector.getText()),
-                List.of());
+        for (int i = 1; i < ctx.getChildCount(); i++) {
+            var child = ctx.getChild(i);
+
+            if (child instanceof
+                    MiniTalkParser.QualifiedSelectorContext q) {
+
+                result = qualifiedSend(result, q);
+            }
+            else {
+                // IDENTIFIER nu : message unaire ordinaire
+                result = new MTMessageSendNode(
+                    result,
+                    MTSymbol.intern(child.getText()),
+                    List.of());
+            }
         }
 
         return result;
+    }
+
+    /**
+     * p Integer@negated : la primitive NATIVE negated
+     * de Integer, appliquee au receveur. Le nom de la
+     * classe est le premier IDENTIFIER, l'arobase le
+     * second enfant ; le selecteur est assemble apres
+     * (meme geste que le symbolLiteral).
+     */
+    private MTNode qualifiedSend(
+            MTNode receiver,
+            MiniTalkParser.QualifiedSelectorContext ctx) {
+
+        String classe = ctx.getChild(0).getText();
+
+        StringBuilder sel = new StringBuilder();
+
+        for (int i = 2; i < ctx.getChildCount(); i++) {
+            sel.append(ctx.getChild(i).getText());
+        }
+
+        return new MTNativeSendNode(
+            receiver, classe, sel.toString());
     }
 
     @Override

@@ -7,10 +7,13 @@ import org.junit.jupiter.api.Test;
 
 import mt.bootstrap.MTBootstrap;
 import mt.runtime.MTBoolean;
+import mt.runtime.MTClass;
 import mt.runtime.MTFloat;
 import mt.runtime.MTInteger;
+import mt.runtime.MTMethod;
 import mt.runtime.MTObject;
 import mt.runtime.MTString;
+import mt.runtime.MTSymbol;
 import mt.runtime.exceptions.MTException;
 
 public class MTInterpreterTest {
@@ -1188,4 +1191,59 @@ public class MTInterpreterTest {
             ((MTInteger) run("Victime Cpt."))
                 .javaValue());
     }
+
+    /**
+     * (19/11) LA FENETRE @ : apres ecrasement par le
+     * flux (derniere declaration l'emporte), le socle
+     * natif reste joignable par Classe@selecteur.
+     * Le monde est PARTAGE : on rend les cles apres.
+     */
+    @Test
+    void atAtteintLeSocleMalgreLEcrasement() {
+
+        MTClass integer = bootstrap.getContext()
+            .lookupClass(MTSymbol.intern("Integer"));
+
+        MTMethod socle = integer.lookupNativeMethod(
+            MTSymbol.intern("negated"), false);
+
+        try {
+            run("Integer instMethods: {\n"
+                + "    #negated => [ 42 ].\n"
+                + "}.");
+
+            assertEquals(42,
+                ((MTInteger) run("3 negated."))
+                    .javaValue());
+
+            assertEquals(-3,
+                ((MTInteger) run("3 Integer@negated."))
+                    .javaValue());
+        }
+        finally {
+            integer.addInstanceMethod(
+                MTSymbol.intern("negated"), socle);
+        }
+    }
+
+    @Test
+    void atAvecPrimitiveAbsenteLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("3 Integer@nuclear"));
+        assertTrue(e.getMessage().contains(
+            "primitive absente : Integer >> nuclear"));
+    }
+
+    /**
+     * (19/11) Classe inconnue devant la fenetre :
+     * erreur explicite aussi, meme message maison.
+     */
+    @Test
+    void atAvecClasseInconnueLeveMTExceptionPropre() {
+        MTException e = assertThrows(MTException.class,
+            () -> run("3 MachinInconnu@negated"));
+        assertTrue(e.getMessage().contains(
+            "Classe inconnue : MachinInconnu"));
+    }
+
 }
