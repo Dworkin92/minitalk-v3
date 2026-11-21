@@ -756,7 +756,13 @@
   de minitalk. Pour l'instant n'est traité que le cas des méthodes unaires.
 - 228 tests verts
 
+### 21/11/2026
 
+- M2: le canal des méthodes (quatro) :
+  * `@` est désormais utilisable pour les primitives à mots-clés composites.
+  * `@` avec opérateurs suit les règles AOS, tout comme les opérateurs natifs.
+  * correction de dysfonctionnements
+- 232 test réussis
 
 ## Prochain objectif
 

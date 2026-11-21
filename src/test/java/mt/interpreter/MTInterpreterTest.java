@@ -1246,4 +1246,67 @@ public class MTInterpreterTest {
             "Classe inconnue : MachinInconnu"));
     }
 
+        /**
+     * (21/11) La fenetre binaire, collee au lexer :
+     * l'AOS ordinaire reste respectee. 2 * 3 Integer@+ 4
+     * se lit (2*3) Integer@+ 4 ; le qualifie ne lie pas
+     * plus fort que son operation.
+     */
+    @Test
+    void atBinaireRespecteLAOS() {
+        assertEquals(7,
+            ((MTInteger) run("3 Integer@+ 4.")).javaValue());
+        assertEquals(10,
+            ((MTInteger) run("2 * 3 Integer@+ 4.")).javaValue());
+        assertEquals(23,
+            ((MTInteger) run(
+                "3 Integer@+ 4 Integer@* 5.")).javaValue());
+    }
+
+    /**
+     * (21/11) Le mot-cle qualifie : at:put: par la
+     * fenetre, avec ses arguments.
+     */
+    @Test
+    void atMotClePasseLesArguments() {
+        assertEquals("b",
+            ((MTString) run(
+                "| d |\n"
+                + "d := { 1 => 'a' }.\n"
+                + "d Dictionary@at: 2 put: 'b'.\n"
+                + "d at: 2.")).javaValue());
+    }
+
+    /**
+     * (21/11) Surcharge d'un BINAIRE par le flux (jamais
+     * possible avant : #+ etait refuse en syntaxe) ; le
+     * socle reste joignable par la fenetre. Monde
+     * partage : capture et restauration en finally.
+     */
+    @Test
+    void surchargeBinaireLeSocleResteJoignable() {
+
+        MTClass entier = bootstrap.getContext()
+            .lookupClass(MTSymbol.intern("Integer"));
+
+        MTMethod socle = entier.lookupNativeMethod(
+            MTSymbol.intern("+"), false);
+
+        try {
+            run("Integer instMethods: {\n"
+                + "    #+ => [ :n | 42 ].\n"
+                + "}.");
+
+            assertEquals(42,
+                ((MTInteger) run("3 + 4.")).javaValue());
+
+            assertEquals(7,
+                ((MTInteger) run("3 Integer@+ 4."))
+                    .javaValue());
+        }
+        finally {
+            entier.addInstanceMethod(
+                MTSymbol.intern("+"), socle);
+        }
+    }
 }

@@ -132,6 +132,7 @@ public final class AstBuilderVisitor
         // Associatif a gauche : 3 + 4 + 5 = (3 + 4) + 5
         MTNode result = null;
         String operator = null;
+        boolean fenetre = false;
 
         for (int i = 0; i < ctx.getChildCount(); i++) {
             var child = ctx.getChild(i);
@@ -141,14 +142,24 @@ public final class AstBuilderVisitor
 
                 MTNode operand = m.accept(this);
 
-                result = (result == null)
-                    ? operand
-                    : new MTMessageSendNode(
+                if (result == null) {
+                    result = operand;
+                }
+                else if (fenetre) {
+                    result = opBinaire(
+                        result, operand, operator);
+                }
+                else {
+                    result = new MTMessageSendNode(
                         result,
                         MTSymbol.intern(operator),
                         List.of(operand));
+                }
             } else {
-                operator = child.getText();
+                String texte = child.getText();
+
+                fenetre = texte.contains("@");
+                operator = texte;
             }
         }
 
@@ -162,6 +173,7 @@ public final class AstBuilderVisitor
         // Associatif a gauche : 3 * 4 * 5 = (3 * 4) * 5
         MTNode result = null;
         String operator = null;
+        boolean fenetre = false;
 
         for (int i = 0; i < ctx.getChildCount(); i++) {
             var child = ctx.getChild(i);
@@ -171,14 +183,25 @@ public final class AstBuilderVisitor
 
                 MTNode operand = p.accept(this);
 
-                result = (result == null)
-                    ? operand
-                    : new MTMessageSendNode(
+                if (result == null) {
+                    result = operand;
+                }
+                else if (fenetre) {
+                    result = opBinaire(
+                        result, operand, operator);
+                }
+                else {
+                    result = new MTMessageSendNode(
                         result,
                         MTSymbol.intern(operator),
                         List.of(operand));
+                }
+                
             } else {
-                operator = child.getText();
+                String texte = child.getText();
+
+                fenetre = texte.contains("@");
+                operator = texte;
             }
         }
 
@@ -189,17 +212,22 @@ public final class AstBuilderVisitor
     public MTNode visitPowerExpression(
             MiniTalkParser.PowerExpressionContext ctx) {
 
-        // Droite associatif : 2 ** 3 ** 2 = 2 ** (3 ** 2)
         MTNode base = ctx.signExpression().accept(this);
 
-        if (ctx.POWER() == null) {
+        if (ctx.POWER() == null && ctx.QUALIFIED_POWER() == null) {
             return base;
         }
 
+        MTNode exposant =
+            ctx.powerExpression().accept(this);
+
+        if (ctx.QUALIFIED_POWER() != null) {
+            return opBinaire(base, exposant,
+                ctx.QUALIFIED_POWER().getText());
+        }
+
         return new MTMessageSendNode(
-            base,
-            MTSymbol.intern("**"),
-            List.of(ctx.powerExpression().accept(this)));
+            base, MTSymbol.intern("**"), List.of(exposant));
     }
 
     @Override
@@ -255,20 +283,68 @@ public final class AstBuilderVisitor
      * second enfant ; le selecteur est assemble apres
      * (meme geste que le symbolLiteral).
      */
+    /**
+     * (21/11) Les trois formes de la fenetre, reconnues
+     * a la count d'enfants (le collage des selecteurs
+     * mot-cle reprend le geste du symbolLiteral) :
+     *   3 enfants  = unaire
+     *   4 enfants   = binaire
+     *   5 et plus   = mot-cle, triplets IDENT : arg
+     */
     private MTNode qualifiedSend(
             MTNode receiver,
             MiniTalkParser.QualifiedSelectorContext ctx) {
 
         String classe = ctx.getChild(0).getText();
 
-        StringBuilder sel = new StringBuilder();
+        // unaire : Classe@selecteur
+        if (ctx.getChildCount() == 3) {
+            return new MTNativeSendNode(
+                receiver, classe,
+                ctx.getChild(2).getText(),
+                List.of());
+        }
 
-        for (int i = 2; i < ctx.getChildCount(); i++) {
-            sel.append(ctx.getChild(i).getText());
+        // binaire : Classe@op operande
+        /*
+        if (ctx.getChildCount() == 4) {
+            return new MTNativeSendNode(
+                receiver, classe,
+                ctx.getChild(2).getText(),
+                List.of(ctx.getChild(3).accept(this)));
+        }
+        */
+
+        // mot-cle : Classe@partie: arg partie: arg ...
+        StringBuilder sel = new StringBuilder();
+        List<MTNode> arguments = new ArrayList<>();
+
+        for (int i = 2; i < ctx.getChildCount(); i += 3) {
+            sel.append(ctx.getChild(i).getText())
+               .append(':');
+
+            arguments.add(
+                ctx.getChild(i + 2).accept(this));
         }
 
         return new MTNativeSendNode(
-            receiver, classe, sel.toString());
+            receiver, classe, sel.toString(), arguments);
+    }
+
+    /**
+     * (21/11) Un token QUALIFIED_* ("Integer@+") :
+     * la fenetre, l'operande comme argument.
+     */
+    private MTNode opBinaire(
+            MTNode receiver, MTNode operand, String texte) {
+
+        int arobase = texte.indexOf('@');
+
+        return new MTNativeSendNode(
+            receiver,
+            texte.substring(0, arobase),
+            texte.substring(arobase + 1),
+            List.of(operand));
     }
 
     @Override

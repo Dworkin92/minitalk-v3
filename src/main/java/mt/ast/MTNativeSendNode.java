@@ -1,5 +1,7 @@
 package mt.ast;
 
+import java.util.List;
+
 import mt.runtime.MTClass;
 import mt.runtime.MTContext;
 import mt.runtime.MTMethod;
@@ -17,29 +19,40 @@ import mt.runtime.exceptions.MTException;
 public record MTNativeSendNode(
         MTNode receiver,
         String className,
-        String selector)
+        String selector,
+        List<MTNode> arguments)
         implements MTNode {
 
     @Override
     public MTObject eval(MTContext context, MTScope scope) {
-        // Malformed class name...
-        MTClass maison =
-            context.lookupClass(MTSymbol.intern(className));
-        if (maison == null) {
+
+        MTClass cible =
+            context.lookupClass(
+                MTSymbol.intern(className));
+
+        if (cible == null) {
             throw new MTException(
                 "Classe inconnue : " + className);
         }
 
-        MTMethod nativeMethod = maison.lookupNativeMethod(
+        MTMethod natif = cible.lookupNativeMethod(
             MTSymbol.intern(selector), false);
 
-        if (nativeMethod == null) {
+        if (natif == null) {
             throw new MTException(
                 "Methode primitive absente : "
                 + className + " >> " + selector);
         }
 
-        return nativeMethod.invoke(
-            receiver.eval(context, scope));
+        MTObject[] evalues =
+            new MTObject[arguments.size()];
+
+        for (int i = 0; i < arguments.size(); i++) {
+            evalues[i] =
+                arguments.get(i).eval(context, scope);
+        }
+
+        return natif.invoke(
+            receiver.eval(context, scope), evalues);
     }
 }

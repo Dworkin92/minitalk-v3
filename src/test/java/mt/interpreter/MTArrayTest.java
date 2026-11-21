@@ -150,6 +150,19 @@ public class MTArrayTest {
         assertEquals("abc", ((MTString) r).javaValue());
     }
 
+    /**
+     * (21/11) Le symbole en operateur binaire : #+
+     * etait refuse en syntaxe depuis le 16/11. Il est
+     * ne aujourd'hui, en meme temps que la surcharge
+     * des methodes binaires.
+     */
+    @Test
+    void symboleBinaireParseEtSeRend() {
+        assertEquals("+",
+            ((MTString) run("#+ asString."))
+                .javaValue());
+    }
+
     @Test
     void deuxSymbolesIdentiquesSontIdentites() {
         // Cache du contexte : #a == #a dans le meme monde.

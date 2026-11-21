@@ -44,12 +44,14 @@ binaryExpression
 
 additiveExpression
     : multiplicativeExpression
-      ((PLUS | MINUS | BINARY) multiplicativeExpression)*
+      ((PLUS | MINUS | BINARY | QUALIFIED_ADD | QUALIFIED_OTHER)
+       multiplicativeExpression)*
     ;
 
 multiplicativeExpression
     : powerExpression
-      ((STAR | SLASH | PERCENT) powerExpression)*
+      ((STAR | SLASH | PERCENT | QUALIFIED_MUL)
+       powerExpression)*
     ;
 
 unaryExpression
@@ -63,8 +65,15 @@ unaryExpression
 // La boucle essaie le qualifie D'ABORD : IDENTIFIER
 // suivi de AT ne peut pas etre confondu avec une
 // invite unaire ordinaire.
+
+// (21/11) Formes unaire et mot-cle de la fenetre.
+// Le mot-cle est glouton : il absorbe les parties
+// IDENT: arg qui suivent ; pour rendre la main au
+// message ordinaire, parentheser le receveur.
 qualifiedSelector
-    : IDENTIFIER AT IDENTIFIER (COLON IDENTIFIER)* COLON?
+    : IDENTIFIER AT IDENTIFIER
+    | IDENTIFIER AT IDENTIFIER COLON binaryExpression
+      (IDENTIFIER COLON binaryExpression)*
     ;
     
 // Signe unaire : le plus haut niveau (ARCHITECTURE.md).
@@ -77,7 +86,7 @@ signExpression
 
 // Droite associatif : 2 ** 3 ** 2 = 2 ** (3 ** 2)
 powerExpression
-    : signExpression (POWER powerExpression)?
+    : signExpression ((POWER | QUALIFIED_POWER) powerExpression)?
     ;
 
 primary
@@ -148,11 +157,20 @@ dictionaryPair
 // cote runtime ; le langage l'expose enfin.
 //
 
+// (21/11) Symboles : mots (unaires, mots-cles) OU
+// operateurs binaires. #+ et #~= etaient refuses
+// depuis le 16/11 : les methodes binaires ne
+// pouvaient pas etre surchargees.
 symbolLiteral
     : HASH IDENTIFIER (COLON IDENTIFIER)* COLON?
-    | HASH IDENTIFIER
+    | HASH symboleOperateur+
     ;
 
+symboleOperateur
+    : PLUS | MINUS | STAR | SLASH | PERCENT
+    | POWER | BINARY
+    ;
+    
 //
 // Blocs : [ :x :y | corps ]
 // Parametres et corps optionnels : [] et [42] sont valides.
@@ -208,6 +226,17 @@ STRING   : '\'' ('\'' '\'' | ~'\'')* '\'' ;
 // Le caractere qui suit $ est pris tel quel,
 // meme un espace ou une apostrophe.
 CHARACTER : '$' ~[\r\n] ;
+
+// (21/11) La fenetre binaire : tokens UNIQUES, collés.
+// Chaque type vit au niveau AOS de son operation :
+// QUALIFIED_ADD avec + et -, QUALIFIED_MUL avec * / %,
+// QUALIFIED_POWER avec **, QUALIFIED_OTHER avec les
+// autres binaires (= < > ~ = ...).
+// Le match le plus long l'emporte sur IDENTIFIER seul.
+QUALIFIED_POWER : [a-zA-Z_][a-zA-Z0-9_]* '@' '**' ;
+QUALIFIED_ADD   : [a-zA-Z_][a-zA-Z0-9_]* '@' [+\-] ;
+QUALIFIED_MUL   : [a-zA-Z_][a-zA-Z0-9_]* '@' [*/%] ;
+QUALIFIED_OTHER : [a-zA-Z_][a-zA-Z0-9_]* '@' [=<>%~,&]+ ;
 
 ASSIGN   : '<-' | ':=' ;
 AT       : '@' ;

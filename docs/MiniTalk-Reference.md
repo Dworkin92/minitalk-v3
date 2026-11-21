@@ -252,7 +252,7 @@ Règle de vocabulaire : le SÉLECTEUR est le nom d'une
 méthode (toujours un symbole) ; la MÉTHODE est le code,
 la donnée. On ne désigne une méthode qu'en la nommant.
 
-#### Naissance et instances (08/11)
+#### Création et instances (08/11)
  | Message | Sémantique |
  |---|---|
  | `subclass: #Nom` | crée la classe fille, l'enregistre et lie la classe au monde courant en créant une variable de même nom. Retourne la classe ; si le nom est déjà pris : `Classe existante : Nom` |
@@ -263,18 +263,49 @@ la donnée. On ne désigne une méthode qu'en la nommant.
  | `getters: #(#a)` | génère le getter seul |
  | `setters: #(#a)` | génère le setter seul |
 
-- La génération exige la déclaration préalable, sinon
-  `variable inconnue : X >> a` (le flux est ordonné :
-  on déclare, puis on génère).
+- La création d'une nouvelle classe exige la déclaration
+  préliminaire des propriétés éventuelles (de classe et
+  d'instance), sinon on encourt l'erreur : 
+  `variable inconnue : X >> a` (lorsque ces variables
+  seront utilisées dans les méthodes).
+
 - LA DERNIERE DECLARATION D'UNE METHODE L'EMPORTE SUR LES
-  PRECEDENTES : la génération écrase une méthode existante.
-- les méthodes natives sont toujours accessibles, même si
-  elles ont été écrasées par une méthode miniTalk. On peut les
-  appeler avec : `UneClasse@uneMethode`. 
+  PRECEDENTES : toute redéfinition de méthode écrase la
+  version précédente.
+
+- les méthodes natives (ou primitives) sont toujours accessibles,
+  même si elles ont été écrasées par une méthode miniTalk. On
+  peut les appeler avec : `UneClasse@uneMethode`. 
   Exemple : 
   ```smalltalk
      -5 Integer@negated
   ```
+  Cette caractéristique permet d'enrichir en miniTalk toute méthode
+  du langage.
+
+  Dans le cas des opérations arithmétiques, celles-ci suivent
+  les règles AOS à condition que les primitives `UneClasse@unOperateur`
+  soit une expression ne comportant aucun blanc.
+  Exemple :
+  ```smalltalk
+    4 Integer@+ 5 * 3
+  ```
+  retournera bien 19 et non 23
+
+  dans le cas d'une primitive à mots-clés à un ou
+  plusieurs arguments, il est impératif de grouper l'expression
+  de la primitive au moyen de parenthèses.
+  En effet, si on chaîne ensuite avec une nouvelle méthode,
+  celle-ci sera interprété comme faisant partie du label
+  désignant la primitive et la primitive sera marquée
+  inexistante.
+  Exemple :
+  ```smalltalk
+    ( p Dictionary@at: 2 put: myValue ) printLn.
+  ```
+  sans paramthèses la primitive recherchée aurait été : `#at:put:printLn`
+  et non `#at:put:` comme désiré.
+
 - une classe nommée provoque la création automatique d'une
   variable globale de même nom dans le monde courant.
 
@@ -295,11 +326,15 @@ la donnée. On ne désigne une méthode qu'en la nommant.
   métaclasse par classe, `X class` répond toujours
   `Class`). `selectors` nu est refusé : ambigu.
   
-- Retirer une primitive du bootstrap est LÉGAL : le
-  monde boiteux se ferme, `newStandard()` en recrée un
+- Remplacer une primitive du bootstrap est LÉGAL : le
+  monde en erreur se ferme, `newStandard()` en recrée alors un
   neuf. Sélecteurs PORTEURS (leur disparition casse la
   mécanique interne) : `=`, `value`, `value:`,
   `value:value:`.
+
+- les primitives sont toujours accessibles grâce à `@`. Il est
+  donc possible de recréer ces primitives en miniTalk en encapsulant
+  la primitive remplacée dans une méthode du même nom.
 
 ### Boolean
     ifTrue: ifFalse: ifTrue:ifFalse:
