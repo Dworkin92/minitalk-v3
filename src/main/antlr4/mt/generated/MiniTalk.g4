@@ -218,7 +218,7 @@ INTEGER  : [0-9]+ ;
 // AVANT DOT, sinon 3.5 se lirait "3 . 5"
 // (piege consigne le 26/10). Le match le plus
 // long fait le reste : FLOAT gagne sur INTEGER.
-FLOAT    : [0-9]+ '.' [0-9]+ ;
+FLOAT    : [0-9]+ '.' [0-9]+ ([eE] [+-]? [0-9]+)? ;
 
 STRING   : '\'' ('\'' '\'' | ~'\'')* '\'' ;
 

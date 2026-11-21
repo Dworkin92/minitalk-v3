@@ -262,6 +262,24 @@ public class MTInterpreterTest {
         assertEquals(3.5, ((MTFloat) r).javaValue(), 1e-12);
     }
 
+    /**
+     * (21/11) Notation scientifique : la mantisse garde
+     * son point, l'exposant est optionnel, e et E,
+     * signe + ou -.
+     */
+    @Test
+    void floatNotationScientifique() {
+        assertEquals(1.5e3,
+            ((MTFloat) run("1.5e3.")).javaValue(), 0.0);
+        assertEquals(2.5e8,
+            ((MTFloat) run("2.5E+8.")).javaValue(), 0.0);
+        assertEquals(1.602e-19,
+            ((MTFloat) run("1.602E-19.")).javaValue(), 0.0);
+        // l'exposant absent : les ecritures existantes
+        assertEquals(3.14,
+            ((MTFloat) run("3.14.")).javaValue(), 0.0);
+    }
+
     @Test
     void promotionLocaleAddition() {
         // 1 + 2.5 : le Float a droite fait
