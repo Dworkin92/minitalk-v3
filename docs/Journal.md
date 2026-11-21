@@ -799,7 +799,7 @@
 
 C'est LE chantier qui transforme le langage : aujourd'hui, tout vit en Java (primitives) ; un utilisateur ne peut pas créer Point. Il faudra :
 
-- self (fait) , super (fait), les cascades.
+- self (fait, en principe) , super (idem), les cascades.
 - ajout de gestion et utilisation de bases de données sqlite3, h2, hsqldb,
   etc.
   
