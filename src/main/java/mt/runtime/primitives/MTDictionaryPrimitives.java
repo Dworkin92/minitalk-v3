@@ -1,5 +1,7 @@
 package mt.runtime.primitives;
 
+import java.util.List;
+
 import mt.runtime.MTContext;
 import mt.runtime.MTDictionary;
 import mt.runtime.MTMethod;
@@ -172,6 +174,35 @@ public final class MTDictionaryPrimitives {
 
         for (MTObject value : self.values()) {
             block.invoke(null, value);
+        }
+
+        return self;
+    }
+
+    /**
+     * (21/11) Parcourt les PAIRES par bloc a deux
+     * parametres : cle, puis valeur. Ordre
+     * d'insertion, en accord avec keys et values (meme
+     * LinkedHashMap, zip des deux listes).
+     * Retourne le recepteur, convention do:.
+     * Un bloc d'une autre arite est refuse par la
+     * garde de MTBlockMethod (precedent : le at: en
+     * binaire surcharge ce matin).
+     */
+    @Primitive("keysAndValuesDo:")
+    public static MTObject keysAndValuesDo(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTDictionary self = (MTDictionary) receiver;
+        MTMethod block = asBlock(
+            arguments[0], "keysAndValuesDo:");
+
+        List<MTObject> keys = self.keys();
+        List<MTObject> values = self.values();
+
+        for (int i = 0; i < keys.size(); i++) {
+            block.invoke(null, keys.get(i), values.get(i));
         }
 
         return self;

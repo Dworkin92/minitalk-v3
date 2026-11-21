@@ -227,9 +227,9 @@ d'itérations).
 ## 2. Primitives par classe
 
 ### Object
-    - identity class print printLn
+    - identity, class, print, printLn (alias : println,  pour les habitués de Java et autres langages)
 
-    - isNil notNil
+    - isNil, notNil
 
     - `=` — égalité par défaut : IDENTITÉ (convention
       Smalltalk-80). Les classes à sémantique de valeur
@@ -534,8 +534,9 @@ une erreur.
  | `keys` / `values` | tableaux des clés / des valeurs |
  | `removeKey: uneCle` | retire et rend la valeur ; absente : `MTException` |
  | `do: unBloc` | parcourt les VALEURS (convention Smalltalk), rend le récepteur |
- | `at: uneCle ifAbsent: unBloc` | la valeur, ou le bloc évalué si la clé manque (bloc PARESSEUX, jamais touché si la clé existe) |
- | `at: uneCle ifAbsentPut: unBloc` | la valeur ; si absente, le bloc est évalué, INSÉRÉ sous la clé, et rendu |
+ | `at: uneCle ifAbsent: unBloc` | la valeur est retournée si la clé existe (bloc non évalué), ou le bloc est évalué et retourné  si la clé manque |
+ | `at: uneCle ifAbsentPut: unBloc` | la valeur est retournée si la clé existe (bloc non évalué), ou le bloc est évalué, INSÉRÉ sous la clé, et retourné si la clé manque. |
+ | `keysAndValuesDo: [ :cle :valeur \| ... ]` | exécute le bloc pour chaque clé/valeur du dictionnaire, dans l'ordre d'insertion |
  | `=` / `==` | valeur (profonde) / identité |
  | `asString` | forme littérale ré-évaluable |
 

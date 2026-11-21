@@ -1096,6 +1096,48 @@ public class MTInterpreterTest {
                 .javaValue());
     }
 
+    @Test
+    void dictionnaireAsStringComplet() {
+        assertEquals("{ 1 => 'a'. 2 => 'b' }",
+            ((MTString) run(
+                "{ 1 => 'a'. 2 => 'b' } asString."))
+                .javaValue());
+    }
+
+        /**
+     * (21/11) keysAndValuesDo: : bloc a DEUX
+     * parametres, ordre d'insertion, retour le
+     * recepteur.
+     */
+    @Test
+    void keysAndValuesDoSommeLesPaires() {
+        assertEquals(50,
+            ((MTInteger) run(
+                "| d total |\n"
+                + "d := { 1 => 10. 2 => 20 }.\n"
+                + "total := 0.\n"
+                + "d keysAndValuesDo: [ :cle :valeur |\n"
+                + "    total := total + (cle * valeur). ].\n"
+                + "total.")).javaValue());
+    }
+
+    /**
+     * (21/11) La garde d'arite parle aussi aux blocs
+     * de keysAndValuesDo: : bloc d'une seule arite,
+     * syntaxe valide, refus propre.
+     */
+    @Test
+    void keysAndValuesDoRefuseUnBlocDUneSeuleArity() {
+        MTException e = assertThrows(
+            MTException.class,
+            () -> run(
+                "| d |\n"
+                + "d := { 1 => 10. 2 => 20 }.\n"
+                + "d keysAndValuesDo: [ :cle | cle ]"));
+
+        assertTrue(e.getMessage().contains("parametre(s)"));
+    }
+
     //
     // = / == herites de Object (07/11)
     //

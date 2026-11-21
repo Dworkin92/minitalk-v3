@@ -25,8 +25,10 @@ import mt.runtime.exceptions.MTException;
  * Le litteral {...} reconstruit un dictionnaire a chaque
  * evaluation, comme #(...).
  *
- * Affichage : Dictionary(3) -- minimal, a affiner (les
- * tableaux ont commence pareil).
+ * Affichage : { 1 => 'a'. 2 => 'b' } -- ordre
+ * d'insertion, re-evaluable (les chaines quotees,
+ * les caracteres avec leur $, le reste par son
+ * asString). Miroir de valueEquals/hashOf.
  */
 public final class MTDictionary
         implements MTObject {

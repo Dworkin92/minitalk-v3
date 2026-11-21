@@ -96,6 +96,7 @@ public final class MTObjectPrimitives {
      * Affiche le recepteur puis passe a la ligne.
      */
     @Primitive("printLn")
+    @Primitive("println")
     public static MTObject printLn(
             MTObject receiver,
             MTObject... arguments) {

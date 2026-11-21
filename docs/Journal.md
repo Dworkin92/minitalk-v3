@@ -763,7 +763,9 @@
   * `@` avec opérateurs suit les règles AOS, tout comme les opérateurs natifs.
   * correction de dysfonctionnements
 - extension de la définition des réels : notation scientifique (exemple : 1.233e-34)
-- 233 test réussis
+- ajout de méthodes au Dictionary : #at:ifAbent:, #at:ifAbsentPut:, #keysAndValuesDo:
+- mise à jour des documentation en conséquence, plus corrections de points en retard
+- 236 tests réussis
 
 ## Prochain objectif
 
@@ -778,11 +780,6 @@
 
 1. Le confort immédiat (petits chantiers, effets visibles chaque session)
 
-  - Dictionary : 
-    * at:ifAbsent:, at:ifAbsentPut:,
-    * l'affichage complet (on en est à Dictionary(3) — un affichage lisible change le REPL),
-    * peut-être keysDo:/associationsDo:.
-
   - String :
     * asUppercase/asLowercase, trim, 
     * sous-chaînes (copyFrom:to:), indexOf:, replaceAll:with:.
@@ -791,7 +788,7 @@
   - Array :
     * detect:ifNone:,
     * inject:into: (le couteau suisse),
-    *  with:do:, asSorted, la concaténation ,.
+    * with:do:, asSorted, la concaténation ,.
 
   - Les finitions promises au journal : 
     * le message « Echec primitive » qui nomme le sélecteur MiniTalk au lieu du nom Java,
@@ -802,7 +799,6 @@
 
 C'est LE chantier qui transforme le langage : aujourd'hui, tout vit en Java (primitives) ; un utilisateur ne peut pas créer Point. Il faudra :
 
-- la définition de méthodes en MiniTalk — grammaire + compilation vers addInstMethod (et là, votre réflexivité d'aujourd'hui devient le moteur : replaceInstMethod sert à chaud) (fait);
 - self (fait) , super (fait), les cascades.
 - ajout de gestion et utilisation de bases de données sqlite3, h2, hsqldb,
   etc.
