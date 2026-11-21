@@ -762,7 +762,8 @@
   * `@` est désormais utilisable pour les primitives à mots-clés composites.
   * `@` avec opérateurs suit les règles AOS, tout comme les opérateurs natifs.
   * correction de dysfonctionnements
-- 232 test réussis
+- extension de la définition des réels : notation scientifique (exemple : 1.233e-34)
+- 233 test réussis
 
 ## Prochain objectif
 
