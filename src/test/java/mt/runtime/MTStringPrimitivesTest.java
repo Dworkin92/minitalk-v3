@@ -80,4 +80,93 @@ public class MTStringPrimitivesTest {
 
         assertSame(original, result);
     }
+
+    /** (22/11) trim coupe l'espace blanc UNICODE (U+00A0 = insecable) */
+    @Test
+    void trimCoupeLespaceUnicode() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("  bonjour\u00A0")
+            .send(MTSymbol.intern("trim"));
+        assertEquals("bonjour", result.toString());
+    }
+
+    /** (22/11) bornes inclusives, 1-based */
+    @Test
+    void copyFromToExtraitBornesInclusives() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("hello")
+            .send(MTSymbol.intern("copyFrom:to:"),
+                  c.newInteger(2), c.newInteger(4));
+        assertEquals("ell", result.toString());
+    }
+
+    /** (22/11) from > to : chaine vide, pas d'erreur */
+    @Test
+    void copyFromToInverseRendVide() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("hello")
+            .send(MTSymbol.intern("copyFrom:to:"),
+                  c.newInteger(3), c.newInteger(1));
+        assertEquals("", result.toString());
+    }
+
+    /** (22/11) to: trop grand -> ramene a la fin */
+    @Test
+    void copyFromToBorneHauteRamenee() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("hello")
+            .send(MTSymbol.intern("copyFrom:to:"),
+                  c.newInteger(2), c.newInteger(10));
+        assertEquals("ello", result.toString());
+    }
+
+    /** (22/11) from: trop grand -> ramene, debut apres fin -> vide */
+    @Test
+    void copyFromToDebutApresFinRendVide() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("hello")
+            .send(MTSymbol.intern("copyFrom:to:"),
+                  c.newInteger(7), c.newInteger(10));
+        assertEquals("", result.toString());
+    }
+
+    /** (22/11) toutes les occurrences, sans chevauchement */
+    @Test
+    void replaceAllSansChevauchement() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("aaaa")
+            .send(MTSymbol.intern("replaceAll:with:"),
+                  c.newString("aa"), c.newString("X"));
+        assertEquals("XX", result.toString());
+    }
+
+    /** (22/11) premiere occurrence seulement (AWK sub) */
+    @Test
+    void replaceFirstPremiereOccurrence() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("aaaa")
+            .send(MTSymbol.intern("replaceFirst:with:"),
+                  c.newString("aa"), c.newString("X"));
+        assertEquals("Xaa", result.toString());
+    }
+
+    /** (22/11) motif absent : recepteur inchangé, requete pas exigence */
+    @Test
+    void remplacementAbsentRendInchange() {
+        MTContext c = bootstrap.getContext();
+        MTObject result = c.newString("abc")
+            .send(MTSymbol.intern("replaceAll:with:"),
+                  c.newString("z"), c.newString("X"));
+        assertEquals("abc", result.toString());
+    }
+
+    /** (22/11) motif vide : refus propre */
+    @Test
+    void remplacementMotifVideRefuse() {
+        MTContext c = bootstrap.getContext();
+        assertThrows(mt.runtime.exceptions.MTException.class,
+            () -> c.newString("abc")
+                .send(MTSymbol.intern("replaceAll:with:"),
+                      c.newString(""), c.newString("X")));
+    }
 }

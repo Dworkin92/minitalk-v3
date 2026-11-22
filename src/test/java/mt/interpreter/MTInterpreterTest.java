@@ -1156,6 +1156,60 @@ public class MTInterpreterTest {
             run("| b | b := [1]. b == b")).javaValue());
     }
 
+    /**
+     * (22/11) ^ : sortie du bloc avec la valeur, ce
+     * qui suit n'est jamais evalue.
+     */
+    @Test
+    void caretSortDuBlocAvecSaValeur() {
+        assertEquals(42,
+            ((MTInteger) run(
+                "[ ^42. 99 ] value")).javaValue());
+    }
+
+    /**
+     * (22/11) L'exemple-meme d'ARCHITECTURE.md : le ^
+     * du bloc INTERNE ne remonte pas, le bloc englobant
+     * continue (62 -- Smalltalk rendrait 42).
+     */
+    @Test
+    void caretNeSortQueDuBlocCourant() {
+        assertEquals(62,
+            ((MTInteger) run(
+                "[\n"
+                + "| v |\n"
+                + "v := [ ^42. 99 ] value.\n"
+                + "v := v + 20.\n"
+                + "^v.\n"
+                + "999\n"
+                + "] value")).javaValue());
+    }
+
+    /**
+     * (22/11) L'idiome Smalltalk : ^ x := e rend la
+     * valeur affectee.
+     */
+    @Test
+    void caretSurAffectationRendLaValeurAffectee() {
+        assertEquals(43,
+            ((MTInteger) run(
+                "[ :n | ^ n := n + 1 ] value: 42"))
+                .javaValue());
+    }
+
+    /**
+     * (22/11) ^ au niveau du programme : refus propre.
+     */
+    @Test
+    void caretHorsBlocEstRefuse() {
+        MTException e = assertThrows(
+            MTException.class,
+            () -> run("^ 42"));
+        assertTrue(e.getMessage()
+            .contains("hors d'un bloc"));
+    }    
+
+
     @Test
     void booleensComparablesParHeritage() {
         // Reparation au passage : si Boolean n'avait
@@ -1368,5 +1422,23 @@ public class MTInterpreterTest {
             entier.addInstanceMethod(
                 MTSymbol.intern("+"), socle);
         }
+    }
+
+    /** (22/11) printString : la forme source, re-evaluable */
+    @Test
+    void printStringRendLaFormeSource() {
+        assertEquals("#alpha",
+            run("#alpha printString").toString());
+        assertEquals("#at:put:",
+            run("#at:put: printString").toString());
+        assertEquals("#+",
+            run("#+ printString").toString());
+    }
+
+    /** (22/11) asString : le contenu nu, sans le # */
+    @Test
+    void asStringResteLeContenuNu() {
+        assertEquals("alpha",
+            run("#alpha asString").toString());
     }
 }

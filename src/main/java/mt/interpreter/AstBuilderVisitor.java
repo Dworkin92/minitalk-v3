@@ -16,10 +16,11 @@ import mt.ast.MTLiteralSpecial;
 import mt.ast.MTLiteralString;
 import mt.ast.MTLiteralCharacter;
 import mt.ast.MTMessageSendNode;
+import mt.ast.MTNativeSendNode;
 import mt.ast.MTNode;
+import mt.ast.MTReturnNode;
 import mt.ast.MTSequenceNode;
 import mt.ast.MTSymbolNode;
-import mt.ast.MTNativeSendNode;
 import mt.generated.MiniTalkBaseVisitor;
 import mt.generated.MiniTalkParser;
 import mt.runtime.MTSymbol;
@@ -60,16 +61,29 @@ public final class AstBuilderVisitor
     }
 
     @Override
-    public MTNode visitStatement(MiniTalkParser.StatementContext ctx) {
+    public MTNode visitStatement(
+            MiniTalkParser.StatementContext ctx) {
 
-        // var := expression
+        MTNode result;
+
+        // L'affectation d'abord : ^ x := 42 comme
+        // x := 42 -- le caret habillera ensuite.
         if (ctx.IDENTIFIER() != null) {
-            return new MTAssignmentNode(
+            result = new MTAssignmentNode(
                 ctx.IDENTIFIER().getText(),
                 ctx.expression().accept(this));
         }
+        else {
+            result = ctx.expression().accept(this);
+        }
 
-        return ctx.expression().accept(this);
+        // ^ : sortie anticipee du bloc COURANT avec
+        // la valeur du statement (affectation comprise).
+        if (ctx.CARET() != null) {
+            result = new MTReturnNode(result);
+        }
+
+        return result;
     }
 
     @Override

@@ -768,6 +768,85 @@
 - mise à jour des documentation en conséquence, plus corrections de points en retard
 - 236 tests réussis
 
+### 22/11/2026
+
+- String : ajout des méthodes #trim, #copyFrom:to:,
+  #replaceAll:with:, #replaceFirst:with:
+  
+  * trim coupe tous les blancs en début et fin de
+    chaîne, quelle que soit leur nature, y compris
+    l'espace insécable (U+00A0). Adoption de la même
+    sémantique que Python et non celle de Java,
+    le strip() de Java laissant de côté les blancs insécables.
+
+  * copyFrom:to: : les bornes sont incluses,
+    les indices des caractères commencent à 1 (contrairement au C),
+    les caractères sont en codepoints ;
+    si l'indice de départ (from:) est supérieur à celui d'arrivée (to:)
+    alors la valeur retournée est la chaîne vide ;
+    si l'indice de départ (from:) est bien dans la chaine, mais que
+    celui d'arrivée (to:) pointe au delà de la fin de la chaine, alors
+    la sous-chaine retournée commence à from: et se termine à la fin de la chaine;
+    si on est hors bornes, une erreur est générée.
+
+  * replaceAll:with: / replaceFirst:with: :
+    remplacement littéral (pas d'expressions
+    régulières), toutes les occurrences ou la
+    première seulement, sans chevauchement ;
+    motif absent : chaîne inchangée ; motif vide :
+    erreur. Le drapeau all reste privé : deux
+    contrats, deux sélecteurs.
+
+- Traitement du '^' dans les blocs :
+  * le ^ sort du bloc courant avec la valeur de
+    l'expression qui le suit; cela ne concerne
+    que le bloc courant et non toute la chaîne 
+    de blocs, à la différence de Smalltalk.
+    Exemple type :
+    ```smalltalk
+      [ ^42. 99 ] value
+    ```
+    répond 42.
+
+  * Grammaire : statement à trois alternatives ;
+    `^ x := e` rend la valeur affectée ; ^^ refusé
+    par la grammaire.
+
+  * Mécanisme : MTReturnSignal sans pile, attrapé
+    aux deux frontières de MTBlock (invoke et
+    evaluateIn). ^ hors d'un bloc : refus propre.
+
+- Symbol : ajout de la méthode #printString
+  * asString retourne le nom sans le #, printString le
+    retourne avec le # : la chaine obtenue est
+    exactement la représentation du symbole telle
+    qu'utilisée dans un programme.
+
+  * ce chantier a révélé un défaut dans la grammaire des symboles littéraux :
+    `#at:put: printString` donnait le symbole `at:put:printString` — la
+    règle absorbait l'unaire qui suivait. Règle corrigée : un
+    symbole à mots-clés exige désormais un `:` après chaque
+    mot, jusqu'au dernier inclus (comme en Smalltalk).
+
+- Décision de design :
+  * un sélecteur à mots-clés non unaire finit toujours par `:` ;
+    une alternative dans une méthode est toujours pilotée par
+    une autre sélecteur demandant un argument (motif `#at:ifAbsent:`),
+    et non par un simple drapeau sans deux-points.
+
+- Question ouverte (à trancher plus tard) :
+  * `#print` (console) affiche avec la méthode `#asString`
+    tandis que l'écho de la boucle REPL affiche la forme source (`#toString`).
+    print doit-il afficher la forme source ?
+
+- Découverte d'un pb potentiel à garder en vue : 
+  * `#size` compte en unités UTF-16 alors que `#at:` rend des codepoints.
+    C'est Incohérent pour les caractères hors BMP.
+    Chantier futur : tout en codepoints, figé par test ?
+
+250 tests OK !
+
+
 ## Prochain objectif
 
 ### Notes pour plus tard
@@ -782,9 +861,8 @@
 1. Le confort immédiat (petits chantiers, effets visibles chaque session)
 
   - String :
-    * asUppercase/asLowercase, trim, 
-    * sous-chaînes (copyFrom:to:), indexOf:, replaceAll:with:.
-      Rien ne fatigue plus que de ne pas pouvoir tailler une chaîne.
+    * optionnellement : ajout des substitutions de chaîne en utilisant des pattern regex pour la recherche.
+
 
   - Array :
     * detect:ifNone:,

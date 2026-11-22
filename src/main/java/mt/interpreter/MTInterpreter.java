@@ -3,7 +3,9 @@ package mt.interpreter;
 import mt.runtime.MTContext;
 import mt.runtime.MTObject;
 import mt.runtime.MTScope;
+
 import mt.runtime.exceptions.MTException;
+import mt.runtime.exceptions.MTReturnSignal;
 
 import mt.generated.MiniTalkLexer;
 import mt.generated.MiniTalkParser;
@@ -53,6 +55,11 @@ public final class MTInterpreter {
 
         try {
             return program.eval(context, globalScope);
+        }
+        catch (MTReturnSignal signal) {
+            throw new MTException(
+                "^ hors d'un bloc : le retour "
+                + "anticipe ne s'ecrit que dans un bloc");
         }
         catch (MTException e) {
             throw e;

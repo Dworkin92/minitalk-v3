@@ -3,6 +3,7 @@ package mt.runtime;
 import java.util.List;
 
 import mt.runtime.exceptions.MTException;
+import mt.runtime.exceptions.MTReturnSignal;
 
 /**
  * Bloc MiniTalk : une fermeture.
@@ -73,7 +74,15 @@ public final class MTBlock
             scope.define(parameters[i], arguments[i]);
         }
 
-        return body.value(scope);
+        // (22/11) ^ : la sortie du bloc s'arrete ICI.
+        // Jamais plus loin -- le ^ de miniTalk sort du
+        // bloc COURANT, il ne remonte pas la chaine.
+        try {
+            return body.value(scope);
+        }
+        catch (MTReturnSignal signal) {
+            return signal.value();
+        }
     }
 
     @Override
@@ -116,7 +125,12 @@ public final class MTBlock
      * le canal des methodes. Les locaux (| a b |) du
      * bloc sont definis par la Body, comme d'habitude.
      */
-    MTObject evaluateIn(MTScope scope) {
-        return body.value(scope);
+    public MTObject evaluateIn(MTScope scope) {
+        try {
+            return body.value(scope);
+        }
+        catch (MTReturnSignal signal) {
+            return signal.value();
+        }
     }
 }

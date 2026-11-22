@@ -28,6 +28,23 @@ public final class MTSymbolPrimitives {
             receiver.identityEquals(arguments[0]));
     }
 
+    /**
+     * (22/11) Forme SOURCE re-evaluable, avec le # :
+     * #alpha asString. "alpha", mais #alpha printString
+     * -> '#alpha'. Doctrine : asString rend le contenu
+     * nu, printString rend la forme qui se re-parse
+     * (precedent : l'affichage re-evaluable des
+     * dictionnaires, 08/11).
+     */
+    @Primitive("printString")
+    public static MTObject printString(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        return context(receiver).newString(
+            receiver.toString());
+    }
+
     @Primitive("asString")
     public static MTObject asString(
             MTObject receiver,

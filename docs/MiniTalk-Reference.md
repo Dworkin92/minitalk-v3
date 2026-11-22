@@ -186,8 +186,33 @@ temporaires, comme en Smalltalk-80), et `:`.
     var := expression
     var <- expression        (synonyme)
 
+L'affectation est une **instruction** dont le résultat est l'évaluation de l'expression affectée.
+
+La variable dans laquelle sera stocké ce résultat doit impérativement être déclarée avant son utilisation.
+Deux formes de déclaration possible :
+
+Soit un paramètre de bloc. Par exemple : 
+```smalltalk 
+[ :var ... |
+   ...
+   var <- expression.
+   ...].
+```
+soit une variable temporaire préalablement déclarée dans un bloc normal ou en en-tête du corps du programme.
+Par exemple :
+```smalltalk
+| var ... |
+...
+var <- expression.
+...
+```
+
+La seule exception à la déclaration de variables est la variable contenant une classe, car celle-ci est
+automatiquement créée par la méthode `#subclass:`.
+
 L'affectation est une **instruction**. La variable doit
 être déclarée (paramètre ou temporaire) ; sinon
+
 `Variable non déclarée`. L'affectation vaut l'expression
 affectée. Il n'existe pas encore de déclaration de
 variables au niveau du programme : seuls les blocs
@@ -223,6 +248,45 @@ Symétrique : réitéré tant que la condition n'est pas
 vérifiée (tant qu'elle est fausse), même sémantique
 strictement booléenne, même valeur de retour (nombre
 d'itérations).
+
+### 1.8 Le retour anticipé ^
+
+```smalltalk
+    ^ expression
+    ^ var := expression      (rend la valeur affectée)
+```
+
+Le `^` sort **du bloc courant** avec la valeur de
+l'expression. Ce qui suit n'est jamais évalué.
+
+Divergence assumée avec Smalltalk : le `^` de miniTalk
+s'arrête à la frontière du bloc qui l'écrit — il ne
+remonte PAS la chaîne des blocs englobants.
+
+```smalltalk
+    [ ^42. 99 ] value                        "42"
+
+    [ | v |
+      v := [ ^42. 99 ] value.
+      v := v + 20.
+      ^v.
+      999
+    ] value                                   "62"
+```
+
+Sans `^`, la valeur retournée par un bloc est lévaluation de sa dernière expression (§1.4).
+
+Deux refus, par construction :
+- `^^` : double caret interdit par la grammaire ;
+- `^` hors d'un bloc (niveau programme) : `^ hors d'un
+  bloc n'a pas de sens : le retour anticipé ne s'écrit
+  que dans un bloc`.
+
+Le `^` dans un bloc passé à une primitive (`do:`,
+`ifTrue:`, boucles...) rend sa valeur **au bloc** : la
+primitive poursuit son office (le bloc a une valeur,
+le monde continue).
+
 
 ## 2. Primitives par classe
 
@@ -469,6 +533,7 @@ Autres règles :
     , * size at: isEmpty
     = 
     reverse uppercase lowercase
+
     indexOf: contains:
     asString
 
@@ -587,6 +652,7 @@ s'y affichent sans guillemets (affichage minimal, à affiner).
  |---|---|
  | `=` / `==` | identité (les symboles sont uniques par nom dans un monde) |
  | `asString` | le nom, sans le `#` |
+ | `printString` | le nom, précédé du caractère `#` |
 
 #### Intervalles
 

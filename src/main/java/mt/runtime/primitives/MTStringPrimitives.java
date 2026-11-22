@@ -256,6 +256,163 @@ public final class MTStringPrimitives {
             string.javaValue().toLowerCase());
     }
 
+    /**
+     * (22/11) '  ab\u00A0' trim -> 'ab'. Coupe
+     * l'espace blanc UNICODE, y compris les
+     * INSECABLES (U+00A0...) : semantique Python
+     * str.strip -- le strip() de Java les laisse
+     * (isWhitespace les exclut par definition).
+     */
+    @Primitive("trim")
+    public static MTObject trim(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString string = (MTString) receiver;
+
+        return context(receiver).newString(
+            unicodeStrip(string.javaValue()));
+    }
+
+    /** L'espace blanc vrai : l'union des deux criteres Java */
+    private static boolean estBlanc(int codepoint) {
+        return Character.isWhitespace(codepoint)
+            || Character.isSpaceChar(codepoint);
+    }
+
+    /** Coupe a gauche puis a droite, par codepoints */
+    private static String unicodeStrip(String chars) {
+        int debut = 0;
+        int fin = chars.length();
+
+        while (debut < fin
+                && estBlanc(chars.codePointAt(debut))) {
+            debut += Character.charCount(
+                chars.codePointAt(debut));
+        }
+
+        while (fin > debut
+                && estBlanc(chars.codePointBefore(fin))) {
+            fin -= Character.charCount(
+                chars.codePointBefore(fin));
+        }
+
+        return chars.substring(debut, fin);
+    }
+
+    /**
+     * (22/11) Extraction : bornes INCLUSES, 1-based, en
+     * CODEPOINTS. Semantique TOLERANTE : toute borne
+     * hors de la chaine est RAMENEE dedans ; debut
+     * apres fin -> chaine vide. 'hello' copyFrom: 2
+     * to: 10 -> 'ello'. Aucune erreur de bornes.
+     */
+    @Primitive("copyFrom:to:")
+    public static MTObject copyFromTo(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        MTString self = (MTString) receiver;
+        String chars = self.javaValue();
+
+        int n = chars.codePointCount(0, chars.length());
+
+        int from =
+            asInteger(arguments[0], "copyFrom:to:").javaValue();
+        int to =
+            asInteger(arguments[1], "copyFrom:to:").javaValue();
+
+        int debut = Math.max(0, Math.min(from - 1, n));
+        int fin = Math.max(0, Math.min(to, n));
+
+        if (debut >= fin) {
+            return context(self).newString("");
+        }
+
+        int begin =
+            chars.offsetByCodePoints(0, debut);
+        int end =
+            chars.offsetByCodePoints(0, fin);
+
+        return context(self).newString(
+            chars.substring(begin, end));
+    }
+
+    /**
+     * (22/11) Remplacement LITTERAL, sans expression
+     * reguliere (divergence assumee avec Java
+     * replaceAll, assumee aussi pour Python replace).
+     * Toutes les occurrences, gauche a droite, sans
+     * chevauchement : 'aaaa' replaceAll: 'aa' with: 'X'
+     * -> 'XX' (le fragment remplace n'est pas re-ba le).
+     * Motif absent -> recepteur INCHANGE.
+     */
+    @Primitive("replaceAll:with:")
+    public static MTObject replaceAll(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        return replace(receiver, arguments,
+            true, "replaceAll:with:");
+    }
+
+    /**
+     * (22/11) Premiere occurrence seulement, le
+     * couple AWK sub/gsub :
+     * 'aaaa' replaceFirst: 'aa' with: 'X' -> 'Xaa'.
+     */
+    @Primitive("replaceFirst:with:")
+    public static MTObject replaceFirst(
+            MTObject receiver,
+            MTObject... arguments) {
+
+        return replace(receiver, arguments,
+            false, "replaceFirst:with:");
+    }
+
+    /**
+     * Le drapeau vit ICI, en prive -- pas dans le
+     * langage : deux contrats, deux selecteurs
+     * (doctrine at:ifAbsent:/at:ifAbsentPut:).
+     * Garde : motif vide refuse (rien a chercher,
+     * insertion universelle refusee).
+     */
+    private static MTObject replace(
+            MTObject receiver,
+            MTObject[] arguments,
+            boolean all,
+            String selector) {
+
+        MTString self = (MTString) receiver;
+        String chars = self.javaValue();
+
+        String sought = asString(
+            arguments[0], selector).javaValue();
+        String replacement = asString(
+            arguments[1], selector).javaValue();
+
+        if (sought.isEmpty()) {
+            throw new MTException(
+                "Chaine vide a remplacer (" + selector + ")");
+        }
+
+        String result;
+
+        if (all) {
+            // Litteral : replace de Java, pas replaceAll
+            result = chars.replace(sought, replacement);
+        }
+        else {
+            int i = chars.indexOf(sought);
+            result = i < 0
+                ? chars
+                : chars.substring(0, i) + replacement
+                    + chars.substring(i + sought.length());
+        }
+
+        return context(self).newString(result);
+    }
+
     @Primitive("asString")
     public static MTObject asString(
             MTObject receiver,

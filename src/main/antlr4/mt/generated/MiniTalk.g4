@@ -12,9 +12,12 @@ program
     ;
 
 statement
-    : IDENTIFIER ASSIGN expression
+    : (CARET)? IDENTIFIER ASSIGN expression
+    | CARET expression
     | expression
     ;
+
+
 
 //
 // Precedence Smalltalk :
@@ -162,7 +165,8 @@ dictionaryPair
 // depuis le 16/11 : les methodes binaires ne
 // pouvaient pas etre surchargees.
 symbolLiteral
-    : HASH IDENTIFIER (COLON IDENTIFIER)* COLON?
+    : HASH IDENTIFIER COLON (IDENTIFIER COLON)*
+    | HASH IDENTIFIER
     | HASH symboleOperateur+
     ;
 
@@ -238,6 +242,7 @@ QUALIFIED_ADD   : [a-zA-Z_][a-zA-Z0-9_]* '@' [+\-] ;
 QUALIFIED_MUL   : [a-zA-Z_][a-zA-Z0-9_]* '@' [*/%] ;
 QUALIFIED_OTHER : [a-zA-Z_][a-zA-Z0-9_]* '@' [=<>%~,&]+ ;
 
+CARET    : '^' ;
 ASSIGN   : '<-' | ':=' ;
 AT       : '@' ;
 POWER    : '**' ;
