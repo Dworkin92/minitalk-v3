@@ -763,7 +763,8 @@
   * `@` avec opérateurs suit les règles AOS, tout comme les opérateurs natifs.
   * correction de dysfonctionnements
 - extension de la définition des réels : notation scientifique (exemple : 1.233e-34)
-- ajout de méthodes au Dictionary : #at:ifAbent:, #at:ifAbsentPut:, #keysAndValuesDo:
+- ajout de méthodes au Dictionary : #at:ifAbsent:, #at:ifAbsentPut:, #keysAndValuesDo:
+- alias #println ajouté à #printLn.
 - mise à jour des documentation en conséquence, plus corrections de points en retard
 - 236 tests réussis
 
