@@ -530,12 +530,40 @@ Autres règles :
   `-2.9 asInteger = -2`.
 
 ### String
+
+### String
+
     , * size at: isEmpty
     = 
     reverse uppercase lowercase
 
+    trim
+    copyFrom:to: replaceAll:with: replaceFirst:with:
+
     indexOf: contains:
     asString
+
+`trim` : la chaîne sans les blancs de tête et de queue,
+quelle que soit leur nature, y compris l'espace insécable
+(U+00A0). Sémantique Python, pas Java.
+
+`copyFrom: unInteger to: unInteger` : la portion de la
+chaîne des positions `unInteger` à `unInteger`, bornes
+incluses, positions de 1 à la taille, en codepoints.
+Sémantique TOLÉRANTE : une borne hors de la chaîne est
+ramenée dedans (`to:` au-delà de la fin = fin de chaîne,
+`from:` avant 1 = début) ; si la borne de début dépasse
+la borne de fin, on obtient la chaîne vide. Pas d'erreur
+de bornes — divergence assumée avec `at:`, qui reste
+strict.
+
+`replaceAll: unMotif with: unRemplacement` /
+`replaceFirst: unMotif with: unRemplacement` : remplacement
+LITTÉRAL (pas d'expressions régulières — elles viendront
+par un sélecteur dédié), toutes les occurrences ou la
+première seulement, sans chevauchement ; motif absent :
+chaîne inchangée ; motif vide : `MTException`. Deux
+contrats, deux sélecteurs.
 
 `at:` rend un **Character** (29/10) — plus un codepoint
 brut. `times` : la répétition `*` (voir Character).
@@ -765,3 +793,12 @@ Une erreur de syntaxe remonte en `ParseCancellationException`
 - 19/11 : les méthodes natives en Java, fondement du
   langage sont toujours accessibles, même si elles ont
   été redéfinies en miniTalk !
+
+- 22/11 : `trim` sémantique Python (insécables coupés) ;
+  `copyFrom:to:` sémantique TOLÉRANTE (bornes ramenées
+  dans la chaîne, divergence assumée avec `at:`) ;
+  remplacements littéraux, régex par sélecteur dédié
+  plus tard ; `printString` sur Symbol (forme source,
+  avec le `#`) ; symbole littéral non glouton (un `:`
+  par mot jusqu'au dernier, comme en Smalltalk) ; le `^`
+  sort du bloc courant, `^^` refusé.
