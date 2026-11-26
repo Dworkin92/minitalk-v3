@@ -787,7 +787,9 @@
     si l'indice de départ (from:) est bien dans la chaine, mais que
     celui d'arrivée (to:) pointe au delà de la fin de la chaine, alors
     la sous-chaine retournée commence à from: et se termine à la fin de la chaine;
-    si on est hors bornes, une erreur est générée.
+    si on est hors bornes, une chaîne vide est générée.
+    Pas d'erreur de bornes — divergence assumée
+    avec #at:, qui reste strict.
 
   * replaceAll:with: / replaceFirst:with: :
     remplacement littéral (pas d'expressions
@@ -796,6 +798,10 @@
     motif absent : chaîne inchangée ; motif vide :
     erreur. Le drapeau all reste privé : deux
     contrats, deux sélecteurs.
+    
+    les expressions régulières ne sont pas perdues : elles
+    viendront par un sélecteur dédié à elles seules, pas en
+    surcharge de replaceAll:with:.
 
 - Traitement du '^' dans les blocs :
   * le ^ sort du bloc courant avec la valeur de
@@ -844,7 +850,7 @@
     C'est Incohérent pour les caractères hors BMP.
     Chantier futur : tout en codepoints, figé par test ?
 
-250 tests OK !
+251 tests OK !
 
 
 ## Prochain objectif
