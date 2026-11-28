@@ -287,6 +287,86 @@ Le `^` dans un bloc passé à une primitive (`do:`,
 primitive poursuit son office (le bloc a une valeur,
 le monde continue).
 
+#### illustration REPL pour ^
+
+    mt> [ ^ 42. 99 ] value
+    42
+    mt> | b | b := [ ^ 42. 99 ]. b value
+    42
+    mt> [ [ ^ 42. 99 ] value. 7 ] value
+    7
+    mt> ^ 42
+    ! ^ hors d'un bloc : le retour anticipe ne s'ecrit que dans un bloc
+
+Le `99` du premier essai n'est jamais évalué. La troisième
+ligne montre bien la divergence assumée avec smalltalk : le `^` du bloc
+intérieur s'arrête à la frontière du bloc intérieur ; le
+bloc extérieur évalue la suite et rend `7` — en Smalltalk,
+la méthode entière aurait été quittée. Le `^` hors d'un
+bloc est refusé proprement, et le REPL survit.
+
+### 1.9 Les pseudo-variables : self et super
+
+`self` et `super` sont des pseudo-variables : des
+noms réservés qui ne se déclarent pas, ne
+s'affectent pas (`self := 1` et `super := 1` sont
+refusés), et ne vivent que dans un corps de méthode.
+
+#### self
+
+Dans un corps de méthode, `self` est l'objet qui a
+reçu le message. Un message sans receveur explicite
+est envoyé à `self` :
+
+    Personne instMethods: {
+        #saluer => [ 'Bonjour, je suis ' , self nom ].
+        #ditBonjour => [ saluer , ' (dit)' ].
+    }.
+
+    p ditBonjour   "le ditBonjour interne va a self"
+
+`self` est aussi la valeur de retour implicite des
+messages qui rendent leur receveur, et la valeur
+rendue par `yourself`.
+
+#### super
+
+Soeur de `self`, receveuse de messages ordinaires :
+elle fait chercher le message **à partir de la
+superclasse de la classe définissante** — la classe
+où la méthode est écrite — jamais à partir de la
+classe du receveur.
+
+    Object subclass: #Personne.
+    Personne instMethods: {
+        #saluer => [ 'Bonjour, je suis ' , self nom ].
+    }.
+    Personne subclass: #Etudiant.
+    Etudiant instMethods: {
+        #saluer => [ super saluer , ' et je bavarde' ].
+    }.
+
+`Etudiant new saluer` rend le salut du parent,
+complété. Une méthode héritée garde le même
+comportement : le `super` d'une méthode écrite chez
+`Etudiant` part toujours de `Personne`, même reçue
+par une sous-classe d'`Etudiant` — pas de boucle
+possible.
+
+Règles :
+- utilisable dans toute méthode de la classe,
+  surchargeante ou pas, et dans les blocs
+  imbriqués ;
+- côté classe (`classMethods:`), même mécanique ;
+- grâce au double dépôt, `super` atteint aussi les
+  primitives du parent (`super printString` dans
+  une surcharge trouve le plancher Java) ;
+- refus propres : `super` à la racine (« pas de
+  superclasse »), hors méthode (« seulement dans
+  une méthode »), message inconnu ;
+- `@` et `super` ne se concurrencent pas : `@` est
+  la fenêtre exacte sur le plancher Java (loi du
+  décorateur), `super` la chaîne parentale.
 
 ## 2. Primitives par classe
 

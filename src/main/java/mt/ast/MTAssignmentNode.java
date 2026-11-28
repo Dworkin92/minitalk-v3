@@ -19,6 +19,16 @@ public record MTAssignmentNode(String name, MTNode value) implements MTNode {
 
         MTSymbol target = MTSymbol.intern(name);
 
+        // (28/11) Les pseudo-variables ne se
+        // reassignent pas : self et super sont des
+        // vues, pas des tiroirs.
+        if (name.equals("self")
+                || name.equals("super")) {
+            throw new MTException(
+                name
+                + " : pseudo-variable, affectation refusee");
+        }
+
         // ECHEC PRECOCE (18/11) : la cible est
         // verifiee AVANT l'evaluation du membre
         // droit -- une ligne refusee ne produit

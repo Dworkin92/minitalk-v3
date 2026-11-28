@@ -852,6 +852,19 @@
 
 251 tests OK !
 
+### 28/11/2026
+
+* super est né. Décision du 26/11 tenue : la
+  recherche part de la superclasse de la classe
+  définissante, jamais de la classe du receveur.
+  Une méthode héritée se comporte pareil partout.
+  La surcharge n'impacte jamais le parent, et
+  super rend la version du parent accessible à
+  toute méthode de la classe fille.
+  Découverte en cours de route : self := 1 était
+  possible ; refusé désormais, comme pour super.
+  262 tests OK !
+  
 
 ## Prochain objectif
 

@@ -86,6 +86,14 @@ public final class MTBlockMethod
             MTSymbol.intern("self"),
             receiver);
 
+        // (28/11) super : vue de dispatch pointee sur
+        // le PARENT de la classe definissante. Semee
+        // avec self, visible des blocs imbriques (la
+        // chaine est lexicale).
+        chain.define(
+            MTSymbol.intern("super"),
+            new MTSuper(receiver, owner, classSide));
+
         for (int i = 0; i < parameters.length; i++) {
             chain.define(parameters[i], arguments[i]);
         }

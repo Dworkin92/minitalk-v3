@@ -15,6 +15,13 @@ public record MTIdentifierNode(String name) implements MTNode {
             scope.lookup(MTSymbol.intern(name));
 
         if (value == null) {
+            if (name.equals("super")) {
+                // (28/11) refus propre, plus clair que
+                // l'absence de variable : super ne vit
+                // que dans un corps de methode.
+                throw new MTException(
+                    "super : seulement dans une methode");
+            }
             throw new MTException(
                 "Variable non definie : " + name);
         }

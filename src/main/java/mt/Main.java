@@ -99,7 +99,8 @@ public class Main {
                 // en continuation, c'est du contenu
                 if (source.length() == 0
                         && (line.equals("quit")
-                            || line.equals("exit"))) {
+                            || line.equals("exit")
+                            || line.equals("bye"))) {
                     System.out.println("Bye.");
                     return;
                 }
